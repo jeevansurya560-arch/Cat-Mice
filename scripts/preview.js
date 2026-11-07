@@ -9,6 +9,7 @@ import { config } from "../src/core/config.js";
 import { loadSnapshotFromFile } from "../src/snapshot/loader.js";
 import { computeAnalytics } from "../src/analytics/index.js";
 import { evaluateProgression } from "../src/progression/index.js";
+import { simulateWorld } from "../src/simulation/state.js";
 import { deriveSeed } from "../src/core/seed.js";
 
 async function preview() {
@@ -26,6 +27,7 @@ async function preview() {
     timestamp: snapshot.timestamp
   });
   const progression = evaluateProgression(analytics, seed, config.progression);
+  const timeline = simulateWorld(progression, { totalTicks: 60 });
 
   console.log("\n========================================");
   console.log("        OFFLINE PREVIEW SUMMARY        ");
@@ -57,6 +59,9 @@ async function preview() {
   );
   console.log("----------------------------------------");
   console.log(
+    `Simulation Loop:  ${timeline.totalTicks} ticks simulated (${timeline.events.length} interaction event(s))`
+  );
+  console.log(
     `Primary Language: ${analytics.languages.primaryLanguage?.name || "None"} (${(analytics.languages.primaryLanguage?.percentage * 100 || 0).toFixed(1)}%)`
   );
   console.log(
@@ -64,7 +69,7 @@ async function preview() {
   );
   console.log(`Deterministic Seed: 0x${progression.worldSeed.toString(16).toUpperCase()}`);
   console.log("========================================");
-  console.log("Preview status: Analytics & Progression Engines fully verified.\n");
+  console.log("Preview status: Simulation Engine & FSM Loop verified.\n");
 }
 
 preview().catch((err) => {

@@ -9,6 +9,7 @@ import { config } from "./core/config.js";
 import { loadSnapshotFromFile } from "./snapshot/loader.js";
 import { computeAnalytics } from "./analytics/index.js";
 import { evaluateProgression } from "./progression/index.js";
+import { simulateWorld } from "./simulation/state.js";
 import { deriveSeed } from "./core/seed.js";
 
 /**
@@ -120,13 +121,14 @@ export async function main(
     return 1;
   }
 
-  // 3. Compute Analytics & Progression
+  // 3. Compute Analytics, Progression, and Simulation Timeline
   const analytics = computeAnalytics(loadedSnapshot);
   const seed = deriveSeed({
     userId: loadedSnapshot.user.id,
     timestamp: loadedSnapshot.timestamp
   });
   const progression = evaluateProgression(analytics, seed, config.progression);
+  const timeline = simulateWorld(progression, { totalTicks: 60 });
 
   // 4. Print Foundation Banner
   let output = `========================================
@@ -155,7 +157,8 @@ Application: Initialized
 - Mouse: ${progression.mouse.unlocked ? `UNLOCKED (${progression.mouse.tier})` : "LOCKED"}
 - Consistency: ${(analytics.consistencyScore * 100).toFixed(1)}% | Streak: ${analytics.streaks.currentStreak}d (Max: ${analytics.streaks.longestStreak}d)
 - Milestones: ${progression.milestones.map((m) => m.name).join(", ") || "None"}
-- Primary Language: ${analytics.languages.primaryLanguage?.name || "None"} (${analytics.languages.primaryAccentColor})`;
+- Primary Language: ${analytics.languages.primaryLanguage?.name || "None"} (${analytics.languages.primaryAccentColor})
+- Simulation: ${timeline.totalTicks} frames generated (${timeline.events.length} interaction event(s))`;
   }
 
   io.stdout(output);
