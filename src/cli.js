@@ -12,7 +12,7 @@ import { evaluateProgression } from "./progression/index.js";
 import { simulateWorld } from "./simulation/state.js";
 import { renderTimeline } from "./rendering/index.js";
 import { exportArtifacts } from "./export/index.js";
-import { deriveSeed } from "./core/seed.js";
+import { deriveIdentitySeed, deriveSimulationSeed } from "./core/seed.js";
 import { fetchGitHubSnapshot } from "./github/index.js";
 
 /**
@@ -169,11 +169,19 @@ export async function main(
 
   // 3. Compute Analytics, Progression, Simulation, and Rasterize Frames
   const analytics = computeAnalytics(loadedSnapshot);
-  const seed = deriveSeed({
+  const identitySeed = deriveIdentitySeed({
+    userId: loadedSnapshot.user.id,
+    languages: loadedSnapshot.metrics.languages
+  });
+  const simulationSeed = deriveSimulationSeed({
     userId: loadedSnapshot.user.id,
     timestamp: loadedSnapshot.timestamp
   });
-  const progression = evaluateProgression(analytics, seed, config.progression);
+  const progression = evaluateProgression(
+    analytics,
+    { identitySeed, simulationSeed },
+    config.progression
+  );
   const timeline = simulateWorld(progression, { totalTicks: 60 });
   const rendered = renderTimeline(timeline, progression.theme, { fps: config.rendering.fps });
 

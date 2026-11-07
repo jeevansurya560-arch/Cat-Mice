@@ -129,14 +129,15 @@ flowchart TB
     end
 
     %% Ingestion Control
-    CLI -->|"Coordinates execution"| GH_INTEG
+    CLI -->|"Coordinates production run"| GH_INTEG
     CLI -->|"Coordinates offline runs"| SNAP_LAYER
     GH_API -->|"Raw Octokit Payloads"| GH_INTEG
-    GH_INTEG -->|"Saves raw snapshot JSON"| FS_STORAGE
+    GH_INTEG -->|"Returns raw snapshot data"| CLI
+    GH_INTEG -.->|"Optional: writes snapshot.json"| FS_STORAGE
 
-    %% Internal Pipeline Flow
-    FS_STORAGE -.->|"Loads saved snapshot.json"| SNAP_LAYER
-    GH_INTEG -->|"Passes in-memory snapshot"| SNAP_LAYER
+    %% Internal Pipeline Flow (Strict Boundary: CLI Orchestrates, Core is 100% Offline)
+    FS_STORAGE -.->|"Loads saved snapshot.json"| CLI
+    CLI -->|"Provides raw snapshot for validation"| SNAP_LAYER
 
     SNAP_LAYER -->|"Validated SnapshotDTO (Zod)"| ANALYTICS
     ANALYTICS -->|"AnalyticsMetricsDTO"| PROGRESSION
@@ -187,9 +188,9 @@ sequenceDiagram
 
     CLI->>Sim: simulateWorld(ProgressionStateDTO, simConfig)
     loop Every Simulation Tick (0 .. TotalTicks)
-        Sim->>Sim: Update Cat FSM (Sleep, Prowl, Chase, Nap)
-        Sim->>Sim: Update Mouse FSM (Hide, Forage, Dart, Inspect)
-        Sim->>Sim: Check spatial collisions & biome boundaries
+        Sim->>Sim: Update Cat FSM (Sleeping, Walking, Exploring, Eating Fish, Playing Wool, Grooming)
+        Sim->>Sim: Update Mouse FSM (Hiding, Exploring, Collecting Cheese, Sleeping, Observing Cat, Running)
+        Sim->>Sim: Resolve Interactions (Fish -> Fish Bones, Wool Batted, Cheese Collected, Mouse Hole)
         Sim->>Sim: Record frame scene graph
     end
     Sim-->>CLI: Return SimulationTimelineDTO
@@ -407,35 +408,43 @@ export const SnapshotSchema = z.object({
 });
 ```
 
-### 5.2 Deterministic Pseudo-Random Number Generation (PRNG)
+### 5.2 Deterministic Pseudo-Random Number Generation (PRNG) & Identity Separation
 
-To ensure that generated animations are deterministic across identical data, CAT-MICE prohibits `Math.random()`. The Progression and Simulation engines utilize a **Mulberry32** or **Linear Congruential Generator (LCG)** seeded by hashing the user's `id` and current calendar week:
+To ensure that generated animations are deterministic across identical data, CAT-MICE prohibits `Math.random()`. The system explicitly separates **Permanent Character Identity** from **Weekly Simulation Randomness**:
 
-$$\text{Seed} = \text{hash32}(\text{user.id} + \text{currentWeekIdentifier})$$
+1. **Permanent Character Identity Seed:**
+   $$\text{IdentitySeed} = \text{hash32}(\text{"identity:"} + \text{user.id} + \text{normalizedLanguages})$$
+   - Governs permanent cosmetic traits: cat coat variant (`tabby`, `calico`, `tuxedo`, `ginger`, `midnight`) and mouse variant (`field_mouse`, `dormouse`, `white_mouse`).
+   - Changing the week or activity cadence **never** unexpectedly alters character coat patterns or fundamental identity.
 
-This guarantees:
-
-1. Two runs on the same day for the same user yield identical animations.
-2. A subtle shift in behavior occurs naturally as new contributions are recorded or the week advances.
-3. Local offline previews with a fixed seed match production bit-for-bit.
+2. **Weekly Simulation Seed:**
+   $$\text{SimulationSeed} = \text{hash32}(\text{"sim:"} + \text{user.id} + \text{currentWeekIdentifier})$$
+   - Governs temporal behaviors: wander vectors, state transition timers, and prop interactions.
+   - Allows subtle weekly variation while preserving bit-for-bit reproducibility within the same week.
 
 ### 5.3 Finite State Machines (FSM) in World Simulation
 
-Characters move through discrete states governed by deterministic transition rules:
+Characters interact in a peaceful, charming domestic ecosystem governed by deterministic transition rules:
 
 ```
 [Cat States]:
-  SLEEPING  --> (Activity threshold reached) --> PROWLING
-  PROWLING  --> (Mouse detected in range)   --> STALKING
-  STALKING  --> (Distance < StrikeZone)     --> POUNCING
-  POUNCING  --> (Cooldown elapsed)          --> GROOMING
-  GROOMING  --> (Timer expired)             --> SLEEPING / PROWLING
+  SLEEPING     --> (Timer elapsed / wake up)         --> WALKING / EXPLORING
+  WALKING      --> (Fresh fish nearby)              --> EATING_FISH
+  WALKING      --> (Wool ball nearby)               --> PLAYING_WOOL
+  WALKING      --> (Timer elapsed)                  --> GROOMING / SLEEPING
+  EXPLORING    --> (Discovers fish or wool)         --> EATING_FISH / PLAYING_WOOL
+  EATING_FISH  --> (Fish consumed -> fish bones)    --> GROOMING
+  PLAYING_WOOL --> (Impulse imparted to wool ball)  --> WALKING / GROOMING
+  GROOMING     --> (Timer elapsed)                  --> SLEEPING / WALKING
 
 [Mouse States] (Unlocked only if Cat Stage >= ADULT):
-  HIDDEN    --> (Cat sleeping / distant)    --> FORAGING
-  FORAGING  --> (Cat pounces / approaches)  --> DARTING
-  DARTING   --> (Reached burrow boundary)   --> HIDDEN
-  INSPECT   --> (High consistency score)    --> TAUNTING
+  HIDING             --> (Timer elapsed / emerge)       --> EXPLORING / COLLECTING_CHEESE
+  EXPLORING          --> (Sees uncollected cheese)      --> COLLECTING_CHEESE
+  EXPLORING          --> (Cat moves close / calm)       --> OBSERVING_CAT / RUNNING
+  COLLECTING_CHEESE  --> (Picks up cheese wedge)        --> RUNNING / EXPLORING
+  OBSERVING_CAT      --> (Watches cat curiously)        --> EXPLORING / SLEEPING
+  RUNNING            --> (Reaches mouse hole)           --> HIDING
+  SLEEPING           --> (Cozy corner nap)              --> EXPLORING
 ```
 
 ---
@@ -503,12 +512,12 @@ node src/cli.js --mode=offline --snapshot=fixtures/high-streak.json --out=output
 
 ## 8. Scalability, Performance & Resource Budgets
 
-| Metric                     | Target Budget                           | Mitigation Strategy                                                                                                                                                       |
-| :------------------------- | :-------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **GitHub Actions Runtime** | **< 20 seconds** total execution        | Pure-JS memory pipeline; no compilation; lightweight simulation (60-120 ticks max).                                                                                       |
-| **Output GIF File Size**   | **< 800 KB** (Ideal: 350-500 KB)        | 64-color global palette quantization via `gifenc`; delta frame encoding (only changing pixels re-drawn); retro canvas resolution (120x60 upscaled to 240x120 or 480x240). |
-| **Memory Footprint**       | **< 128 MB RAM**                        | Reusable `Uint8ClampedArray` frame buffers; garbage collection friendly structures.                                                                                       |
-| **GitHub API Quota**       | **1 GraphQL query** or max 2 REST calls | Single GraphQL query retrieves lifetime contributions and repository languages simultaneously, consuming only 1 point of the 5,000/hr quota.                              |
+| Metric                     | Target Budget                           | Mitigation Strategy                                                                                                                                   |
+| :------------------------- | :-------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **GitHub Actions Runtime** | **< 20 seconds** total execution        | Pure-JS memory pipeline; no compilation; lightweight simulation (60-120 ticks max).                                                                   |
+| **Output GIF File Size**   | **< 800 KB** (Ideal: 100-350 KB)        | 64-color global palette quantization via `gifenc`; delta frame encoding; retro canvas resolution (240x120 at 10 FPS, scale 2x for static poster PNG). |
+| **Memory Footprint**       | **< 128 MB RAM**                        | Reusable `Uint8ClampedArray` frame buffers; garbage collection friendly structures.                                                                   |
+| **GitHub API Quota**       | **1 GraphQL query** or max 2 REST calls | Single GraphQL query retrieves lifetime contributions and repository languages simultaneously, consuming only 1 point of the 5,000/hr quota.          |
 
 ---
 

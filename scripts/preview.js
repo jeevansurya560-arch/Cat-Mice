@@ -12,7 +12,7 @@ import { evaluateProgression } from "../src/progression/index.js";
 import { simulateWorld } from "../src/simulation/state.js";
 import { renderTimeline } from "../src/rendering/index.js";
 import { exportArtifacts } from "../src/export/index.js";
-import { deriveSeed } from "../src/core/seed.js";
+import { deriveIdentitySeed, deriveSimulationSeed } from "../src/core/seed.js";
 
 async function preview() {
   console.log("CAT-MICE: Launching Offline Preview...");
@@ -24,11 +24,19 @@ async function preview() {
   const { data: snapshot } = await loadSnapshotFromFile(fixturePath);
 
   const analytics = computeAnalytics(snapshot);
-  const seed = deriveSeed({
+  const identitySeed = deriveIdentitySeed({
+    userId: snapshot.user.id,
+    languages: snapshot.metrics.languages
+  });
+  const simulationSeed = deriveSimulationSeed({
     userId: snapshot.user.id,
     timestamp: snapshot.timestamp
   });
-  const progression = evaluateProgression(analytics, seed, config.progression);
+  const progression = evaluateProgression(
+    analytics,
+    { identitySeed, simulationSeed },
+    config.progression
+  );
   const timeline = simulateWorld(progression, { totalTicks: 60 });
   const rendered = renderTimeline(timeline, progression.theme, { fps: config.rendering.fps });
   const exportSummary = await exportArtifacts(rendered, {
