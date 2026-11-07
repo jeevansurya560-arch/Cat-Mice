@@ -11,6 +11,7 @@ import { computeAnalytics } from "../src/analytics/index.js";
 import { evaluateProgression } from "../src/progression/index.js";
 import { simulateWorld } from "../src/simulation/state.js";
 import { renderTimeline } from "../src/rendering/index.js";
+import { exportArtifacts } from "../src/export/index.js";
 import { deriveSeed } from "../src/core/seed.js";
 
 async function preview() {
@@ -30,6 +31,10 @@ async function preview() {
   const progression = evaluateProgression(analytics, seed, config.progression);
   const timeline = simulateWorld(progression, { totalTicks: 60 });
   const rendered = renderTimeline(timeline, progression.theme, { fps: config.rendering.fps });
+  const exportSummary = await exportArtifacts(rendered, {
+    outputDir,
+    filenamePrefix: "preview"
+  });
 
   console.log("\n========================================");
   console.log("        OFFLINE PREVIEW SUMMARY        ");
@@ -65,6 +70,9 @@ async function preview() {
   );
   console.log(
     `Render Pipeline:  ${rendered.frameCount} RGBA frame buffers (${rendered.width}x${rendered.height} @ ${rendered.fps} fps)`
+  );
+  console.log(
+    `Export Artifacts: GIF: ${(exportSummary.gifSize / 1024).toFixed(1)} KB | PNG: ${(exportSummary.pngSize / 1024).toFixed(1)} KB`
   );
   console.log(
     `Primary Language: ${analytics.languages.primaryLanguage?.name || "None"} (${(analytics.languages.primaryLanguage?.percentage * 100 || 0).toFixed(1)}%)`

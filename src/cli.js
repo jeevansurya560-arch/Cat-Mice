@@ -11,6 +11,7 @@ import { computeAnalytics } from "./analytics/index.js";
 import { evaluateProgression } from "./progression/index.js";
 import { simulateWorld } from "./simulation/state.js";
 import { renderTimeline } from "./rendering/index.js";
+import { exportArtifacts } from "./export/index.js";
 import { deriveSeed } from "./core/seed.js";
 
 /**
@@ -23,6 +24,7 @@ export function parseArgs(args) {
   const options = {
     mode: "offline",
     snapshot: "fixtures/sample-snapshot.json",
+    out: null,
     details: false,
     help: false,
     version: false
@@ -37,6 +39,10 @@ export function parseArgs(args) {
       options.version = true;
     } else if (arg === "--details" || arg === "-d") {
       options.details = true;
+    } else if (arg.startsWith("--out=")) {
+      options.out = arg.split("=")[1];
+    } else if (arg === "--out" && i + 1 < args.length) {
+      options.out = args[++i];
     } else if (arg.startsWith("--mode=")) {
       options.mode = arg.split("=")[1];
     } else if (arg === "--mode" && i + 1 < args.length) {
@@ -132,6 +138,14 @@ export async function main(
   const timeline = simulateWorld(progression, { totalTicks: 60 });
   const rendered = renderTimeline(timeline, progression.theme, { fps: config.rendering.fps });
 
+  let exportSummary = null;
+  if (options.out) {
+    exportSummary = await exportArtifacts(rendered, {
+      outputDir: String(options.out),
+      filenamePrefix: "cat-mice"
+    });
+  }
+
   // 4. Print Foundation Banner
   let output = `========================================
                  CAT-MICE
@@ -162,6 +176,11 @@ Application: Initialized
 - Primary Language: ${analytics.languages.primaryLanguage?.name || "None"} (${analytics.languages.primaryAccentColor})
 - Simulation: ${timeline.totalTicks} frames generated (${timeline.events.length} interaction event(s))
 - Render: ${rendered.frameCount} RGBA frame buffers rasterized (${rendered.width}x${rendered.height} @ ${rendered.fps} fps)`;
+    if (exportSummary) {
+      output += `\n- Export: GIF (${(exportSummary.gifSize / 1024).toFixed(1)} KB) | PNG (${(exportSummary.pngSize / 1024).toFixed(1)} KB) -> ${options.out}`;
+    }
+  } else if (exportSummary) {
+    output += `\n\nArtifacts written to ${options.out}:\n  - GIF: ${exportSummary.gifPath} (${(exportSummary.gifSize / 1024).toFixed(1)} KB)\n  - PNG: ${exportSummary.pngPath} (${(exportSummary.pngSize / 1024).toFixed(1)} KB)`;
   }
 
   io.stdout(output);
