@@ -14,7 +14,7 @@ import { config } from "../core/config.js";
  * Evaluates full ecosystem progression state from analytics metrics and deterministic seed.
  *
  * @param {import("../analytics/index.js").computeAnalytics} analytics
- * @param {number} seed - Deterministic PRNG seed.
+ * @param {number | { identitySeed?: number, simulationSeed?: number }} seedInput - Deterministic PRNG seed(s).
  * @param {object} [progressionConfig=config.progression]
  * @returns {Readonly<{
  *   cat: ReturnType<typeof determineCatState>,
@@ -22,27 +22,40 @@ import { config } from "../core/config.js";
  *   growth: ReturnType<typeof calculateGrowth>,
  *   milestones: ReturnType<typeof detectMilestones>,
  *   worldSeed: number,
+ *   identitySeed: number,
  *   theme: typeof DEFAULT_THEME_PALETTE,
  *   evaluatedAt: string
  * }>}
  */
-export function evaluateProgression(analytics, seed, progressionConfig = config.progression) {
+export function evaluateProgression(analytics, seedInput, progressionConfig = config.progression) {
   if (!analytics) {
     throw new Error("Cannot evaluate progression: Analytics metrics are missing.");
   }
 
-  const safeSeed = seed >>> 0 || 1;
+  let identitySeed;
+  let worldSeed;
+
+  if (typeof seedInput === "object" && seedInput !== null) {
+    identitySeed = seedInput.identitySeed >>> 0 || seedInput.simulationSeed >>> 0 || 1;
+    worldSeed = seedInput.simulationSeed >>> 0 || seedInput.identitySeed >>> 0 || 1;
+  } else {
+    const safeSeed = seedInput >>> 0 || 1;
+    identitySeed = safeSeed;
+    worldSeed = safeSeed;
+  }
+
   const growth = calculateGrowth(
     analytics.totalContributions,
     progressionConfig.maxCatContributions
   );
 
-  const cat = determineCatState(growth, safeSeed);
+  // Permanent character identity derived from identitySeed
+  const cat = determineCatState(growth, identitySeed);
   const mouse = determineMouseState(
     growth,
     analytics.consistencyScore,
     progressionConfig,
-    safeSeed
+    identitySeed
   );
   const milestones = detectMilestones(analytics);
 
@@ -58,11 +71,12 @@ export function evaluateProgression(analytics, seed, progressionConfig = config.
   });
 
   return Object.freeze({
-    cat,
-    mouse,
-    growth,
-    milestones,
-    worldSeed: safeSeed,
+    cat: Object.freeze(cat),
+    mouse: Object.freeze(mouse),
+    growth: Object.freeze(growth),
+    milestones: Object.freeze(milestones),
+    worldSeed,
+    identitySeed,
     theme,
     evaluatedAt: new Date().toISOString()
   });
