@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "timestamp": "2026-11-07T12:00:00.000Z",
+  "user": {
+    "id": "MDQ6VXNlcjE0OTk5OTk5",
+    "login": "pixel-developer",
+    "createdAt": "2022-03-15T08:30:00.000Z"
+  },
+  "metrics": {
+    "totalContributions": 1842,
+    "calendarDays": [
+      { "date": "2026-11-01", "contributionCount": 4, "color": "#0e4429" },
+      { "date": "2026-11-02", "contributionCount": 12, "color": "#39d353" },
+      { "date": "2026-11-03", "contributionCount": 7, "color": "#26a641" },
+      { "date": "2026-11-04", "contributionCount": 0, "color": "#161b22" },
+      { "date": "2026-11-05", "contributionCount": 5, "color": "#0e4429" },
+      { "date": "2026-11-06", "contributionCount": 9, "color": "#26a641" },
+      { "date": "2026-11-07", "contributionCount": 15, "color": "#39d353" }
+    ],
+    "languages": [
+      { "name": "JavaScript", "bytes": 482910, "color": "#f1e05a" },
+      { "name": "TypeScript", "bytes": 312040, "color": "#3178c6" },
+      { "name": "Python", "bytes": 142800, "color": "#3572a5" },
+      { "name": "Rust", "bytes": 89400, "color": "#dea584" },
+      { "name": "HTML", "bytes": 34100, "color": "#e34c26" }
+    ]
+  }
+}

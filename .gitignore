@@ -1,0 +1,27 @@
+# Node.js dependencies
+node_modules/
+.pnpm-store/
+
+# Environment files and credentials
+.env
+.env.*
+!.env.example
+
+# Output and build artifacts
+output/
+dist/
+
+# Test and coverage artifacts
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
