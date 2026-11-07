@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "timestamp": "2026-11-07T12:00:00.000Z",
+  "user": {
+    "id": "MDQ6VXNlcjAwMDAwMDAw",
+    "login": "new-coder",
+    "createdAt": "2026-11-01T09:00:00.000Z"
+  },
+  "metrics": {
+    "totalContributions": 0,
+    "calendarDays": [
+      { "date": "2026-11-01", "contributionCount": 0, "color": "#161b22" },
+      { "date": "2026-11-02", "contributionCount": 0, "color": "#161b22" },
+      { "date": "2026-11-03", "contributionCount": 0, "color": "#161b22" },
+      { "date": "2026-11-04", "contributionCount": 0, "color": "#161b22" },
+      { "date": "2026-11-05", "contributionCount": 0, "color": "#161b22" },
+      { "date": "2026-11-06", "contributionCount": 0, "color": "#161b22" },
+      { "date": "2026-11-07", "contributionCount": 0, "color": "#161b22" }
+    ],
+    "languages": []
+  }
+}

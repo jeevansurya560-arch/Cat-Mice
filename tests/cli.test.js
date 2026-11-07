@@ -6,6 +6,7 @@ describe("CLI Foundation & Arguments", () => {
     const opts = parseArgs([]);
     expect(opts.mode).toBe("offline");
     expect(opts.snapshot).toBe("fixtures/sample-snapshot.json");
+    expect(opts.details).toBe(false);
     expect(opts.help).toBe(false);
   });
 
@@ -16,9 +17,10 @@ describe("CLI Foundation & Arguments", () => {
   });
 
   it("should handle separated flag syntax", () => {
-    const opts = parseArgs(["--mode", "offline", "--snapshot", "my-data.json"]);
+    const opts = parseArgs(["--mode", "offline", "--snapshot", "my-data.json", "--details"]);
     expect(opts.mode).toBe("offline");
     expect(opts.snapshot).toBe("my-data.json");
+    expect(opts.details).toBe(true);
   });
 
   it("should successfully execute offline initialization with sample fixture", async () => {
@@ -43,7 +45,23 @@ describe("CLI Foundation & Arguments", () => {
     expect(output).toContain("FOUNDATION READY");
   });
 
-  it("should reject non-offline mode in Phase 0", async () => {
+  it("should print progression details when --details flag is supplied", async () => {
+    const stdout = vi.fn();
+    const stderr = vi.fn();
+
+    const code = await main(
+      ["--mode=offline", "--snapshot=fixtures/sample-snapshot.json", "--details"],
+      { stdout, stderr }
+    );
+
+    expect(code).toBe(0);
+    const output = stdout.mock.calls[0][0];
+    expect(output).toContain("[Progression Summary]");
+    expect(output).toContain("Cat: ADULT");
+    expect(output).toContain("Mouse: UNLOCKED");
+  });
+
+  it("should reject non-offline mode in Phase 0/1", async () => {
     const stdout = vi.fn();
     const stderr = vi.fn();
 

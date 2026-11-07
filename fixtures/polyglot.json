@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "timestamp": "2026-11-07T14:30:00.000Z",
+  "user": {
+    "id": "MDQ6VXNlcjgwODgwODgw",
+    "login": "multilingual-dev",
+    "createdAt": "2021-08-19T10:15:00.000Z"
+  },
+  "metrics": {
+    "totalContributions": 2400,
+    "calendarDays": [
+      { "date": "2026-11-01", "contributionCount": 3, "color": "#0e4429" },
+      { "date": "2026-11-02", "contributionCount": 5, "color": "#0e4429" },
+      { "date": "2026-11-03", "contributionCount": 4, "color": "#0e4429" },
+      { "date": "2026-11-04", "contributionCount": 6, "color": "#26a641" },
+      { "date": "2026-11-05", "contributionCount": 8, "color": "#26a641" },
+      { "date": "2026-11-06", "contributionCount": 2, "color": "#0e4429" },
+      { "date": "2026-11-07", "contributionCount": 4, "color": "#0e4429" }
+    ],
+    "languages": [
+      { "name": "Go", "bytes": 350000, "color": "#00add8" },
+      { "name": "Python", "bytes": 280000, "color": "#3572a5" },
+      { "name": "TypeScript", "bytes": 210000, "color": "#3178c6" },
+      { "name": "Ruby", "bytes": 140000, "color": "#701516" },
+      { "name": "C++", "bytes": 95000, "color": "#f34b7d" },
+      { "name": "Elixir", "bytes": 62000, "color": "#6e4a7e" }
+    ]
+  }
+}

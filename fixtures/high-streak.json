@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "timestamp": "2026-11-07T18:00:00.000Z",
+  "user": {
+    "id": "MDQ6VXNlcjU1NTU1NTU1",
+    "login": "streak-master",
+    "createdAt": "2020-05-10T14:20:00.000Z"
+  },
+  "metrics": {
+    "totalContributions": 18500,
+    "calendarDays": [
+      { "date": "2026-10-24", "contributionCount": 14, "color": "#39d353" },
+      { "date": "2026-10-25", "contributionCount": 8, "color": "#26a641" },
+      { "date": "2026-10-26", "contributionCount": 12, "color": "#39d353" },
+      { "date": "2026-10-27", "contributionCount": 20, "color": "#39d353" },
+      { "date": "2026-10-28", "contributionCount": 16, "color": "#39d353" },
+      { "date": "2026-10-29", "contributionCount": 11, "color": "#26a641" },
+      { "date": "2026-10-30", "contributionCount": 9, "color": "#26a641" },
+      { "date": "2026-10-31", "contributionCount": 7, "color": "#26a641" },
+      { "date": "2026-11-01", "contributionCount": 15, "color": "#39d353" },
+      { "date": "2026-11-02", "contributionCount": 18, "color": "#39d353" },
+      { "date": "2026-11-03", "contributionCount": 22, "color": "#39d353" },
+      { "date": "2026-11-04", "contributionCount": 10, "color": "#26a641" },
+      { "date": "2026-11-05", "contributionCount": 14, "color": "#39d353" },
+      { "date": "2026-11-06", "contributionCount": 16, "color": "#39d353" },
+      { "date": "2026-11-07", "contributionCount": 25, "color": "#39d353" }
+    ],
+    "languages": [
+      { "name": "Rust", "bytes": 850000, "color": "#dea584" },
+      { "name": "TypeScript", "bytes": 420000, "color": "#3178c6" }
+    ]
+  }
+}

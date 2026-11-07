@@ -7,6 +7,9 @@
 import { resolve } from "node:path";
 import { config } from "./core/config.js";
 import { loadSnapshotFromFile } from "./snapshot/loader.js";
+import { computeAnalytics } from "./analytics/index.js";
+import { evaluateProgression } from "./progression/index.js";
+import { deriveSeed } from "./core/seed.js";
 
 /**
  * Parses command-line arguments into structured options.
@@ -18,6 +21,7 @@ export function parseArgs(args) {
   const options = {
     mode: "offline",
     snapshot: "fixtures/sample-snapshot.json",
+    details: false,
     help: false,
     version: false
   };
@@ -29,6 +33,8 @@ export function parseArgs(args) {
       options.help = true;
     } else if (arg === "--version" || arg === "-v") {
       options.version = true;
+    } else if (arg === "--details" || arg === "-d") {
+      options.details = true;
     } else if (arg.startsWith("--mode=")) {
       options.mode = arg.split("=")[1];
     } else if (arg === "--mode" && i + 1 < args.length) {
@@ -55,6 +61,7 @@ Usage:
 Options:
   --mode <mode>        Execution mode: offline (default) | production
   --snapshot <path>    Path to snapshot JSON (default: fixtures/sample-snapshot.json)
+  -d, --details        Print analytics and character progression details
   -h, --help           Show help
   -v, --version        Show version
 `);
@@ -86,7 +93,7 @@ export async function main(
   const executionMode = String(options.mode).toLowerCase();
 
   if (executionMode !== "offline") {
-    io.stderr(`Error: Mode "${options.mode}" is not supported in Phase 0. Use --mode=offline.`);
+    io.stderr(`Error: Mode "${options.mode}" is not supported in Phase 0/1. Use --mode=offline.`);
     return 1;
   }
 
@@ -113,8 +120,16 @@ export async function main(
     return 1;
   }
 
-  // 3. Print Phase 0 Foundation Banner
-  const banner = `========================================
+  // 3. Compute Analytics & Progression
+  const analytics = computeAnalytics(loadedSnapshot);
+  const seed = deriveSeed({
+    userId: loadedSnapshot.user.id,
+    timestamp: loadedSnapshot.timestamp
+  });
+  const progression = evaluateProgression(analytics, seed, config.progression);
+
+  // 4. Print Foundation Banner
+  let output = `========================================
                  CAT-MICE
 ========================================
 
@@ -132,7 +147,18 @@ Application: Initialized
        FOUNDATION READY
 ========================================`;
 
-  io.stdout(banner);
+  if (options.details) {
+    output += `\n
+[Progression Summary]
+- User: ${loadedSnapshot.user.login} (${analytics.totalContributions} contributions)
+- Cat: ${progression.cat.stage} (Lv. ${progression.cat.level}, ${progression.cat.variant}, ${progression.cat.demeanor})
+- Mouse: ${progression.mouse.unlocked ? `UNLOCKED (${progression.mouse.tier})` : "LOCKED"}
+- Consistency: ${(analytics.consistencyScore * 100).toFixed(1)}% | Streak: ${analytics.streaks.currentStreak}d (Max: ${analytics.streaks.longestStreak}d)
+- Milestones: ${progression.milestones.map((m) => m.name).join(", ") || "None"}
+- Primary Language: ${analytics.languages.primaryLanguage?.name || "None"} (${analytics.languages.primaryAccentColor})`;
+  }
+
+  io.stdout(output);
   return 0;
 }
 
