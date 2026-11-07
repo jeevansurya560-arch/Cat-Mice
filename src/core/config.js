@@ -14,9 +14,9 @@ export const config = {
   },
 
   rendering: {
-    width: 256,
-    height: 256,
-    fps: 12,
+    width: 240,
+    height: 120,
+    fps: 10,
     scale: 2
   },
 

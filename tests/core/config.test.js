@@ -12,9 +12,9 @@ describe("Core Configuration", () => {
   });
 
   it("should define valid rendering dimensions and fps", () => {
-    expect(config.rendering.width).toBe(256);
-    expect(config.rendering.height).toBe(256);
-    expect(config.rendering.fps).toBe(12);
+    expect(config.rendering.width).toBe(240);
+    expect(config.rendering.height).toBe(120);
+    expect(config.rendering.fps).toBe(10);
     expect(config.rendering.scale).toBe(2);
   });
 
