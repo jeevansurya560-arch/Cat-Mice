@@ -61,7 +61,19 @@ describe("CLI Foundation & Arguments", () => {
     expect(output).toContain("Mouse: UNLOCKED");
   });
 
-  it("should reject non-offline mode in Phase 0/1", async () => {
+  it("should reject unsupported execution modes", async () => {
+    const stdout = vi.fn();
+    const stderr = vi.fn();
+
+    const code = await main(["--mode=unsupported"], { stdout, stderr });
+
+    expect(code).toBe(1);
+    expect(stderr).toHaveBeenCalledWith(
+      expect.stringContaining('Mode "unsupported" is not supported')
+    );
+  });
+
+  it("should require a username in production mode", async () => {
     const stdout = vi.fn();
     const stderr = vi.fn();
 
@@ -69,7 +81,7 @@ describe("CLI Foundation & Arguments", () => {
 
     expect(code).toBe(1);
     expect(stderr).toHaveBeenCalledWith(
-      expect.stringContaining('Mode "production" is not supported in Phase 0')
+      expect.stringContaining("Production mode requires a GitHub username")
     );
   });
 

@@ -6,24 +6,27 @@
 
 import { resolve } from "node:path";
 import { config } from "./core/config.js";
-import { loadSnapshotFromFile } from "./snapshot/loader.js";
+import { loadSnapshotFromFile, loadSnapshotFromMemory } from "./snapshot/loader.js";
 import { computeAnalytics } from "./analytics/index.js";
 import { evaluateProgression } from "./progression/index.js";
 import { simulateWorld } from "./simulation/state.js";
 import { renderTimeline } from "./rendering/index.js";
 import { exportArtifacts } from "./export/index.js";
 import { deriveSeed } from "./core/seed.js";
+import { fetchGitHubSnapshot } from "./github/index.js";
 
 /**
  * Parses command-line arguments into structured options.
  *
  * @param {string[]} args
- * @returns {Record<string, string | boolean>}
+ * @returns {Record<string, string | boolean | null>}
  */
 export function parseArgs(args) {
   const options = {
     mode: "offline",
     snapshot: "fixtures/sample-snapshot.json",
+    user: null,
+    token: null,
     out: null,
     details: false,
     help: false,
@@ -43,6 +46,14 @@ export function parseArgs(args) {
       options.out = arg.split("=")[1];
     } else if (arg === "--out" && i + 1 < args.length) {
       options.out = args[++i];
+    } else if (arg.startsWith("--user=")) {
+      options.user = arg.split("=")[1];
+    } else if (arg === "--user" && i + 1 < args.length) {
+      options.user = args[++i];
+    } else if (arg.startsWith("--token=")) {
+      options.token = arg.split("=")[1];
+    } else if (arg === "--token" && i + 1 < args.length) {
+      options.token = args[++i];
     } else if (arg.startsWith("--mode=")) {
       options.mode = arg.split("=")[1];
     } else if (arg === "--mode" && i + 1 < args.length) {
@@ -69,6 +80,9 @@ Usage:
 Options:
   --mode <mode>        Execution mode: offline (default) | production
   --snapshot <path>    Path to snapshot JSON (default: fixtures/sample-snapshot.json)
+  --user <login>       GitHub username (required for production mode)
+  --token <token>      GitHub token (optional, reads GITHUB_TOKEN by default)
+  --out <dir>          Output directory for generated GIF and PNG (default: output or dist)
   -d, --details        Print analytics and character progression details
   -h, --help           Show help
   -v, --version        Show version
@@ -100,8 +114,10 @@ export async function main(
 
   const executionMode = String(options.mode).toLowerCase();
 
-  if (executionMode !== "offline") {
-    io.stderr(`Error: Mode "${options.mode}" is not supported in Phase 0/1. Use --mode=offline.`);
+  if (executionMode !== "offline" && executionMode !== "production") {
+    io.stderr(
+      `Error: Mode "${options.mode}" is not supported. Use --mode=offline or --mode=production.`
+    );
     return 1;
   }
 
@@ -112,15 +128,38 @@ export async function main(
   }
 
   // 2. Load and validate snapshot
-  const snapshotPath = resolve(process.cwd(), String(options.snapshot));
   let loadedSnapshot;
+  const targetUser = options.user || process.env.GITHUB_USERNAME;
 
-  try {
-    const result = await loadSnapshotFromFile(snapshotPath);
-    loadedSnapshot = result.data;
-  } catch (err) {
-    io.stderr(`Snapshot Loading Error: ${err.message}`);
-    return 1;
+  if (executionMode === "production") {
+    if (!targetUser) {
+      io.stderr(
+        "Error: Production mode requires a GitHub username via --user or GITHUB_USERNAME environment variable."
+      );
+      return 1;
+    }
+
+    try {
+      const rawGitHubData = await fetchGitHubSnapshot({
+        username: targetUser,
+        token: options.token || process.env.GITHUB_TOKEN
+      });
+      const result = loadSnapshotFromMemory(rawGitHubData, "github-api");
+      loadedSnapshot = result.data;
+    } catch (err) {
+      io.stderr(`GitHub API Ingestion Error: ${err.message}`);
+      return 1;
+    }
+  } else {
+    // Offline mode
+    const snapshotPath = resolve(process.cwd(), String(options.snapshot));
+    try {
+      const result = await loadSnapshotFromFile(snapshotPath);
+      loadedSnapshot = result.data;
+    } catch (err) {
+      io.stderr(`Snapshot Loading Error: ${err.message}`);
+      return 1;
+    }
   }
 
   if (!loadedSnapshot) {
@@ -138,15 +177,19 @@ export async function main(
   const timeline = simulateWorld(progression, { totalTicks: 60 });
   const rendered = renderTimeline(timeline, progression.theme, { fps: config.rendering.fps });
 
+  // 4. Export artifacts if target directory requested
+  const outputDir = options.out || (executionMode === "production" ? "dist" : null);
   let exportSummary = null;
-  if (options.out) {
+
+  if (outputDir) {
     exportSummary = await exportArtifacts(rendered, {
-      outputDir: String(options.out),
+      outputDir,
       filenamePrefix: "cat-mice"
     });
   }
 
-  // 4. Print Foundation Banner
+  // 5. Print Output Banner
+  const modeLabel = executionMode === "production" ? `Production (${targetUser})` : "Offline";
   let output = `========================================
                  CAT-MICE
 ========================================
@@ -155,7 +198,7 @@ Version: ${config.application.version}
 Runtime: Node.js 22
 Language: JavaScript ES Modules
 
-Execution Mode: Offline
+Execution Mode: ${modeLabel}
 
 Configuration: Loaded
 Snapshot: Validated
@@ -177,10 +220,10 @@ Application: Initialized
 - Simulation: ${timeline.totalTicks} frames generated (${timeline.events.length} interaction event(s))
 - Render: ${rendered.frameCount} RGBA frame buffers rasterized (${rendered.width}x${rendered.height} @ ${rendered.fps} fps)`;
     if (exportSummary) {
-      output += `\n- Export: GIF (${(exportSummary.gifSize / 1024).toFixed(1)} KB) | PNG (${(exportSummary.pngSize / 1024).toFixed(1)} KB) -> ${options.out}`;
+      output += `\n- Export: GIF (${(exportSummary.gifSize / 1024).toFixed(1)} KB) | PNG (${(exportSummary.pngSize / 1024).toFixed(1)} KB) -> ${outputDir}`;
     }
   } else if (exportSummary) {
-    output += `\n\nArtifacts written to ${options.out}:\n  - GIF: ${exportSummary.gifPath} (${(exportSummary.gifSize / 1024).toFixed(1)} KB)\n  - PNG: ${exportSummary.pngPath} (${(exportSummary.pngSize / 1024).toFixed(1)} KB)`;
+    output += `\n\nArtifacts written to ${outputDir}:\n  - GIF: ${exportSummary.gifPath} (${(exportSummary.gifSize / 1024).toFixed(1)} KB)\n  - PNG: ${exportSummary.pngPath} (${(exportSummary.pngSize / 1024).toFixed(1)} KB)`;
   }
 
   io.stdout(output);
