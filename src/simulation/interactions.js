@@ -1,6 +1,6 @@
 /**
  * @file Cat and mouse spatial interactions module.
- * Evaluates contact dynamics, evasion rolls, and toy interactions.
+ * Evaluates peaceful ecosystem interactions: fish consumption, wool play, cheese collection, and burrow transit.
  */
 
 import { distance, clampToBounds } from "./behavior.js";
@@ -12,7 +12,7 @@ import { MOUSE_ACTIONS } from "./mouse.js";
  *
  * @param {object} cat - Cat entity state.
  * @param {object} mouse - Mouse entity state.
- * @param {object} props - Environmental props (burrow, yarnBall).
+ * @param {object} props - Environmental props (fish, woolBall, cheese, mouseHole).
  * @param {{ width: number, height: number }} bounds
  * @param {import("../utils/random.js").createRng} rng
  * @returns {{ cat: object, mouse: object, props: object, event: string | null }}
@@ -23,55 +23,81 @@ export function resolveInteractions(cat, mouse, props, bounds, rng) {
   let updatedProps = { ...props };
   let event = null;
 
-  // 1. Pounce Strike Resolution
-  if (updatedCat.action === CAT_ACTIONS.POUNCING && updatedMouse.unlocked && updatedMouse.visible) {
-    const dist = distance(updatedCat, updatedMouse);
-    const strikeRadius = 22 * updatedCat.scale;
-
-    if (dist <= strikeRadius) {
-      // Mouse evasion check based on progression agility tier
-      const evaded = rng.next() < updatedMouse.evasionChance;
-
-      if (evaded) {
-        event = "POUNCE_EVADED";
-        // Mouse escapes into darting mode with burst speed
-        updatedMouse.action = MOUSE_ACTIONS.DARTING;
-        // Cat misses and transitions to grooming recovery
-        updatedCat.action = CAT_ACTIONS.GROOMING;
-        updatedCat.timer = rng.nextInt(15, 25);
-        updatedCat.vx = 0;
-        updatedCat.vy = 0;
-      } else {
-        event = "NEAR_MISS";
-        // Close call: mouse scrambles back to burrow
-        updatedMouse.action = MOUSE_ACTIONS.DARTING;
-        updatedCat.action = CAT_ACTIONS.GROOMING;
-        updatedCat.timer = rng.nextInt(12, 20);
-      }
+  // 1. Cat eats fish (leaving fish bones)
+  if (
+    updatedCat.action === CAT_ACTIONS.EATING_FISH &&
+    updatedProps.fish &&
+    !updatedProps.fish.consumed
+  ) {
+    const distToFish = distance(updatedCat, updatedProps.fish);
+    if (distToFish <= 22 * updatedCat.scale) {
+      updatedProps.fish = {
+        ...updatedProps.fish,
+        consumed: true,
+        bones: true
+      };
+      event = "FISH_CONSUMED";
     }
   }
 
-  // 2. Kitten Yarn Ball Play
-  if (updatedCat.stage === "KITTEN" && updatedProps.yarnBall?.active) {
-    const distToYarn = distance(updatedCat, updatedProps.yarnBall);
-    if (distToYarn < 20) {
-      event = "YARN_BATTED";
-      // Impart random impulse to yarn ball
+  // 2. Cat plays with wool ball
+  if (updatedCat.action === CAT_ACTIONS.PLAYING_WOOL && updatedProps.woolBall) {
+    const distToWool = distance(updatedCat, updatedProps.woolBall);
+    if (distToWool <= 24 * updatedCat.scale) {
+      event = "WOOL_BATTED";
       const impulseAngle = rng.next() * Math.PI * 2;
-      const impulseSpeed = rng.nextInt(15, 30);
-      const nextYarnPos = clampToBounds(
-        {
-          x: updatedProps.yarnBall.x + Math.cos(impulseAngle) * impulseSpeed,
-          y: updatedProps.yarnBall.y + Math.sin(impulseAngle) * impulseSpeed
-        },
-        bounds,
-        14
-      );
-      updatedProps.yarnBall = {
-        ...updatedProps.yarnBall,
-        x: Number(nextYarnPos.x.toFixed(1)),
-        y: Number(nextYarnPos.y.toFixed(1))
+      const impulseSpeed = rng.nextInt(6, 14);
+      updatedProps.woolBall = {
+        ...updatedProps.woolBall,
+        vx: Number((Math.cos(impulseAngle) * impulseSpeed).toFixed(1)),
+        vy: Number((Math.sin(impulseAngle) * impulseSpeed).toFixed(1))
       };
+    }
+  }
+
+  // Update wool ball movement physics if active
+  if (
+    updatedProps.woolBall &&
+    (Math.abs(updatedProps.woolBall.vx || 0) > 0.1 || Math.abs(updatedProps.woolBall.vy || 0) > 0.1)
+  ) {
+    const nextX = updatedProps.woolBall.x + (updatedProps.woolBall.vx || 0);
+    const nextY = updatedProps.woolBall.y + (updatedProps.woolBall.vy || 0);
+    const clamped = clampToBounds({ x: nextX, y: nextY }, bounds, 12);
+
+    updatedProps.woolBall = {
+      ...updatedProps.woolBall,
+      x: Number(clamped.x.toFixed(1)),
+      y: Number(clamped.y.toFixed(1)),
+      vx: Number(((updatedProps.woolBall.vx || 0) * 0.78).toFixed(1)),
+      vy: Number(((updatedProps.woolBall.vy || 0) * 0.78).toFixed(1))
+    };
+  }
+
+  // 3. Mouse collects cheese
+  if (
+    updatedMouse.unlocked &&
+    updatedMouse.visible &&
+    updatedProps.cheese &&
+    !updatedProps.cheese.collected &&
+    (updatedMouse.action === MOUSE_ACTIONS.COLLECTING_CHEESE ||
+      updatedMouse.action === MOUSE_ACTIONS.EXPLORING)
+  ) {
+    const distToCheese = distance(updatedMouse, updatedProps.cheese);
+    if (distToCheese <= 14) {
+      updatedProps.cheese = {
+        ...updatedProps.cheese,
+        collected: true
+      };
+      event = "CHEESE_COLLECTED";
+    }
+  }
+
+  // 4. Mouse hole transit events
+  const hole = updatedProps.mouseHole || updatedProps.burrow;
+  if (hole && updatedMouse.unlocked) {
+    const distToHole = distance(updatedMouse, hole);
+    if (updatedMouse.action === MOUSE_ACTIONS.HIDING && distToHole < 16 && !event) {
+      event = "MOUSE_IN_HOLE";
     }
   }
 

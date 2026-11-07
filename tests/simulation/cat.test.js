@@ -4,7 +4,7 @@ import { CAT_STAGES } from "../../src/core/constants.js";
 import { createRng } from "../../src/utils/random.js";
 
 describe("Simulation: Cat Entity & State Machine", () => {
-  const bounds = { width: 256, height: 256 };
+  const bounds = { width: 240, height: 120 };
 
   it("should initialize kitten in sleeping state", () => {
     const rng = createRng(42);
@@ -17,20 +17,20 @@ describe("Simulation: Cat Entity & State Machine", () => {
     expect(cat.y).toBeGreaterThan(0);
   });
 
-  it("should initialize adult in prowling state", () => {
+  it("should initialize adult in walking state", () => {
     const rng = createRng(42);
     const cat = initCat({ stage: CAT_STAGES.ADULT, scale: 2, variant: "calico" }, bounds, rng);
 
     expect(cat.stage).toBe(CAT_STAGES.ADULT);
-    expect(cat.action).toBe(CAT_ACTIONS.PROWLING);
+    expect(cat.action).toBe(CAT_ACTIONS.WALKING);
     expect(cat.scale).toBe(2);
   });
 
-  it("should transition from sleeping to prowling when timer expires", () => {
+  it("should transition from sleeping to walking or exploring when timer expires", () => {
     const rng = createRng(100);
     let cat = {
       x: 100,
-      y: 100,
+      y: 60,
       vx: 0,
       vy: 0,
       action: CAT_ACTIONS.SLEEPING,
@@ -42,17 +42,17 @@ describe("Simulation: Cat Entity & State Machine", () => {
     };
 
     cat = updateCat(cat, null, {}, bounds, rng);
-    expect(cat.action).toBe(CAT_ACTIONS.PROWLING);
+    expect([CAT_ACTIONS.WALKING, CAT_ACTIONS.EXPLORING]).toContain(cat.action);
   });
 
-  it("should transition adult cat to stalking when mouse is in detection range", () => {
+  it("should transition cat to eating fish when fresh fish is near", () => {
     const rng = createRng(100);
     let cat = {
-      x: 100,
-      y: 100,
+      x: 40,
+      y: 90,
       vx: 1,
       vy: 0,
-      action: CAT_ACTIONS.PROWLING,
+      action: CAT_ACTIONS.WALKING,
       facing: "right",
       stage: CAT_STAGES.ADULT,
       scale: 2,
@@ -60,14 +60,34 @@ describe("Simulation: Cat Entity & State Machine", () => {
       timer: 20
     };
 
-    const mouse = {
-      unlocked: true,
-      visible: true,
-      x: 140, // 40 units away (within 110px range)
-      y: 100
+    const props = {
+      fish: { x: 42, y: 92, consumed: false, bones: false }
     };
 
-    cat = updateCat(cat, mouse, {}, bounds, rng);
-    expect(cat.action).toBe(CAT_ACTIONS.STALKING);
+    cat = updateCat(cat, null, props, bounds, rng);
+    expect(cat.action).toBe(CAT_ACTIONS.EATING_FISH);
+  });
+
+  it("should transition cat to playing wool when wool ball is near", () => {
+    const rng = createRng(42);
+    let cat = {
+      x: 80,
+      y: 70,
+      vx: 1,
+      vy: 0,
+      action: CAT_ACTIONS.WALKING,
+      facing: "right",
+      stage: CAT_STAGES.ADULT,
+      scale: 2,
+      variant: "tabby",
+      timer: 20
+    };
+
+    const props = {
+      woolBall: { x: 85, y: 72, active: true }
+    };
+
+    cat = updateCat(cat, null, props, bounds, rng);
+    expect(cat.action).toBe(CAT_ACTIONS.PLAYING_WOOL);
   });
 });

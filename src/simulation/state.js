@@ -19,24 +19,49 @@ import { config } from "../core/config.js";
  */
 export function createWorld(progressionState, simConfig = {}, rng) {
   const bounds = {
-    width: simConfig.width || config.rendering.width || 256,
-    height: simConfig.height || config.rendering.height || 256
+    width: simConfig.width || config.rendering.width || 240,
+    height: simConfig.height || config.rendering.height || 120
+  };
+
+  const holePos = {
+    x: bounds.width - 24,
+    y: bounds.height - 24,
+    radius: 12
+  };
+
+  const woolBallPos = {
+    x: Math.round(bounds.width * 0.42),
+    y: Math.round(bounds.height * 0.62),
+    vx: 0,
+    vy: 0,
+    active: true
   };
 
   const props = {
-    burrow: {
-      x: bounds.width - 32,
-      y: bounds.height - 32,
-      radius: 14
+    mouseHole: holePos,
+    burrow: holePos, // Alias for backward compatibility
+    woolBall: woolBallPos,
+    yarnBall: woolBallPos, // Alias for backward compatibility
+    fish: {
+      x: 42,
+      y: bounds.height - 26,
+      consumed: false,
+      bones: false
     },
-    yarnBall: {
-      x: Math.round(bounds.width * 0.35),
-      y: Math.round(bounds.height * 0.6),
-      active: progressionState.cat.stage === "KITTEN"
+    cheese: {
+      x: Math.round(bounds.width * 0.72),
+      y: Math.round(bounds.height * 0.52),
+      collected: false
+    },
+    rug: {
+      x: Math.round(bounds.width * 0.2),
+      y: Math.round(bounds.height * 0.28),
+      w: 86,
+      h: 48
     },
     foodBowl: {
-      x: 32,
-      y: bounds.height - 32
+      x: 24,
+      y: bounds.height - 24
     }
   };
 

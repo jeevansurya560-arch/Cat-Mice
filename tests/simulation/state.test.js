@@ -17,18 +17,22 @@ describe("Simulation: World State & Timeline Simulation", () => {
 
   it("should create world with props and initial entity positions", () => {
     const rng = createRng(mockProgression.worldSeed);
-    const world = createWorld(mockProgression, { width: 256, height: 256 }, rng);
+    const world = createWorld(mockProgression, {}, rng);
 
     expect(world.tick).toBe(0);
-    expect(world.bounds.width).toBe(256);
-    expect(world.props.burrow).toBeDefined();
+    expect(world.bounds.width).toBe(240);
+    expect(world.bounds.height).toBe(120);
+    expect(world.props.fish).toBeDefined();
+    expect(world.props.cheese).toBeDefined();
+    expect(world.props.woolBall).toBeDefined();
+    expect(world.props.mouseHole).toBeDefined();
     expect(world.cat.x).toBeGreaterThan(0);
-    expect(world.mouse.action).toBe("HIDDEN");
+    expect(world.mouse.action).toBe("HIDING");
   });
 
   it("should advance ticks sequentially on stepWorld", () => {
     const rng = createRng(mockProgression.worldSeed);
-    let world = createWorld(mockProgression, { width: 256, height: 256 }, rng);
+    let world = createWorld(mockProgression, {}, rng);
 
     world = stepWorld(world, rng);
     expect(world.tick).toBe(1);
