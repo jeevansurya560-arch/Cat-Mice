@@ -15,7 +15,7 @@ import { MOUSE_SPRITES, getMouseColorMap } from "./mouse.js";
  * @param {import("../simulation/state.js").simulateWorld} timeline
  * @param {object} [themeSpec] - Palette theme from progression.
  * @param {object} [options]
- * @param {number} [options.fps=12]
+ * @param {number} [options.fps=10]
  * @returns {Readonly<{
  *   width: number,
  *   height: number,
@@ -30,7 +30,7 @@ export function renderTimeline(timeline, themeSpec = {}, options = {}) {
   }
 
   const { width, height } = timeline.bounds;
-  const fps = options.fps || 12;
+  const fps = options.fps || 10;
   const palette = createPalette(themeSpec);
 
   const renderedFrames = [];
@@ -38,10 +38,10 @@ export function renderTimeline(timeline, themeSpec = {}, options = {}) {
   for (const frame of timeline.frames) {
     const buffer = createBuffer(width, height);
 
-    // 1. Render room backdrop and floorboards
+    // 1. Render room backdrop, skirting board, and floorboards
     renderBackdrop(buffer, width, height, palette);
 
-    // 2. Render environmental props (burrow, bowls, toys)
+    // 2. Render environmental props (mouse hole, fish, fish bones, cheese, wool ball, bowls)
     renderProps(buffer, width, height, frame.props, palette);
 
     // 3. Render Cat Sprite
@@ -50,14 +50,20 @@ export function renderTimeline(timeline, themeSpec = {}, options = {}) {
     let catSprite = CAT_SPRITES.SLEEPING;
 
     switch (cat.action) {
+      case "WALKING":
       case "PROWLING":
-        catSprite = frame.tick % 2 === 0 ? CAT_SPRITES.PROWLING_0 : CAT_SPRITES.PROWLING_1;
+        catSprite = frame.tick % 2 === 0 ? CAT_SPRITES.WALKING_0 : CAT_SPRITES.WALKING_1;
         break;
+      case "EXPLORING":
       case "STALKING":
-        catSprite = CAT_SPRITES.STALKING;
+        catSprite = CAT_SPRITES.EXPLORING;
         break;
+      case "EATING_FISH":
+        catSprite = CAT_SPRITES.EATING_FISH;
+        break;
+      case "PLAYING_WOOL":
       case "POUNCING":
-        catSprite = CAT_SPRITES.POUNCING;
+        catSprite = CAT_SPRITES.PLAYING_WOOL;
         break;
       case "GROOMING":
         catSprite = CAT_SPRITES.GROOMING;
@@ -69,8 +75,8 @@ export function renderTimeline(timeline, themeSpec = {}, options = {}) {
     }
 
     // Center sprite origin
-    const catOffsetX = cat.x - 8 * cat.scale;
-    const catOffsetY = cat.y - 8 * cat.scale;
+    const catOffsetX = Math.round(cat.x - 8 * cat.scale);
+    const catOffsetY = Math.round(cat.y - 8 * cat.scale);
 
     blitSprite(buffer, width, height, catSprite, catColorMap, catOffsetX, catOffsetY, {
       scale: cat.scale,
@@ -81,23 +87,35 @@ export function renderTimeline(timeline, themeSpec = {}, options = {}) {
     const mouse = frame.mouse;
     if (mouse.unlocked && mouse.visible) {
       const mouseColorMap = getMouseColorMap(mouse.tier, mouse.variant, palette);
-      let mouseSprite = MOUSE_SPRITES.FORAGING;
+      let mouseSprite = MOUSE_SPRITES.EXPLORING;
 
       switch (mouse.action) {
+        case "RUNNING":
         case "DARTING":
-          mouseSprite = frame.tick % 2 === 0 ? MOUSE_SPRITES.DARTING_0 : MOUSE_SPRITES.DARTING_1;
+          mouseSprite = frame.tick % 2 === 0 ? MOUSE_SPRITES.RUNNING_0 : MOUSE_SPRITES.RUNNING_1;
           break;
+        case "COLLECTING_CHEESE":
+          mouseSprite = MOUSE_SPRITES.COLLECTING_CHEESE;
+          break;
+        case "OBSERVING_CAT":
         case "TAUNTING":
-          mouseSprite = MOUSE_SPRITES.TAUNTING;
+          mouseSprite = MOUSE_SPRITES.OBSERVING_CAT;
           break;
+        case "SLEEPING":
+          mouseSprite = MOUSE_SPRITES.SLEEPING;
+          break;
+        case "HIDING":
+          mouseSprite = MOUSE_SPRITES.HIDING;
+          break;
+        case "EXPLORING":
         case "FORAGING":
         default:
-          mouseSprite = MOUSE_SPRITES.FORAGING;
+          mouseSprite = MOUSE_SPRITES.EXPLORING;
           break;
       }
 
-      const mouseOffsetX = mouse.x - 5;
-      const mouseOffsetY = mouse.y - 4;
+      const mouseOffsetX = Math.round(mouse.x - 5);
+      const mouseOffsetY = Math.round(mouse.y - 4);
 
       blitSprite(buffer, width, height, mouseSprite, mouseColorMap, mouseOffsetX, mouseOffsetY, {
         scale: 1,

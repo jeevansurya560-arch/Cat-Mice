@@ -1,6 +1,6 @@
 /**
  * @file Cat pixel-art sprite matrices and variant color resolution.
- * Provides compact 16x16 pixel sprites for all cat behaviors and coat variants.
+ * Provides cohesive 16x16 pixel sprites for all cat behaviors and coat variants.
  */
 
 /*
@@ -36,8 +36,7 @@ export const CAT_SPRITES = {
   ],
 
   // Walking cycle frame 0
-  PROWLING_0: [
-    "................",
+  WALKING_0: [
     "................",
     "....B....B......",
     "...BOB..BOB.....",
@@ -52,12 +51,12 @@ export const CAT_SPRITES = {
     "..BB......BB....",
     "................",
     "................",
+    "................",
     "................"
   ],
 
   // Walking cycle frame 1
-  PROWLING_1: [
-    "................",
+  WALKING_1: [
     "................",
     "....B....B......",
     "...BOB..BOB.....",
@@ -72,21 +71,42 @@ export const CAT_SPRITES = {
     "....BB....BB....",
     "................",
     "................",
+    "................",
     "................"
   ],
 
-  // Low crouch stalking
-  STALKING: [
+  // Exploring / curious sniffing
+  EXPLORING: [
     "................",
+    "................",
+    "....B...B.......",
+    "...BOB.BOB......",
+    "...BOPBBOPOB....",
+    "..BOEBOOEOBB....",
+    "..BOOBOOOBB.....",
+    "..BOOOOOOOOBB...",
+    ".BOOOOOOOOOOOBB.",
+    ".BOOWOOOOOWOOOB.",
+    "..BWWBB.BWWBB...",
+    "...BB....BB.....",
+    "................",
+    "................",
+    "................",
+    "................"
+  ],
+
+  // Eating fish happily
+  EATING_FISH: [
     "................",
     "................",
     "................",
     "................",
     "....B...B.......",
     "...BOB.BOB......",
-    "..BOEBOOEOBB....",
+    "..BOBBOOBB......",
+    "..BOPBOEOB.BB...",
+    "..BOOOOOOOBOB...",
     ".BOOOOOOOOOOOBB.",
-    "BBOOOOOOOOOOOOOB",
     ".BOOWOOOOOWOOOB.",
     "..BWWBB.BWWBB...",
     "...BB....BB.....",
@@ -95,27 +115,27 @@ export const CAT_SPRITES = {
     "................"
   ],
 
-  // Leaping pounce
-  POUNCING: [
+  // Playing with wool ball (batting paw)
+  PLAYING_WOOL: [
     "................",
-    "...B....B.......",
-    "..BOB..BOB......",
-    ".BOEBOOEOB......",
-    ".BOOOOOOOBB.....",
-    "..BOOOOOOOOOBB..",
-    "...BOOOOOOOOOOBB",
-    "...BWWBOOOOOOOOB",
-    "..BWWBB.BOOOOOOB",
-    "...BB....BWWBB..",
-    "..........BB....",
     "................",
+    "....B....B......",
+    "...BOB..BOB.....",
+    "...BOPBBOPOB....",
+    "...BOEBOOEOB.B..",
+    "...BOOBOOOBB.WB.",
+    "..BBOOOOOOOOBBB.",
+    ".BOOOOOOOOOOOB..",
+    ".BOOWOOOOOWOOOB.",
+    "..BWWBB...BWWBB.",
+    "..BB.......BB...",
     "................",
     "................",
     "................",
     "................"
   ],
 
-  // Sitting upright licking paw
+  // Sitting upright grooming paw
   GROOMING: [
     "................",
     "....B...B.......",
@@ -135,6 +155,12 @@ export const CAT_SPRITES = {
     "................"
   ]
 };
+
+// Aliases for compatibility
+CAT_SPRITES.PROWLING_0 = CAT_SPRITES.WALKING_0;
+CAT_SPRITES.PROWLING_1 = CAT_SPRITES.WALKING_1;
+CAT_SPRITES.STALKING = CAT_SPRITES.EXPLORING;
+CAT_SPRITES.POUNCING = CAT_SPRITES.PLAYING_WOOL;
 
 /**
  * Resolves color palette mapping for a cat coat variant.
@@ -169,9 +195,9 @@ export function getCatColorMap(variant, palette) {
       eye = palette.catEyeGold;
       break;
     case "midnight":
-      primary = palette.catMidnight;
-      secondary = [30, 30, 40, 255];
-      white = palette.catMidnight;
+      primary = palette.catMidnight || [36, 38, 48, 255];
+      secondary = [22, 24, 32, 255];
+      white = palette.catMidnight || [36, 38, 48, 255];
       eye = palette.catEyeGold;
       break;
     default: // tabby

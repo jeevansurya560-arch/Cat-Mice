@@ -31,7 +31,7 @@ export function hexToRgba(hex, alpha = 255) {
 }
 
 /**
- * Resolves full 16-color retro palette from theme spec.
+ * Resolves full cohesive retro palette from theme spec.
  *
  * @param {object} themeSpec - Theme containing primaryAccent and secondaryAccent.
  * @returns {Record<string, [number, number, number, number]>}
@@ -45,8 +45,8 @@ export function createPalette(themeSpec = {}) {
     background: [13, 17, 23, 255], // GitHub Dark canvas
     surface: [22, 27, 34, 255], // Surface cards
     surfaceBorder: [48, 54, 61, 255], // Borders
-    groundTileA: [28, 33, 40, 255], // Floor pattern A
-    groundTileB: [33, 38, 45, 255], // Floor pattern B
+    groundTileA: [24, 29, 36, 255], // Floor pattern A
+    groundTileB: [29, 35, 43, 255], // Floor pattern B
     primaryAccent: primaryRgba,
     secondaryAccent: secondaryRgba,
 
@@ -59,7 +59,7 @@ export function createPalette(themeSpec = {}) {
     catTuxedoWhite: [245, 245, 245, 255],
     catGingerDark: [195, 75, 20, 255],
     catGingerLight: [240, 150, 60, 255],
-    catMidnight: [18, 18, 24, 255],
+    catMidnight: [36, 38, 48, 255],
     catEyeGreen: [80, 215, 90, 255],
     catEyeGold: [245, 200, 40, 255],
     catNosePink: [240, 130, 160, 255],
@@ -70,11 +70,19 @@ export function createPalette(themeSpec = {}) {
     mouseEarPink: [235, 145, 165, 255],
     mouseNinjaDark: [45, 45, 55, 255],
 
-    // Environmental Props
+    // Environmental Props & Items
     burrowHole: [10, 12, 16, 255],
     yarnRed: [230, 60, 60, 255],
     yarnHighlight: [255, 110, 110, 255],
     foodBowlGrey: [120, 130, 140, 255],
-    foodMilkWhite: [240, 245, 255, 255]
+    foodMilkWhite: [240, 245, 255, 255],
+    cheeseYellow: [255, 205, 45, 255],
+    cheeseHole: [215, 160, 25, 255],
+    fishBlue: [100, 175, 235, 255],
+    fishSilver: [195, 215, 235, 255],
+    fishBonesWhite: [235, 238, 242, 255],
+    woodFloorA: [34, 40, 50, 255],
+    woodFloorB: [39, 46, 57, 255],
+    woodSeam: [22, 26, 33, 255]
   };
 }

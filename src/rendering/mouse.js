@@ -11,11 +11,12 @@
   m = belly / highlight fur
   P = ear pink
   T = tail
+  Y = cheese yellow
 */
 
 export const MOUSE_SPRITES = {
-  // Sniffing and foraging
-  FORAGING: [
+  // Curious exploring & sniffing
+  EXPLORING: [
     "..........",
     "...B.B....",
     "..BPMPM...",
@@ -26,8 +27,8 @@ export const MOUSE_SPRITES = {
     ".........T"
   ],
 
-  // Sprinting dart frame 0
-  DARTING_0: [
+  // Running scamper frame 0
+  RUNNING_0: [
     "..........",
     "....B.B...",
     "..BMPMB...",
@@ -38,8 +39,8 @@ export const MOUSE_SPRITES = {
     ".........."
   ],
 
-  // Sprinting dart frame 1
-  DARTING_1: [
+  // Running scamper frame 1
+  RUNNING_1: [
     "..........",
     "....B.B...",
     "..BMPMB...",
@@ -50,8 +51,8 @@ export const MOUSE_SPRITES = {
     ".........."
   ],
 
-  // Standing upright taunting
-  TAUNTING: [
+  // Upright observing the cat alertly
+  OBSERVING_CAT: [
     "....B.B...",
     "...BPMPM..",
     "...BMMMB..",
@@ -60,8 +61,50 @@ export const MOUSE_SPRITES = {
     "..BMMMMMT.",
     "...BB.BBT.",
     "........T."
+  ],
+
+  // Collecting & nibbling cheese
+  COLLECTING_CHEESE: [
+    "..........",
+    "...B.B....",
+    "..BPMPM...",
+    ".BMMMMMB..",
+    "BMMMYYMMB.",
+    ".BMMYYMMMT",
+    "..BB.BB..T",
+    ".........T"
+  ],
+
+  // Sleeping curled up bean
+  SLEEPING: [
+    "..........",
+    "..........",
+    "..........",
+    "....B.B...",
+    "...BPMPMB.",
+    "..BMMMMMMB",
+    "...BBBBBBT",
+    "........T."
+  ],
+
+  // Peeking from hole / hiding
+  HIDING: [
+    "..........",
+    "..........",
+    "..........",
+    "....B.B...",
+    "...BPMPM..",
+    "..BMMMMMB.",
+    "...BBBBB..",
+    ".........."
   ]
 };
+
+// Aliases for compatibility
+MOUSE_SPRITES.FORAGING = MOUSE_SPRITES.EXPLORING;
+MOUSE_SPRITES.DARTING_0 = MOUSE_SPRITES.RUNNING_0;
+MOUSE_SPRITES.DARTING_1 = MOUSE_SPRITES.RUNNING_1;
+MOUSE_SPRITES.TAUNTING = MOUSE_SPRITES.OBSERVING_CAT;
 
 /**
  * Resolves color palette mapping for mouse tier and variant.
@@ -94,6 +137,7 @@ export function getMouseColorMap(tier, variant, palette) {
     M: fur,
     m: highlight,
     P: pink,
-    T: [190, 140, 150, 255] // Tail pink-grey
+    T: [190, 140, 150, 255], // Tail pink-grey
+    Y: palette.cheeseYellow || [255, 205, 45, 255]
   };
 }
