@@ -9,7 +9,9 @@ node_modules/
 
 # Output and build artifacts
 output/
-dist/
+dist/*
+!dist/*.gif
+!dist/*.png
 
 # Test and coverage artifacts
 coverage/
