@@ -10,6 +10,7 @@ import { loadSnapshotFromFile } from "../src/snapshot/loader.js";
 import { computeAnalytics } from "../src/analytics/index.js";
 import { evaluateProgression } from "../src/progression/index.js";
 import { simulateWorld } from "../src/simulation/state.js";
+import { renderTimeline } from "../src/rendering/index.js";
 import { deriveSeed } from "../src/core/seed.js";
 
 async function preview() {
@@ -28,6 +29,7 @@ async function preview() {
   });
   const progression = evaluateProgression(analytics, seed, config.progression);
   const timeline = simulateWorld(progression, { totalTicks: 60 });
+  const rendered = renderTimeline(timeline, progression.theme, { fps: config.rendering.fps });
 
   console.log("\n========================================");
   console.log("        OFFLINE PREVIEW SUMMARY        ");
@@ -62,6 +64,9 @@ async function preview() {
     `Simulation Loop:  ${timeline.totalTicks} ticks simulated (${timeline.events.length} interaction event(s))`
   );
   console.log(
+    `Render Pipeline:  ${rendered.frameCount} RGBA frame buffers (${rendered.width}x${rendered.height} @ ${rendered.fps} fps)`
+  );
+  console.log(
     `Primary Language: ${analytics.languages.primaryLanguage?.name || "None"} (${(analytics.languages.primaryLanguage?.percentage * 100 || 0).toFixed(1)}%)`
   );
   console.log(
@@ -69,7 +74,7 @@ async function preview() {
   );
   console.log(`Deterministic Seed: 0x${progression.worldSeed.toString(16).toUpperCase()}`);
   console.log("========================================");
-  console.log("Preview status: Simulation Engine & FSM Loop verified.\n");
+  console.log("Preview status: Rendering Engine & Pixel Buffers verified.\n");
 }
 
 preview().catch((err) => {

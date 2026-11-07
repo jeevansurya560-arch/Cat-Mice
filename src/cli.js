@@ -10,6 +10,7 @@ import { loadSnapshotFromFile } from "./snapshot/loader.js";
 import { computeAnalytics } from "./analytics/index.js";
 import { evaluateProgression } from "./progression/index.js";
 import { simulateWorld } from "./simulation/state.js";
+import { renderTimeline } from "./rendering/index.js";
 import { deriveSeed } from "./core/seed.js";
 
 /**
@@ -121,7 +122,7 @@ export async function main(
     return 1;
   }
 
-  // 3. Compute Analytics, Progression, and Simulation Timeline
+  // 3. Compute Analytics, Progression, Simulation, and Rasterize Frames
   const analytics = computeAnalytics(loadedSnapshot);
   const seed = deriveSeed({
     userId: loadedSnapshot.user.id,
@@ -129,6 +130,7 @@ export async function main(
   });
   const progression = evaluateProgression(analytics, seed, config.progression);
   const timeline = simulateWorld(progression, { totalTicks: 60 });
+  const rendered = renderTimeline(timeline, progression.theme, { fps: config.rendering.fps });
 
   // 4. Print Foundation Banner
   let output = `========================================
@@ -158,7 +160,8 @@ Application: Initialized
 - Consistency: ${(analytics.consistencyScore * 100).toFixed(1)}% | Streak: ${analytics.streaks.currentStreak}d (Max: ${analytics.streaks.longestStreak}d)
 - Milestones: ${progression.milestones.map((m) => m.name).join(", ") || "None"}
 - Primary Language: ${analytics.languages.primaryLanguage?.name || "None"} (${analytics.languages.primaryAccentColor})
-- Simulation: ${timeline.totalTicks} frames generated (${timeline.events.length} interaction event(s))`;
+- Simulation: ${timeline.totalTicks} frames generated (${timeline.events.length} interaction event(s))
+- Render: ${rendered.frameCount} RGBA frame buffers rasterized (${rendered.width}x${rendered.height} @ ${rendered.fps} fps)`;
   }
 
   io.stdout(output);
