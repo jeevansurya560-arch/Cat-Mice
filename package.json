@@ -1,7 +1,7 @@
 {
-  "name": "cat-mice",
-  "version": "0.1.0",
-  "description": "Procedural pixel-art ecosystem driven by GitHub developer activity",
+  "name": "pokemon-evolution",
+  "version": "1.0.0",
+  "description": "Interactive GitHub contribution-powered Pokémon evolution companion in 2.5D modern anime aesthetic",
   "private": true,
   "type": "module",
   "engines": {

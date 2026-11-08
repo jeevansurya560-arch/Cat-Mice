@@ -1,119 +1,106 @@
-# CAT-MICE
+# GitHub Pokémon Evolution Companion
 
-> A procedural pixel-art ecosystem generator driven by your GitHub developer activity.
+> An interactive, contribution-powered Pokémon evolution companion in a modern 2.5D anime aesthetic.
 
-CAT-MICE transforms a developer's GitHub journey into a personalized virtual world. Your programming languages color their coats and garden, your contributions grow the cat, your streaks equip the consistency companion mouse, and weekly rhythms shape their peaceful habits. A nightly workflow puts the living top-down ecosystem directly on your GitHub profile README as an ultra-lightweight looping animated GIF and scalable resolution-independent SVG, the same tool runs from the command line, and full simulation runs offline with zero tokens or credentials.
-
+<!-- POKEMON-EVOLUTION:START -->
 <p align="center">
-  <img src="https://raw.githubusercontent.com/jeevansurya560-arch/Cat-Mice/main/dist/cat-mice.gif" alt="CAT-MICE Living Pixel-Art Ecosystem" width="560" />
+  <img src="./assets/generated/pokemon-evolution.gif" alt="Charizard — Pokémon Evolution Companion" width="480" />
 </p>
 
 <p align="center">
-  <a href="https://raw.githubusercontent.com/jeevansurya560-arch/Cat-Mice/main/dist/cat-mice.svg">
-    <img src="https://img.shields.io/badge/Static%20Vector%20Artwork-SVG%20CrispEdges-blueviolet?style=flat-square&logo=svg" alt="Scalable SVG Available" />
+  <strong>Current Form:</strong> Charizard (No. 0006) &nbsp;|&nbsp;
+  <strong>Lifetime Activity:</strong> 750 contributions &nbsp;|&nbsp;
+  <strong>Stage Colouring:</strong> 47.5%
+</p>
+<p align="center">
+  <em>250 / 500 contributions to evolve</em>
+</p>
+<!-- POKEMON-EVOLUTION:END -->
+
+<p align="center">
+  <a href="./assets/generated/pokemon-evolution.svg">
+    <img src="https://img.shields.io/badge/Vector%20Artwork-Scalable%20SVG-orange?style=flat-square&logo=svg" alt="Scalable SVG" />
   </a>
   <img src="https://img.shields.io/badge/Node.js-22%20LTS-brightgreen?style=flat-square&logo=node.js" alt="Node.js 22 LTS" />
-  <img src="https://img.shields.io/badge/Architecture-Modular%20Monolith-orange?style=flat-square" alt="Modular Monolith" />
-  <img src="https://img.shields.io/badge/Tests-106%20Passed-success?style=flat-square" alt="106 Tests Passed" />
+  <img src="https://img.shields.io/badge/Architecture-Modular%20Monolith-blue?style=flat-square" alt="Modular Monolith" />
+  <img src="https://img.shields.io/badge/Aesthetic-2.5D%20Anime-crimson?style=flat-square" alt="2.5D Anime Cel Shading" />
   <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="MIT License" />
 </p>
 
 ---
 
-## Progression & Language Variant Matrix
+## 5-Stage Evolution Progression System
 
-Inspired by `git-koi`, CAT-MICE characters evolve in size, accessories, demeanor, and animations based on your developer milestones. Below is the multi-stage progression across programming language color themes:
+Your lifetime GitHub contributions progressively color your companion. Reaching exact contribution milestones triggers evolution transitions through five distinct, iconic forms:
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/jeevansurya560-arch/Cat-Mice/main/dist/showcase.png" alt="CAT-MICE Evolution Matrix across Language Themes" width="800" />
+  <img src="./assets/social/evolution-showcase.png" alt="5-Stage Pokémon Evolution Showcase" width="900" />
 </p>
 
-### Progression Tiers
+| Stage | Pokémon              | Lifetime Contributions |      Target Requirement      | Visual Characteristics                                                                          |
+| :---: | :------------------- | :--------------------: | :--------------------------: | :---------------------------------------------------------------------------------------------- |
+| **1** | **Charmander**       |        0 – 199         |         200 commits          | Visibly small lizard companion, gentle anime eyes, tail flame burns brighter with activity.     |
+| **2** | **Charmeleon**       |       200 – 499        |         300 commits          | Ruby crimson red scales, prominent skull horn, razor claws, and agitated fiery intensity.       |
+| **3** | **Charizard**        |       500 – 999        |         500 commits          | Full majestic dragon form, broad wings with teal membranes, twin horns, and roaring tail flame. |
+| **4** | **Mega Charizard Y** |     1,000 – 1,499      |         500 commits          | Streamlined drought dragon, triple horn crest, jagged aerodynamic wings, and wrist winglets.    |
+| **5** | **Mega Charizard X** |         1,500+         | Repeatable Mastery (500/lvl) | Formidable obsidian slate armor, cyan-blue horns & belly plates, and blazing blue mouth flames. |
 
-| Stage / Tier                 | Developer Metric                       | Visual Evolution                                     | Key Animations & Behaviors                                 |
-| :--------------------------- | :------------------------------------- | :--------------------------------------------------- | :--------------------------------------------------------- |
-| **🐱 Kitten / 🐭 Newbie**    | 0 – 50 commits / 0 – 15 days           | Cozy sleeping loaf / Peeking from ground burrow      | Deep slumber, tiny paw stretches, burrow hideout           |
-| **🐱 Young / 🐭 Regular**    | 51 – 250 commits / 16 – 50 days        | Stepping forward / Curious burrow forager            | Scampering 4-directional walk cycles, exploring lawn       |
-| **🐱 Adult / 🐭 Consistent** | 251 – 1,000 commits / 51 – 150 days    | Signature coat & scarf / Golden cheese collector     | Ceramic fish dish dining, wool batting, cheese foraging    |
-| **🐱 Pro / 🐭 Dedicated**    | 1,001 – 2,500 commits / 151 – 300 days | Sleek coat & ball pounce / Coding on sleek laptop    | Ball rebound physics, typing on glowing GitHub laptop      |
-| **👑 Master / 👑 Streaker**  | 2,501+ commits / 301+ days             | Royal Golden Crown & Jewel / Aviator goggles & crown | Radiant celebration cheer, master demeanor, royal presence |
-
----
-
-## Top-Down 2D Garden World
-
-The camera is set to a strict **top-down / bird's-eye view (orthographic 2D 90° overhead game view)**:
-
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│ [Overhead Tree Canopy]                               [Lantern Post]    │
-│      (Pink Petals)                                    (Warm Glow)      │
-│                                                                        │
-│                      [Winding Cobblestone Pathway]                     │
-│                                                                        │
-│  [Crystal Pond]          [Octocat Medallion]            [Earthen Burrow]
-│  (Fish / Lily Pad)          (Center Stepping)           (Mouse Hideout)│
-│                                                                        │
-│       [Ceramic Dish]           [Red Wool Ball]       [Swiss Cheese]    │
-│                                                                        │
-└────────────────────────────────────────────────────────────────────────┘
-```
-
-- 🐟 **Ceramic Fish Dish & Bones:** A ceramic serving bowl rests beside the garden pond bank. When the cat enjoys its meal, clean fish skeleton bones remain.
-- 🧶 **Yarn Ball Rebound Physics:** The cat playfully pounces and bats the textured red wool ball across the lawn with realistic impulse momentum and curling thread.
-- 🧀 **Golden Swiss Cheese:** The companion mouse emerges from its burrow to forage golden cheese wedges and celebrate on the cobblestones.
-- 💻 **Companion Laptop:** The dedicated mouse sets up an ultra-thin slate laptop with a glowing white GitHub logo and codes alongside you.
-- 🕳️ **Top-Down Earthen Burrow:** A rounded ground burrow opening with smooth stone threshold where the mouse rests, peeks, and retreats when surprised.
-- 🏮 **Brass Garden Lantern:** A garden lantern post casting warm golden light over the courtyard.
-- 🌸 **Cherry Tree Canopies & Pond:** Overhead foliage canopies with scattered pink petals, and an oval tranquil pond with lily pads and swimming koi.
+> [!NOTE]
+> Lifetime contributions never reset upon evolution. Each new stage begins 100% monochrome, with contributions progressively filling its independent anatomical regions.
 
 ---
 
-## Standalone Character Vector SVGs
+## Mathematical Progressive Colouring Engine
 
-In addition to the ecosystem outputs, CAT-MICE generates 34 standalone, pixel-aligned vector SVGs (`viewBox="0 0 128 128"`, `shape-rendering="crispEdges"`, zero external scripts) located in [`assets/characters/`](assets/characters/):
+Rather than applying a crude global opacity filter, CAT-MICE implements an **area-weighted, anatomically sequenced, mathematically deterministic progressive colouring engine**.
 
-| Direction / Pose         | 🐱 The Cat (`assets/characters/cat/`)                            | 🐭 The Mouse (`assets/characters/mouse/`)                              |
-| :----------------------- | :--------------------------------------------------------------- | :--------------------------------------------------------------------- |
-| **Facing South (Down)**  | [`cat-idle-down.svg`](assets/characters/cat/cat-idle-down.svg)   | [`mouse-idle-down.svg`](assets/characters/mouse/mouse-idle-down.svg)   |
-| **Facing North (Up)**    | [`cat-idle-up.svg`](assets/characters/cat/cat-idle-up.svg)       | [`mouse-idle-up.svg`](assets/characters/mouse/mouse-idle-up.svg)       |
-| **Facing East (Right)**  | [`cat-idle-right.svg`](assets/characters/cat/cat-idle-right.svg) | [`mouse-idle-right.svg`](assets/characters/mouse/mouse-idle-right.svg) |
-| **Facing West (Left)**   | [`cat-idle-left.svg`](assets/characters/cat/cat-idle-left.svg)   | [`mouse-idle-left.svg`](assets/characters/mouse/mouse-idle-left.svg)   |
-| **4-Frame Walk Cycles**  | `assets/characters/cat/cat-walk/`                                | `assets/characters/mouse/mouse-walk/`                                  |
-| **Signature Activities** | `cat-eat`, `cat-groom`, `cat-play`, `cat-sleep`                  | `mouse-work`, `mouse-collect`, `mouse-cheer`, `mouse-sleep`            |
+```
+            Tail Flame (Priority 1) ───► Head & Horns (Priority 2)
+                       │                              │
+                       ▼                              ▼
+                 Torso & Belly (Priority 3) ───► Wings & Membranes (Priority 4)
+                                                       │
+                                                       ▼
+                                            Arms, Legs & Claws (Priority 5-7)
+```
+
+### Global Colouring Formula
+
+$$\text{Colouring Progress } (P) = 100 \times \sum_{i} \left( \text{weight}_i \times \text{completion}_i \right)$$
+
+- **Area Weights:** Every form is partitioned into discrete anatomical SVG geometry regions with measured weights summing to exactly $1.00$ ($100\%$).
+- **Smoothstep Transitions:** Partial region color propagation uses cubic Hermite interpolation:
+  $$S(t) = t^2 \times (3 - 2t) \quad \text{for } t \in [0, 1]$$
+- **Cel-Shading Reveal:** Base colors, ambient shadows, and specular highlights spread progressively through each region, culminating in full color before transitioning to the next anatomical region.
 
 ---
 
 ## Add to Your GitHub Profile README
 
-You have two easy ways to showcase your living Cat & Mouse ecosystem on your GitHub profile:
+### Option A: Direct Embed (Instant 10-Second Setup)
 
-### Option A: Direct Embed (Easiest & Fastest — Instant Setup)
-
-Since this repository (`jeevansurya560-arch/Cat-Mice`) runs an automated daily GitHub Action that fetches your latest contributions and renders a fresh animated GIF and SVG, you can embed it directly into your GitHub Profile README (`README.md` in your `username/username` repository):
+Add this snippet to your profile `README.md` (`USERNAME/USERNAME`):
 
 ```markdown
 <!-- Living Looping Animated GIF -->
 <p align="center">
-  <img src="https://raw.githubusercontent.com/jeevansurya560-arch/Cat-Mice/main/dist/cat-mice.gif" alt="CAT-MICE Living Ecosystem" width="560" />
+  <img src="https://raw.githubusercontent.com/jeevansurya560-arch/Cat-Mice/main/assets/generated/pokemon-evolution.gif" alt="Pokémon Evolution Companion" width="480" />
 </p>
 
-<!-- Or Crisp Resolution-Independent SVG -->
+<!-- Or Scalable Resolution-Independent SVG -->
 <p align="center">
-  <img src="https://raw.githubusercontent.com/jeevansurya560-arch/Cat-Mice/main/dist/cat-mice.svg" alt="CAT-MICE Vector Artwork" width="560" />
+  <img src="https://raw.githubusercontent.com/jeevansurya560-arch/Cat-Mice/main/assets/generated/pokemon-evolution.svg" alt="Pokémon Vector Artwork" width="480" />
 </p>
 ```
 
 ---
 
-### Option B: GitHub Action in Your Own Repository
+### Option B: Automatic GitHub Action in Your Own Repository
 
-To run the generation automatically inside your own repository, use the official **CAT-MICE Composite Action** (`uses: jeevansurya560-arch/Cat-Mice@main`).
-
-Create `.github/workflows/cat-mice.yml` in your profile repository:
+Create `.github/workflows/pokemon-evolution.yml` in your profile repository:
 
 ```yaml
-name: Generate CAT-MICE Ecosystem
+name: Generate Pokémon Evolution Companion
 
 on:
   schedule:
@@ -130,54 +117,38 @@ jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Generate CAT-MICE Ecosystem
-        uses: jeevansurya560-arch/Cat-Mice@main
+      - uses: actions/checkout@v4
+      - uses: jeevansurya560-arch/Cat-Mice@main
         with:
           user: ${{ github.repository_owner }}
-          theme: "auto" # or: javascript, python, rust, cpp, java
-          out: "dist"
-
-      - name: Commit and push changes
+          out: "assets/generated"
+          readme: "README.md"
+          social: "true"
+      - name: Push updates
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f dist/
-          if git diff --staged --quiet; then
-            echo "No changes to commit."
-          else
-            git commit -m "chore(ecosystem): update cat & mouse world [skip ci]"
-            git push
-          fi
+          git add -f assets/ README.md dist/
+          git diff --staged --quiet || (git commit -m "chore(pokemon): update evolution companion" && git push)
 ```
-
-> [!TIP]
-> Ensure **Settings $\to$ Actions $\to$ General $\to$ Workflow permissions** is set to **"Read and write permissions"** in your repository.
 
 ---
 
-### Programming Language Color Themes
+## LinkedIn Presentation Package
 
-Your primary programming language automatically determines the palette and coat of your Cat and environment borders:
+For showcasing your engineering work on LinkedIn, the engine automatically generates publication-ready assets:
 
-| Language       | Theme Keyword | Cat Variant & Coat Style                      | Accent Color |
-| :------------- | :------------ | :-------------------------------------------- | :----------- |
-| **JavaScript** | `javascript`  | Warm Gold & Honey Tabby with Octocat scarf    | `#f1e05a`    |
-| **Python**     | `python`      | Classic Sky Blue with Buttercup Yellow cheeks | `#3572A5`    |
-| **Rust**       | `rust`        | Deep Rust Orange with Copper stripes          | `#dea584`    |
-| **C++ / C**    | `cpp`         | Royal Blue with Ice Silver highlights         | `#f34b7d`    |
-| **Java**       | `java`        | Rich Coffee Brown & Ember markings            | `#b07219`    |
-| **Midnight**   | `midnight`    | Sleek Obsidian Black with glowing Golden eyes | `#9d4edd`    |
-
-To force a specific language theme regardless of repository metrics, pass `--theme=<keyword>` on the CLI or `theme: "<keyword>"` in your GitHub Action workflow.
+| Asset               | Path                                                                           | Specifications                                                    |
+| :------------------ | :----------------------------------------------------------------------------- | :---------------------------------------------------------------- |
+| **Social Preview**  | [`assets/social/linkedin-preview.png`](assets/social/linkedin-preview.png)     | 1200 × 627 px high-res presentation card with evolution timeline. |
+| **Evolution Board** | [`assets/social/evolution-showcase.png`](assets/social/evolution-showcase.png) | 1400 × 500 px side-by-side comparison of all 5 forms.             |
+| **Post Draft**      | [`assets/social/linkedin-post.md`](assets/social/linkedin-post.md)             | Ready-to-copy post draft with technical highlights and hashtags.  |
 
 ---
 
 ## Local Development & CLI
 
-Run the full ecosystem offline with zero network requests or GitHub tokens:
+Run the full companion offline with zero tokens or network requests:
 
 ```bash
 # Clone the repository
@@ -187,53 +158,28 @@ cd Cat-Mice
 # Install dependencies
 pnpm install
 
-# Build all production artifacts (GIF, SVG, PNG, showcase banner, character SVGs)
+# Build all production artifacts (SVG, GIF, and LinkedIn assets)
 pnpm build
 
-# Run offline preview
+# Preview all 5 evolution stages in the console
 pnpm preview
 
-# Run CLI with progression details
-node src/cli.js --mode=offline --snapshot=fixtures/sample-snapshot.json --details
+# Run CLI with arbitrary contribution milestones
+node src/cli.js --mode=offline --contributions=750 --details
+node src/cli.js --mode=offline --contributions=1250 --details
+node src/cli.js --mode=offline --contributions=1800 --social
 ```
 
-### Try Different Developer Archetypes & Themes
+### Run Automated Quality Assurance
 
 ```bash
-# Python Developer Theme (Sky blue & buttercup yellow coat)
-node src/cli.js --mode=offline --snapshot=fixtures/sample-snapshot.json --theme=python --details
-
-# Rust Developer Theme (Copper & rust orange coat)
-node src/cli.js --mode=offline --snapshot=fixtures/sample-snapshot.json --theme=rust --details
-
-# High streak developer (unlocked Ninja / Streaker mouse companion)
-node src/cli.js --mode=offline --snapshot=fixtures/high-streak.json --details
-
-# Polyglot developer (multi-language palette theme)
-node src/cli.js --mode=offline --snapshot=fixtures/polyglot.json --details
-
-# Brand new account (playful kitten nursery)
-node src/cli.js --mode=offline --snapshot=fixtures/zero-contributions.json --details
-```
-
----
-
-## Architecture & Verification
-
-- **Node.js 22 LTS & Pure ESM:** Zero transpilation overhead, native JavaScript modules throughout.
-- **Strict Architectural Boundary:** The GitHub API integration is strictly isolated. All simulation, progression, rendering, and export modules operate independently on deterministic snapshots.
-- **Deterministic Mulberry32 PRNG:** Bit-for-bit reproducible runs across local environments and CI runners.
-- **Dual Official MVP Outputs:** P0 Animated GIF (~240 KB, well within GitHub's 800 KB ceiling) and P0 Scalable SVG with pixel run-length compression.
-- **Comprehensive Quality Gates:** 106 unit, integration, and contract tests across 30 test suites.
-
-```bash
-# Run Vitest test suite
+# Run unit & mathematical regression test suite
 pnpm test
 
-# Run ESLint code inspection
+# Run ESLint inspection
 pnpm lint
 
-# Run Prettier code formatting check
+# Check code formatting
 pnpm format:check
 ```
 

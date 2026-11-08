@@ -1,92 +1,62 @@
 /**
  * @file Build and end-to-end pipeline verification script.
- * Validates dependencies, project structure, and produces distribution artifacts in dist/ and assets/.
+ * Validates dependencies, project structure, and produces distribution artifacts in dist/, assets/generated/, and assets/social/.
  */
 
-import { mkdir } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { config } from "../src/core/config.js";
-import { loadSnapshotFromFile } from "../src/snapshot/loader.js";
-import { computeAnalytics } from "../src/analytics/index.js";
-import { evaluateProgression } from "../src/progression/index.js";
-import { simulateWorld } from "../src/simulation/state.js";
-import { renderTimeline } from "../src/rendering/index.js";
-import { exportArtifacts } from "../src/export/index.js";
-import { deriveIdentitySeed, deriveSimulationSeed } from "../src/core/seed.js";
-import { generateShowcase } from "./generate-showcase.js";
-import { generateAllCharacterSvgs } from "./generate-character-svgs.js";
+import { evaluateEvolution } from "../src/engine/evolution.js";
+import { renderSvg, renderGif } from "../src/engine/renderer.js";
+import { generateLinkedInPackage } from "../src/social/linkedin.js";
+import { updateReadmeFile } from "../src/readme/updater.js";
 
 async function build() {
-  console.log("CAT-MICE: Verifying project build integrity...");
+  console.log("GitHub Pokémon Evolution Companion: Verifying build pipeline integrity...");
 
-  const outputDir = resolve(process.cwd(), "output");
   const distDir = resolve(process.cwd(), "dist");
   const assetsGenDir = resolve(process.cwd(), "assets/generated");
-  await mkdir(outputDir, { recursive: true });
+  const assetsSocialDir = resolve(process.cwd(), "assets/social");
+
   await mkdir(distDir, { recursive: true });
   await mkdir(assetsGenDir, { recursive: true });
+  await mkdir(assetsSocialDir, { recursive: true });
 
-  // 1. Verify configuration
-  if (!config.application.name) {
-    throw new Error("Build validation failed: Missing application name in config.");
-  }
-
-  // 2. Load and validate sample snapshot
-  const samplePath = resolve(process.cwd(), "fixtures/sample-snapshot.json");
-  const { data: snapshot } = await loadSnapshotFromFile(samplePath);
-
-  // 3. Execute End-to-End Pipeline
-  const analytics = computeAnalytics(snapshot);
-  const identitySeed = deriveIdentitySeed({
-    userId: snapshot.user.id,
-    languages: snapshot.metrics.languages
-  });
-  const simulationSeed = deriveSimulationSeed({
-    userId: snapshot.user.id,
-    timestamp: snapshot.timestamp
-  });
-  const progression = evaluateProgression(
-    analytics,
-    { identitySeed, simulationSeed },
-    config.progression
-  );
-  const timeline = simulateWorld(progression, { totalTicks: 60 });
-  const rendered = renderTimeline(timeline, progression.theme, { fps: config.rendering.fps });
-
-  // 4. Export Production Artifacts to dist/
-  const exportSummary = await exportArtifacts(rendered, {
-    outputDir: "dist",
-    filenamePrefix: "cat-mice",
-    frame: timeline.frames[0],
-    themeSpec: progression.theme
-  });
-
-  // Mirror P0 artifacts to assets/generated/
-  await exportArtifacts(rendered, {
-    outputDir: "assets/generated",
-    filenamePrefix: "cat-mice",
-    frame: timeline.frames[0],
-    themeSpec: progression.theme
-  });
-
-  // 5. Generate progression matrix showcase banner
-  generateShowcase("dist/showcase.png");
-
-  // 6. Generate standalone character SVGs
-  generateAllCharacterSvgs();
-
-  console.log(`✓ Configuration valid: ${config.application.name} v${config.application.version}`);
+  // 1. Evaluate Evolution at Baseline Demo Milestone (Charizard: 750 contributions, 50% stage progress)
+  const evolutionState = evaluateEvolution(750);
   console.log(
-    `✓ Pipeline verified: ${snapshot.user.login} (${analytics.totalContributions} contributions)`
+    `✓ Evolution state calculated: ${evolutionState.currentForm.name} (Progress: ${evolutionState.colouringProgress}%)`
   );
-  console.log(
-    `✓ Distribution artifacts built: GIF (${(exportSummary.gifSize / 1024).toFixed(1)} KB) | SVG (${((exportSummary.svgSize || 0) / 1024).toFixed(1)} KB)`
-  );
-  console.log("✓ Standalone character SVGs generated in assets/characters/");
-  console.log("✓ Build complete. Application is fully operational.");
+
+  // 2. Generate Scalable SVG
+  const svgContent = renderSvg(evolutionState);
+  await writeFile(resolve(assetsGenDir, "pokemon-evolution.svg"), svgContent, "utf-8");
+  await writeFile(resolve(distDir, "pokemon-evolution.svg"), svgContent, "utf-8");
+  console.log("✓ Scalable vector SVG generated");
+
+  // 3. Generate Animated GIF
+  const gifBuffer = await renderGif(evolutionState, { width: 360, height: 318, fps: 10 });
+  await writeFile(resolve(assetsGenDir, "pokemon-evolution.gif"), gifBuffer);
+  await writeFile(resolve(distDir, "pokemon-evolution.gif"), gifBuffer);
+  console.log(`✓ Animated looping GIF generated (${(gifBuffer.length / 1024).toFixed(1)} KB)`);
+
+  // 4. Generate Complete LinkedIn Social Presentation Package
+  const socialPackage = await generateLinkedInPackage(evolutionState, "assets/social", {
+    username: "developer",
+    repoUrl: "https://github.com/developer/pokemon-evolution"
+  });
+  console.log(`✓ LinkedIn preview generated: ${socialPackage.previewPath}`);
+  console.log(`✓ Evolution showcase generated: ${socialPackage.showcasePath}`);
+  console.log(`✓ LinkedIn post draft generated: ${socialPackage.postPath}`);
+
+  // 5. Update README.md with live managed markers
+  const readmePath = resolve(process.cwd(), "README.md");
+  await updateReadmeFile(readmePath, evolutionState, { assetMode: "relative" });
+  console.log("✓ README.md updated with managed markers");
+
+  console.log("\nBuild complete. Pokémon Evolution Companion MVP is fully operational!");
 }
 
 build().catch((err) => {
-  console.error("Build failed:", err.message);
+  console.error("Build failed:", err);
   process.exit(1);
 });

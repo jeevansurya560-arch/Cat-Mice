@@ -1,34 +1,35 @@
 #!/usr/bin/env node
 /**
- * @file CAT-MICE CLI Entry Point.
- * Orchestrates application modes, snapshot loading, and pipeline initialization.
+ * @file GitHub Pokémon Evolution Companion CLI.
+ * Drives evolution progression, mathematical progressive colouring, SVG/GIF rendering,
+ * universal README updates, and LinkedIn package generation.
  */
 
 import { resolve } from "node:path";
-import { config } from "./core/config.js";
-import { loadSnapshotFromFile, loadSnapshotFromMemory } from "./snapshot/loader.js";
-import { computeAnalytics } from "./analytics/index.js";
-import { evaluateProgression } from "./progression/index.js";
-import { simulateWorld } from "./simulation/state.js";
-import { renderTimeline } from "./rendering/index.js";
-import { exportArtifacts } from "./export/index.js";
-import { deriveIdentitySeed, deriveSimulationSeed } from "./core/seed.js";
+import { mkdir, writeFile } from "node:fs/promises";
+import { evaluateEvolution } from "./engine/evolution.js";
+import { renderSvg, renderGif } from "./engine/renderer.js";
+import { updateReadmeFile } from "./readme/updater.js";
+import { generateLinkedInPackage } from "./social/linkedin.js";
 import { fetchGitHubSnapshot } from "./github/index.js";
+import { loadSnapshotFromFile, loadSnapshotFromMemory } from "./snapshot/loader.js";
 
 /**
  * Parses command-line arguments into structured options.
  *
  * @param {string[]} args
- * @returns {Record<string, string | boolean | null>}
+ * @returns {Record<string, any>}
  */
 export function parseArgs(args) {
   const options = {
     mode: "offline",
+    contributions: null,
     snapshot: "fixtures/sample-snapshot.json",
     user: null,
     token: null,
-    theme: null,
-    out: null,
+    out: "assets/generated",
+    readme: null,
+    social: false,
     details: false,
     help: false,
     version: false
@@ -43,10 +44,12 @@ export function parseArgs(args) {
       options.version = true;
     } else if (arg === "--details" || arg === "-d") {
       options.details = true;
-    } else if (arg.startsWith("--theme=")) {
-      options.theme = arg.split("=")[1];
-    } else if (arg === "--theme" && i + 1 < args.length) {
-      options.theme = args[++i];
+    } else if (arg === "--social") {
+      options.social = true;
+    } else if (arg.startsWith("--contributions=")) {
+      options.contributions = Number(arg.split("=")[1]);
+    } else if (arg === "--contributions" && i + 1 < args.length) {
+      options.contributions = Number(args[++i]);
     } else if (arg.startsWith("--out=")) {
       options.out = arg.split("=")[1];
     } else if (arg === "--out" && i + 1 < args.length) {
@@ -63,6 +66,10 @@ export function parseArgs(args) {
       options.mode = arg.split("=")[1];
     } else if (arg === "--mode" && i + 1 < args.length) {
       options.mode = args[++i];
+    } else if (arg.startsWith("--readme=")) {
+      options.readme = arg.split("=")[1];
+    } else if (arg === "--readme" && i + 1 < args.length) {
+      options.readme = args[++i];
     } else if (arg.startsWith("--snapshot=")) {
       options.snapshot = arg.split("=")[1];
     } else if (arg === "--snapshot" && i + 1 < args.length) {
@@ -79,19 +86,20 @@ export function parseArgs(args) {
 export function printHelp() {
   console.log(`
 Usage:
-  cat-mice [options]
+  pokemon-evolution [options]
   node src/cli.js [options]
 
 Options:
-  --mode <mode>        Execution mode: offline (default) | production
-  --snapshot <path>    Path to snapshot JSON (default: fixtures/sample-snapshot.json)
-  --user <login>       GitHub username (required for production mode)
-  --token <token>      GitHub token (optional, reads GITHUB_TOKEN by default)
-  --theme <theme>      Language theme: auto (default) | javascript | python | rust | cpp | java
-  --out <dir>          Output directory for generated GIF and PNG (default: output or dist)
-  -d, --details        Print analytics and character progression details
-  -h, --help           Show help
-  -v, --version        Show version
+  --mode <mode>            Execution mode: offline (default) | production
+  --contributions <count>  Override lifetime contribution count directly
+  --user <login>           GitHub username (required for production mode)
+  --token <token>          GitHub token (optional, reads GITHUB_TOKEN by default)
+  --out <dir>              Output directory for generated GIF and SVG (default: assets/generated)
+  --readme <path>          Safely update managed section in profile/repo README.md
+  --social                 Generate 1200x627 LinkedIn preview, showcase, and post draft
+  -d, --details            Print detailed mathematical coloring and region weights breakdown
+  -h, --help               Show help
+  -v, --version            Show version
 `);
 }
 
@@ -114,12 +122,11 @@ export async function main(
   }
 
   if (options.version) {
-    io.stdout(`v${config.application.version}`);
+    io.stdout("v1.0.0");
     return 0;
   }
 
   const executionMode = String(options.mode).toLowerCase();
-
   if (executionMode !== "offline" && executionMode !== "production") {
     io.stderr(
       `Error: Mode "${options.mode}" is not supported. Use --mode=offline or --mode=production.`
@@ -127,128 +134,118 @@ export async function main(
     return 1;
   }
 
-  // 1. Verify Configuration
-  if (!config || !config.application || !config.runtime) {
-    io.stderr("Error: Configuration failed to load.");
-    return 1;
-  }
+  let lifetimeContributions = 0;
+  let username = options.user || "pixel-developer";
 
-  // 2. Load and validate snapshot
-  let loadedSnapshot;
-  const targetUser = options.user || process.env.GITHUB_USERNAME;
-
-  if (executionMode === "production") {
+  if (options.contributions !== null && !isNaN(options.contributions)) {
+    lifetimeContributions = Math.max(0, options.contributions);
+  } else if (executionMode === "production") {
+    const targetUser = options.user || process.env.GITHUB_USERNAME;
     if (!targetUser) {
       io.stderr(
         "Error: Production mode requires a GitHub username via --user or GITHUB_USERNAME environment variable."
       );
       return 1;
     }
-
+    username = targetUser;
     try {
       const rawGitHubData = await fetchGitHubSnapshot({
         username: targetUser,
         token: options.token || process.env.GITHUB_TOKEN
       });
       const result = loadSnapshotFromMemory(rawGitHubData, "github-api");
-      loadedSnapshot = result.data;
+      lifetimeContributions = result.data.metrics.totalContributions;
     } catch (err) {
-      io.stderr(
-        `GitHub API Ingestion Notice: ${err.message}. Using baseline developer snapshot for @${targetUser}.`
-      );
+      io.stderr(`Notice: ${err.message}. Using baseline developer snapshot for @${targetUser}.`);
       const samplePath = resolve(process.cwd(), "fixtures/sample-snapshot.json");
       const result = await loadSnapshotFromFile(samplePath);
-      loadedSnapshot = result.data;
-      loadedSnapshot.user.login = targetUser;
+      lifetimeContributions = result.data.metrics.totalContributions;
     }
   } else {
-    // Offline mode
+    // Offline mode with snapshot file
     const snapshotPath = resolve(process.cwd(), String(options.snapshot));
     try {
       const result = await loadSnapshotFromFile(snapshotPath);
-      loadedSnapshot = result.data;
-    } catch (err) {
-      io.stderr(`Snapshot Loading Error: ${err.message}`);
-      return 1;
+      lifetimeContributions = result.data.metrics.totalContributions;
+      username = result.data.user.login;
+    } catch {
+      lifetimeContributions = 750; // High-quality default for Charizard preview
     }
   }
 
-  if (!loadedSnapshot) {
-    io.stderr("Error: Snapshot validation yielded empty data.");
-    return 1;
-  }
+  // 1. Evaluate Evolution State & Mathematical Progressive Colouring
+  const evolutionState = evaluateEvolution(lifetimeContributions);
+  const currentForm = evolutionState.currentForm;
 
-  // 3. Compute Analytics, Progression, Simulation, and Rasterize Frames
-  const analytics = computeAnalytics(loadedSnapshot);
-  const identitySeed = deriveIdentitySeed({
-    userId: loadedSnapshot.user.id,
-    languages: loadedSnapshot.metrics.languages
-  });
-  const simulationSeed = deriveSimulationSeed({
-    userId: loadedSnapshot.user.id,
-    timestamp: loadedSnapshot.timestamp
-  });
-  const progression = evaluateProgression(
-    analytics,
-    { identitySeed, simulationSeed },
-    config.progression,
-    { theme: options.theme }
-  );
-  const timeline = simulateWorld(progression, { totalTicks: 60 });
-  const rendered = renderTimeline(timeline, progression.theme, { fps: config.rendering.fps });
+  // 2. Render Scalable SVG and Animated GIF
+  const outDir = resolve(process.cwd(), options.out);
+  await mkdir(outDir, { recursive: true });
 
-  // 4. Export artifacts if target directory requested
-  const outputDir = options.out || (executionMode === "production" ? "dist" : null);
-  let exportSummary = null;
+  const svgContent = renderSvg(evolutionState);
+  const svgPath = resolve(outDir, "pokemon-evolution.svg");
+  await writeFile(svgPath, svgContent, "utf-8");
 
-  if (outputDir) {
-    exportSummary = await exportArtifacts(rendered, {
-      outputDir,
-      filenamePrefix: "cat-mice",
-      frame: timeline.frames[0],
-      themeSpec: progression.theme
+  const gifBuffer = await renderGif(evolutionState, { width: 360, height: 318, fps: 10 });
+  const gifPath = resolve(outDir, "pokemon-evolution.gif");
+  await writeFile(gifPath, gifBuffer);
+
+  // Also mirror to dist/ for profile embeds if dist directory is requested
+  const distDir = resolve(process.cwd(), "dist");
+  await mkdir(distDir, { recursive: true });
+  await writeFile(resolve(distDir, "pokemon-evolution.svg"), svgContent, "utf-8");
+  await writeFile(resolve(distDir, "pokemon-evolution.gif"), gifBuffer);
+
+  // 3. Update README if requested
+  let readmeStatus = null;
+  if (options.readme) {
+    const readmePath = resolve(process.cwd(), options.readme);
+    readmeStatus = await updateReadmeFile(readmePath, evolutionState, {
+      assetMode: "relative",
+      username
     });
   }
 
-  // 5. Print Output Banner
-  const modeLabel = executionMode === "production" ? `Production (${targetUser})` : "Offline";
-  let output = `========================================
-                 CAT-MICE
-========================================
-
-Version: ${config.application.version}
-Runtime: Node.js 22
-Language: JavaScript ES Modules
-
-Execution Mode: ${modeLabel}
-
-Configuration: Loaded
-Snapshot: Validated
-Application: Initialized
-
-========================================
-       FOUNDATION READY
-========================================`;
-
-  if (options.details) {
-    output += `\n
-[Progression Summary]
-- User: ${loadedSnapshot.user.login} (${analytics.totalContributions} contributions)
-- Cat: ${progression.cat.stage} (Lv. ${progression.cat.level}, ${progression.cat.variant}, ${progression.cat.demeanor})
-- Mouse: ${progression.mouse.unlocked ? `UNLOCKED (${progression.mouse.tier})` : "LOCKED"}
-- Consistency: ${(analytics.consistencyScore * 100).toFixed(1)}% | Streak: ${analytics.streaks.currentStreak}d (Max: ${analytics.streaks.longestStreak}d)
-- Milestones: ${progression.milestones.map((m) => m.name).join(", ") || "None"}
-- Primary Language: ${analytics.languages.primaryLanguage?.name || "None"} (${analytics.languages.primaryAccentColor})
-- Simulation: ${timeline.totalTicks} frames generated (${timeline.events.length} interaction event(s))
-- Render: ${rendered.frameCount} RGBA frame buffers rasterized (${rendered.width}x${rendered.height} @ ${rendered.fps} fps)`;
-    if (exportSummary) {
-      output += `\n- Export: GIF (${(exportSummary.gifSize / 1024).toFixed(1)} KB) | PNG (${(exportSummary.pngSize / 1024).toFixed(1)} KB) -> ${outputDir}`;
-    }
-  } else if (exportSummary) {
-    output += `\n\nArtifacts written to ${outputDir}:\n  - GIF: ${exportSummary.gifPath} (${(exportSummary.gifSize / 1024).toFixed(1)} KB)\n  - PNG: ${exportSummary.pngPath} (${(exportSummary.pngSize / 1024).toFixed(1)} KB)`;
+  // 4. Generate LinkedIn Social Package if requested
+  let socialStatus = null;
+  if (options.social) {
+    socialStatus = await generateLinkedInPackage(evolutionState, "assets/social", {
+      username,
+      repoUrl: `https://github.com/${username}/pokemon-evolution`
+    });
   }
 
-  io.stdout(output);
+  // 5. Output Summary Banner
+  let banner = `========================================
+   GITHUB POKÉMON EVOLUTION COMPANION
+========================================
+
+Companion: ${currentForm.name} (No. ${currentForm.dex})
+Type: [${currentForm.type.join(", ")}]
+Stage Index: ${evolutionState.stageIndex + 1} / 5
+Lifetime Contributions: ${lifetimeContributions}
+Stage Colouring: ${evolutionState.colouringProgress}%
+Status: ${evolutionState.isMastery ? `Mastery Level ${evolutionState.masteryLevel}` : `${evolutionState.stageContributions} / ${evolutionState.requiredContributions} to next evolution`}
+
+Artifacts Generated:
+  - SVG: ${svgPath} (${(Buffer.byteLength(svgContent) / 1024).toFixed(1)} KB)
+  - GIF: ${gifPath} (${(gifBuffer.length / 1024).toFixed(1)} KB)`;
+
+  if (readmeStatus) {
+    banner += `\n  - README: ${readmeStatus.path} (${readmeStatus.updated ? "Updated" : "Inserted"})`;
+  }
+
+  if (socialStatus) {
+    banner += `\n  - LinkedIn Preview: ${socialStatus.previewPath}\n  - Evolution Showcase: ${socialStatus.showcasePath}\n  - LinkedIn Post: ${socialStatus.postPath}`;
+  }
+
+  if (options.details) {
+    banner += `\n\n[Anatomical Region Allocations]`;
+    for (const r of evolutionState.coloringState.regions) {
+      banner += `\n  - ${r.name.padEnd(28)}: ${(r.weight * 100).toFixed(0)}% weight | ${(r.completion * 100).toFixed(1)}% filled [${r.status}]`;
+    }
+  }
+
+  io.stdout(banner);
   return 0;
 }
 

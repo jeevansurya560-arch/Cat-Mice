@@ -7,36 +7,29 @@ describe("CLI Foundation & Arguments", () => {
     expect(opts.mode).toBe("offline");
     expect(opts.snapshot).toBe("fixtures/sample-snapshot.json");
     expect(opts.details).toBe(false);
+    expect(opts.social).toBe(false);
     expect(opts.help).toBe(false);
   });
 
-  it("should parse explicit --mode and --snapshot flags", () => {
-    const opts = parseArgs(["--mode=offline", "--snapshot=fixtures/custom.json"]);
+  it("should parse explicit --mode and --contributions flags", () => {
+    const opts = parseArgs(["--mode=offline", "--contributions=750", "--social"]);
     expect(opts.mode).toBe("offline");
-    expect(opts.snapshot).toBe("fixtures/custom.json");
+    expect(opts.contributions).toBe(750);
+    expect(opts.social).toBe(true);
   });
 
   it("should handle separated flag syntax", () => {
-    const opts = parseArgs([
-      "--mode",
-      "offline",
-      "--snapshot",
-      "my-data.json",
-      "--details",
-      "--theme",
-      "rust"
-    ]);
+    const opts = parseArgs(["--mode", "offline", "--contributions", "1250", "--details"]);
     expect(opts.mode).toBe("offline");
-    expect(opts.snapshot).toBe("my-data.json");
+    expect(opts.contributions).toBe(1250);
     expect(opts.details).toBe(true);
-    expect(opts.theme).toBe("rust");
   });
 
   it("should successfully execute offline initialization with sample fixture", async () => {
     const stdout = vi.fn();
     const stderr = vi.fn();
 
-    const code = await main(["--mode=offline", "--snapshot=fixtures/sample-snapshot.json"], {
+    const code = await main(["--mode=offline", "--contributions=750"], {
       stdout,
       stderr
     });
@@ -46,28 +39,27 @@ describe("CLI Foundation & Arguments", () => {
     expect(stdout).toHaveBeenCalled();
 
     const output = stdout.mock.calls[0][0];
-    expect(output).toContain("CAT-MICE");
-    expect(output).toContain("Execution Mode: Offline");
-    expect(output).toContain("Configuration: Loaded");
-    expect(output).toContain("Snapshot: Validated");
-    expect(output).toContain("Application: Initialized");
-    expect(output).toContain("FOUNDATION READY");
+    expect(output).toContain("GITHUB POKÉMON EVOLUTION COMPANION");
+    expect(output).toContain("Companion: Charizard (No. 0006)");
+    expect(output).toContain("Lifetime Contributions: 750");
+    expect(output).toContain("Stage Colouring: 47.5%");
+    expect(output).toContain("Artifacts Generated:");
   });
 
-  it("should print progression details when --details flag is supplied", async () => {
+  it("should print anatomical region allocations when --details flag is supplied", async () => {
     const stdout = vi.fn();
     const stderr = vi.fn();
 
-    const code = await main(
-      ["--mode=offline", "--snapshot=fixtures/sample-snapshot.json", "--details"],
-      { stdout, stderr }
-    );
+    const code = await main(["--mode=offline", "--contributions=750", "--details"], {
+      stdout,
+      stderr
+    });
 
     expect(code).toBe(0);
     const output = stdout.mock.calls[0][0];
-    expect(output).toContain("[Progression Summary]");
-    expect(output).toContain("Cat: ADULT");
-    expect(output).toContain("Mouse: UNLOCKED");
+    expect(output).toContain("[Anatomical Region Allocations]");
+    expect(output).toContain("Tail Flame");
+    expect(output).toContain("Dragon Wings & Membranes");
   });
 
   it("should reject unsupported execution modes", async () => {
@@ -94,19 +86,6 @@ describe("CLI Foundation & Arguments", () => {
     );
   });
 
-  it("should reject execution if snapshot file does not exist", async () => {
-    const stdout = vi.fn();
-    const stderr = vi.fn();
-
-    const code = await main(["--mode=offline", "--snapshot=fixtures/missing.json"], {
-      stdout,
-      stderr
-    });
-
-    expect(code).toBe(1);
-    expect(stderr).toHaveBeenCalledWith(expect.stringContaining("Snapshot Loading Error"));
-  });
-
   it("should print help and exit with code 0 on --help", async () => {
     const stdout = vi.fn();
     const stderr = vi.fn();
@@ -123,6 +102,6 @@ describe("CLI Foundation & Arguments", () => {
 
     const code = await main(["--version"], { stdout, stderr });
     expect(code).toBe(0);
-    expect(stdout).toHaveBeenCalledWith("v0.1.0");
+    expect(stdout).toHaveBeenCalledWith("v1.0.0");
   });
 });

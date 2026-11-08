@@ -1,4 +1,4 @@
-name: Generate CAT-MICE Ecosystem
+name: Generate Pokémon Evolution Companion
 
 on:
   schedule:
@@ -30,21 +30,21 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Generate CAT-MICE Artifacts
+      - name: Generate Pokémon Companion Artifacts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_USERNAME: ${{ github.repository_owner }}
         run: |
-          node src/cli.js --mode=production --user="${{ github.repository_owner }}" --out=dist --details
+          node src/cli.js --mode=production --user="${{ github.repository_owner }}" --out=assets/generated --readme=README.md --social --details
 
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f dist/cat-mice.gif dist/cat-mice.svg dist/cat-mice.png dist/showcase.png assets/generated/
+          git add -f dist/ assets/generated/ assets/social/ README.md
           if git diff --staged --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "chore(ecosystem): update cat-and-mouse world [skip ci]"
+            git commit -m "chore(pokemon): update evolution companion & progress [skip ci]"
             git push
           fi

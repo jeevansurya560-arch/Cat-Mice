@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 460" width="520" height="460">
+  <defs>
+    <!-- Cinematic Character Radial Backlight -->
+    <radialGradient id="charAura" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#a43d2f" stop-opacity="0.18"/>
+      <stop offset="50%" stop-color="#a43d2f" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#0d1117" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Progress Bar Glow -->
+    <linearGradient id="progressGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#a43d2f"/>
+      <stop offset="50%" stop-color="#a96c4f"/>
+      <stop offset="100%" stop-color="#d8dab1"/>
+    </linearGradient>
+
+    <filter id="bloom" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <style>
+    .font-hud { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    .title-text { font-size: 20px; font-weight: 800; fill: #ffffff; letter-spacing: 0.5px; }
+    .dex-text { font-size: 13px; font-weight: 700; fill: #8b949e; letter-spacing: 1px; }
+    .stat-label { font-size: 11px; font-weight: 600; fill: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-val { font-size: 14px; font-weight: 800; fill: #f0f6fc; }
+  </style>
+
+  <rect width="520" height="460" fill="#0d1117" rx="14"/>
+
+  <!-- Subtle Radial Glow Behind Character -->
+  <ellipse cx="260" cy="230" rx="190" ry="170" fill="url(#charAura)"/>
+
+  <!-- Minimal Anime Ground Platform -->
+  <ellipse cx="260" cy="390" rx="140" ry="16" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+  <ellipse cx="260" cy="389" rx="100" ry="10" fill="#21262d" opacity="0.6"/>
+
+  <!-- Floating Embers Layer -->
+  <g id="embers">
+    
+  </g>
+
+  <!-- Render 2.5D Anime Character -->
+  
+    <g id="charizard" class="pokemon-2d-anime" transform="translate(0, 0)">
+      <!-- Massive Dragon Wings (Region: wings) -->
+      <g id="region-wings" transform="rotate(0, 250, 200)">
+        <!-- Left Wing Outer Bone -->
+        <path d="M 220 180 C 160 100 80 80 40 100 C 30 140 70 210 170 230 Z"
+              fill="#7b452e" stroke="#221917" stroke-width="5" stroke-linejoin="round"/>
+        <!-- Left Wing Teal Membrane -->
+        <path d="M 210 185 C 160 115 90 98 52 112 C 45 145 78 205 168 222 C 150 200 160 190 210 185 Z"
+              fill="#3c7273"/>
+
+        <!-- Right Wing (Expansive) -->
+        <path d="M 270 170 C 340 70 430 50 480 80 C 490 130 430 220 310 235 Z"
+              fill="#a96c4f" stroke="#221917" stroke-width="5" stroke-linejoin="round"/>
+        <!-- Wing Bone Ridge & Thumb Claw -->
+        <path d="M 270 170 C 335 80 415 65 470 82"
+              stroke="#c59379" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <polygon points="468,76 485,78 474,88" fill="#ffffff" stroke="#221917" stroke-width="2"/>
+        <!-- Right Wing Inner Teal Membrane -->
+        <path d="M 280 180 C 335 95 410 82 462 95 C 472 135 418 210 315 225 C 340 200 325 190 280 180 Z"
+              fill="#3c7273"/>
+        <!-- Wing Shadow Ribs -->
+        <path d="M 360 120 C 375 160 370 195 365 218 M 410 110 C 420 145 415 180 410 205"
+              stroke="#24494a" stroke-width="4" stroke-linecap="round" fill="none"/>
+      </g>
+
+      <!-- Tail with Blazing Inferno (Region: tail & tail_flame) -->
+      <g id="region-tail">
+        <path d="M 200 310 C 140 330 80 300 50 240 C 30 200 40 160 60 130 C 70 150 85 190 125 230 C 160 260 195 285 220 295 Z"
+              fill="#7b452e" stroke="#221917" stroke-width="5" stroke-linejoin="round"/>
+        <path d="M 202 305 C 145 325 90 295 62 240 C 44 205 52 170 68 142 C 78 160 92 198 130 235 C 165 264 198 288 222 298 Z"
+              fill="#a96c4f"/>
+      </g>
+
+      <!-- Roaring Tail Fire -->
+      <g id="region-tail_flame" transform="translate(0, 8)">
+        <path d="M 60 135 C 15 110 -10 50 25 10 C 50 50 60 70 85 55 C 110 40 105 5 130 -15 C 145 35 140 85 115 115 C 95 135 78 140 60 135 Z"
+              fill="#a43d2f" filter="drop-shadow(0 0 14px #a43d2f)"/>
+        <path d="M 60 130 C 25 105 8 60 38 25 C 58 58 66 75 88 62 C 105 50 102 22 118 10 C 130 45 124 82 105 110 Z"
+              fill="#a96c4f"/>
+        <path d="M 62 122 C 38 100 25 70 48 40 C 64 66 72 78 88 68 C 102 58 100 38 110 28 C 118 55 112 85 98 105 Z"
+              fill="#d8dab1"/>
+      </g>
+
+      <!-- Massive Dragon Legs (Region: legs) -->
+      <g id="region-legs-left">
+        <ellipse cx="190" cy="350" rx="38" ry="30" fill="#7b452e" stroke="#221917" stroke-width="5"/>
+        <!-- Talons -->
+        <polygon points="155,370 145,382 162,374" fill="#ffffff" stroke="#221917" stroke-width="3"/>
+        <polygon points="170,372 165,386 178,375" fill="#ffffff" stroke="#221917" stroke-width="3"/>
+        <polygon points="185,370 185,384 195,372" fill="#ffffff" stroke="#221917" stroke-width="3"/>
+      </g>
+
+      <!-- Dragon Torso & Belly (Region: torso) -->
+      <g id="region-torso">
+        <path d="M 210 210 C 195 270 205 345 255 365 C 320 370 350 315 340 230 C 330 190 280 180 235 195 Z"
+              fill="#7b452e" stroke="#221917" stroke-width="5" stroke-linejoin="round"/>
+        <path d="M 218 208 C 205 265 215 338 260 358 C 315 362 342 310 332 232 C 324 195 278 186 235 198 Z"
+              fill="#a96c4f"/>
+        <!-- Cream Belly Plates -->
+        <path d="M 235 205 C 220 255 228 325 265 352 C 305 352 322 310 315 250 C 308 208 270 195 235 205 Z"
+              fill="#cdc5aa"/>
+        <!-- Belly Segment Lines -->
+        <path d="M 230 255 Q 265 268 308 252 M 235 295 Q 268 308 305 292"
+              stroke="#a19779" stroke-width="4" stroke-linecap="round" fill="none"/>
+      </g>
+
+      <!-- Right Leg & Talons (Region: legs) -->
+      <g id="region-legs-right">
+        <ellipse cx="295" cy="350" rx="42" ry="32" fill="#a96c4f" stroke="#221917" stroke-width="5"/>
+        <ellipse cx="295" cy="345" rx="34" ry="22" fill="#c59379" opacity="0.35"/>
+        <!-- Talons -->
+        <polygon points="275,372 268,386 282,376" fill="#ffffff" stroke="#221917" stroke-width="3"/>
+        <polygon points="295,374 294,390 304,377" fill="#ffffff" stroke="#221917" stroke-width="3"/>
+        <polygon points="315,372 320,386 326,373" fill="#ffffff" stroke="#221917" stroke-width="3"/>
+      </g>
+
+      <!-- Muscular Arms & Claws (Region: arms) -->
+      <g id="region-arms">
+        <path d="M 300 230 C 335 240 360 260 350 282 C 340 295 320 285 300 265 Z"
+              fill="#a96c4f" stroke="#221917" stroke-width="5"/>
+        <polygon points="348,275 362,280 350,287" fill="#ffffff" stroke="#221917" stroke-width="2.5"/>
+        <polygon points="344,284 356,293 342,295" fill="#ffffff" stroke="#221917" stroke-width="2.5"/>
+      </g>
+
+      <!-- Head with Twin Dragon Horns (Region: head) -->
+      <g id="region-head">
+        <!-- Neck -->
+        <path d="M 235 195 C 240 160 250 145 260 135 C 275 145 285 165 290 195 Z"
+              fill="#a96c4f" stroke="#221917" stroke-width="5"/>
+        <!-- Horns (Twin Curved Dragon Horns) -->
+        <path d="M 255 125 C 225 80 195 70 175 75 C 205 95 235 110 255 125 Z"
+              fill="#7b452e" stroke="#221917" stroke-width="4.5"/>
+        <path d="M 268 120 C 245 70 220 58 200 62 C 228 85 252 105 268 120 Z"
+              fill="#a96c4f" stroke="#221917" stroke-width="4.5"/>
+        <path d="M 205 66 C 230 88 252 106 268 120"
+              stroke="#c59379" stroke-width="4" stroke-linecap="round" fill="none"/>
+
+        <!-- Head Base & Jaws -->
+        <path d="M 255 120 C 265 95 305 85 340 98 C 375 110 385 140 365 168 C 345 190 295 185 265 170 C 250 155 248 135 255 120 Z"
+              fill="#a96c4f" stroke="#221917" stroke-width="5"/>
+
+        <!-- Cyan Dragon Eye -->
+        <polygon points="305,115 335,120 325,138 300,132" fill="#ffffff" stroke="#221917" stroke-width="3"/>
+        <polygon points="310,118 330,122 322,135 305,130" fill="#1f7b92"/>
+        <polygon points="316,119 324,121 320,134 313,131" fill="#002830"/>
+        <circle cx="314" cy="122" r="2.5" fill="#ffffff"/>
+
+        <!-- Snout Nostril & Fangs -->
+        <ellipse cx="360" cy="132" rx="3" ry="4" fill="#221917"/>
+        <path d="M 295 152 Q 335 164 365 142" stroke="#221917" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <polygon points="340,146 345,158 350,148" fill="#ffffff" stroke="#221917" stroke-width="2"/>
+        <polygon points="352,142 356,152 360,144" fill="#ffffff" stroke="#221917" stroke-width="2"/>
+      </g>
+    </g>
+  
+
+  <!-- Modern HUD Header -->
+  <g class="font-hud" transform="translate(36, 36)">
+    <!-- Dex & Name -->
+    <text x="0" y="0" class="dex-text">No. 0006<tspan dx="8" font-size="11" font-weight="700" fill="#ffa059">● FIRE</tspan><tspan dx="8" font-size="11" font-weight="700" fill="#ffa059">● FLYING</tspan></text>
+    <text x="0" y="22" class="title-text">CHARIZARD</text>
+
+    <!-- Contribution & Stage Progress Metric -->
+    <text x="448" y="0" text-anchor="end" class="stat-label">Lifetime Activity</text>
+    <text x="448" y="20" text-anchor="end" class="stat-val">750 Commits</text>
+  </g>
+
+  <!-- Progress Bar Footer -->
+  <g class="font-hud" transform="translate(40, 412)">
+    <!-- Background Track -->
+    <rect x="0" y="0" width="440" height="8" rx="4" fill="#21262d"/>
+    <!-- Animated Color Fill -->
+    <rect x="0" y="0" width="209" height="8" rx="4" fill="url(#progressGrad)"/>
+    <!-- Stats Row -->
+    <text x="0" y="24" class="stat-label">Stage Colouring Progress</text>
+    <text x="440" y="24" text-anchor="end" class="stat-val">47.5%</text>
+  </g>
+</svg>
