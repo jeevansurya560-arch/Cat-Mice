@@ -24,8 +24,7 @@ impl ColorCompositor {
         let has_languages = !distribution.normalized_weights.is_empty();
         let lang_mix = ColorBlender::mix_languages(distribution, registry);
 
-        // Intensity scaling function T^gamma
-        let intensity = progress.clamp(0.0, 1.0).powf(gamma);
+        let _ = gamma;
 
         // Map pixel-to-region for fast lookup
         for y in 0..h {
@@ -74,7 +73,7 @@ impl ColorCompositor {
 
                 let q = package.priority_map.get_priority(x, y);
                 let coverage = compute_coverage(q, progress);
-                let blend_weight = (coverage * intensity).clamp(0.0, 1.0) as f32;
+                let blend_weight = coverage as f32;
 
                 let gray_f = src_pixel[0] as f32;
                 let r = ((1.0 - blend_weight) * gray_f + blend_weight * (color_rgb[0] as f32))

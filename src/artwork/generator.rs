@@ -347,33 +347,70 @@ impl ArtworkGenerator {
                     let q = match region {
                         RegionMaskId::Flame => 0.85 + 0.15 * ((pr + pg) / 510.0),
                         RegionMaskId::Tail => {
-                            0.65 + 0.20 * ((dest_x as f64 - 95.0) / 45.0).clamp(0.0, 1.0)
+                            0.70 + 0.16
+                                * ((dest_x as f64 - (offset_x as f64 + scaled_w as f64 * 0.55))
+                                    / (scaled_w as f64 * 0.45))
+                                    .clamp(0.0, 1.0)
                         }
                         RegionMaskId::LimbsClaws
                         | RegionMaskId::ArmsClaws
-                        | RegionMaskId::LegsClaws => 0.55,
+                        | RegionMaskId::LegsClaws => {
+                            if dest_y > offset_y + (scaled_h * 75 / 100) {
+                                0.60 + 0.12
+                                    * ((dest_y as f64 - (offset_y as f64 + scaled_h as f64 * 0.75))
+                                        / (scaled_h as f64 * 0.25))
+                                        .clamp(0.0, 1.0)
+                            } else {
+                                0.42 + 0.10
+                                    * (1.0
+                                        - (dest_y as f64
+                                            - (offset_y as f64 + scaled_h as f64 * 0.50))
+                                            .abs()
+                                            / (scaled_h as f64 * 0.25))
+                                        .clamp(0.0, 1.0)
+                            }
+                        }
                         RegionMaskId::Belly => {
-                            0.35 + 0.25
-                                * (1.0 - (dest_y as f64 - 90.0).abs() / 30.0).clamp(0.0, 1.0)
+                            0.46 + 0.18
+                                * ((dest_y as f64 - (offset_y as f64 + scaled_h as f64 * 0.45))
+                                    / (scaled_h as f64 * 0.40))
+                                    .clamp(0.0, 1.0)
                         }
-                        RegionMaskId::FaceEyes => 0.05,
-                        RegionMaskId::CranialCrest | RegionMaskId::HeadHorns => 0.10,
-                        RegionMaskId::WingsInner => 0.25,
-                        RegionMaskId::WingsOuter => 0.20,
+                        RegionMaskId::WingsInner | RegionMaskId::WingsOuter => {
+                            0.30 + 0.15
+                                * (1.0
+                                    - (dest_y as f64 - offset_y as f64) / (scaled_h as f64 * 0.60))
+                                    .clamp(0.0, 1.0)
+                        }
                         RegionMaskId::Body => {
-                            0.10 + 0.30 * ((dest_y as f64 - 40.0) / 60.0).clamp(0.0, 1.0)
+                            let height_factor = (dest_y as f64 - offset_y as f64) / scaled_h as f64;
+                            0.15 + 0.52 * height_factor.clamp(0.0, 1.0)
                         }
+                        RegionMaskId::CranialCrest | RegionMaskId::HeadHorns => 0.12,
+                        RegionMaskId::FaceEyes => 0.06,
                     };
                     priority_grid[dest_y as usize][dest_x as usize] = q.clamp(0.0, 1.0);
 
-                    let luma = (0.299 * pr + 0.587 * pg + 0.114 * pb).round() as u8;
-                    let clamped_luma = (luma as f64 * 0.85 + 25.0).clamp(20.0, 250.0) as u8;
+                    // Deep, punchy, high-contrast dark shades for master grayscale
+                    let norm_luma = (0.299 * pr + 0.587 * pg + 0.114 * pb) / 255.0;
+                    let dark_luma = (norm_luma.powf(1.15) * 255.0).round().clamp(10.0, 255.0) as u8;
                     sprite_gray.put_pixel(
                         dest_x,
                         dest_y,
-                        Rgba([clamped_luma, clamped_luma, clamped_luma, 255]),
+                        Rgba([dark_luma, dark_luma, dark_luma, 255]),
                     );
-                    sprite_color.put_pixel(dest_x, dest_y, Rgba([p[0], p[1], p[2], 255]));
+
+                    // Deep, rich, saturated color shades
+                    let cr = ((p[0] as f64 / 255.0).powf(1.08) * 255.0)
+                        .round()
+                        .clamp(8.0, 255.0) as u8;
+                    let cg = ((p[1] as f64 / 255.0).powf(1.12) * 255.0)
+                        .round()
+                        .clamp(8.0, 255.0) as u8;
+                    let cb = ((p[2] as f64 / 255.0).powf(1.16) * 255.0)
+                        .round()
+                        .clamp(8.0, 255.0) as u8;
+                    sprite_color.put_pixel(dest_x, dest_y, Rgba([cr, cg, cb, 255]));
                 }
             }
         }
