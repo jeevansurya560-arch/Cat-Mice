@@ -38,36 +38,29 @@ export function renderTimeline(timeline, themeSpec = {}, options = {}) {
   for (const frame of timeline.frames) {
     const buffer = createBuffer(width, height);
 
-    // 1. Render top-down garden landscape (lawn, stone path, pond, canopies, lantern)
+    // 1. Render atmospheric storybook backdrop (twilight sky, hanging cherry blossoms, Octocat sign, brass lantern)
     renderBackdrop(buffer, width, height, palette);
 
-    // 2. Render environmental props (mouse burrow, ceramic fish dish, cheese, wool ball)
+    // 2. Render environmental props (arched mouse hole, ceramic fish dish, cheese, wool ball)
     renderProps(buffer, width, height, frame.props, palette);
 
-    // 3. Render Cat Sprite (Top-Down 32x32 Cat)
+    // 3. Render Modern Chibi Cat Sprite (32x32)
     const cat = frame.cat;
     const catColorMap = getCatColorMap(cat.variant, palette);
-    const facing = cat.facing || "south";
-    let catSprite = CAT_SPRITES.IDLE_SOUTH || CAT_SPRITES.IDLE;
-    let flipX = false;
+    const flipX = cat.facing === "west" || cat.facing === "left";
+    let catSprite = CAT_SPRITES.IDLE;
 
     switch (cat.action) {
       case "WALK":
       case "WALKING":
-      case "PROWLING": {
-        const step = frame.tick % 4;
-        if (facing === "north") {
-          catSprite = CAT_SPRITES[`WALK_NORTH_${step}`] || CAT_SPRITES.WALK_NORTH_0;
-        } else if (facing === "east" || facing === "right") {
-          catSprite = CAT_SPRITES[`WALK_EAST_${step}`] || CAT_SPRITES.WALK_EAST_0;
-        } else if (facing === "west" || facing === "left") {
-          catSprite = CAT_SPRITES[`WALK_EAST_${step}`] || CAT_SPRITES.WALK_EAST_0;
-          flipX = true;
-        } else {
-          catSprite = CAT_SPRITES[`WALK_SOUTH_${step}`] || CAT_SPRITES.WALK_SOUTH_0;
-        }
+      case "PROWLING":
+        catSprite =
+          frame.tick % 3 === 0
+            ? CAT_SPRITES.WALK_0
+            : frame.tick % 3 === 1
+              ? CAT_SPRITES.WALK_1
+              : CAT_SPRITES.WALK_2;
         break;
-      }
       case "EAT":
       case "EATING_FISH":
         catSprite = CAT_SPRITES.EAT;
@@ -88,54 +81,33 @@ export function renderTimeline(timeline, themeSpec = {}, options = {}) {
       case "IDLE":
       case "EXPLORING":
       case "STALKING":
-      default: {
-        if (facing === "north") {
-          catSprite = CAT_SPRITES.IDLE_NORTH;
-        } else if (facing === "east" || facing === "right") {
-          catSprite = CAT_SPRITES.IDLE_EAST;
-        } else if (facing === "west" || facing === "left") {
-          catSprite = CAT_SPRITES.IDLE_WEST;
-        } else {
-          catSprite = CAT_SPRITES.IDLE_SOUTH;
-        }
+      default:
+        catSprite = CAT_SPRITES.IDLE;
         break;
-      }
     }
 
-    // Center 32x32 cat sprite origin
+    // Ground 32x32 cat sprite origin on mossy stone ledge
     const catOffsetX = Math.round(cat.x - 16);
-    const catOffsetY = Math.round(cat.y - 16);
+    const catOffsetY = Math.round(cat.y - 31);
 
     blitSprite(buffer, width, height, catSprite, catColorMap, catOffsetX, catOffsetY, {
       scale: 1,
       flipX
     });
 
-    // 4. Render Mouse Sprite (Top-Down 24x24 Mouse with Goggles & Backpack)
+    // 4. Render Modern Chibi Mouse Sprite (24x24) with Aviator Goggles & Backpack
     const mouse = frame.mouse;
     if (mouse.unlocked && mouse.visible) {
       const mouseColorMap = getMouseColorMap(mouse.tier, mouse.variant, palette);
-      const mFacing = mouse.facing || "south";
-      let mouseSprite = MOUSE_SPRITES.IDLE_SOUTH || MOUSE_SPRITES.IDLE;
-      let mFlipX = false;
+      const mFlipX = mouse.facing === "west" || mouse.facing === "left";
+      let mouseSprite = MOUSE_SPRITES.IDLE;
 
       switch (mouse.action) {
         case "WALK":
         case "RUNNING":
-        case "DARTING": {
-          const mStep = frame.tick % 4;
-          if (mFacing === "north") {
-            mouseSprite = MOUSE_SPRITES[`WALK_NORTH_${mStep}`] || MOUSE_SPRITES.WALK_NORTH_0;
-          } else if (mFacing === "east" || mFacing === "right") {
-            mouseSprite = MOUSE_SPRITES[`WALK_EAST_${mStep}`] || MOUSE_SPRITES.WALK_EAST_0;
-          } else if (mFacing === "west" || mFacing === "left") {
-            mouseSprite = MOUSE_SPRITES[`WALK_EAST_${mStep}`] || MOUSE_SPRITES.WALK_EAST_0;
-            mFlipX = true;
-          } else {
-            mouseSprite = MOUSE_SPRITES[`WALK_SOUTH_${mStep}`] || MOUSE_SPRITES.WALK_SOUTH_0;
-          }
+        case "DARTING":
+          mouseSprite = frame.tick % 2 === 0 ? MOUSE_SPRITES.WALK_0 : MOUSE_SPRITES.WALK_1;
           break;
-        }
         case "WORK":
         case "OBSERVING_CAT":
           mouseSprite = MOUSE_SPRITES.WORK;
@@ -158,22 +130,13 @@ export function renderTimeline(timeline, themeSpec = {}, options = {}) {
         case "IDLE":
         case "EXPLORING":
         case "FORAGING":
-        default: {
-          if (mFacing === "north") {
-            mouseSprite = MOUSE_SPRITES.IDLE_NORTH;
-          } else if (mFacing === "east" || mFacing === "right") {
-            mouseSprite = MOUSE_SPRITES.IDLE_EAST;
-          } else if (mFacing === "west" || mFacing === "left") {
-            mouseSprite = MOUSE_SPRITES.IDLE_WEST;
-          } else {
-            mouseSprite = MOUSE_SPRITES.IDLE_SOUTH;
-          }
+        default:
+          mouseSprite = MOUSE_SPRITES.IDLE;
           break;
-        }
       }
 
       const mouseOffsetX = Math.round(mouse.x - 12);
-      const mouseOffsetY = Math.round(mouse.y - 12);
+      const mouseOffsetY = Math.round(mouse.y - 23);
 
       blitSprite(buffer, width, height, mouseSprite, mouseColorMap, mouseOffsetX, mouseOffsetY, {
         scale: 1,

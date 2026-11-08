@@ -100,7 +100,7 @@ export function generateWorldSvg(frame, themeSpec = {}, dimensions = {}) {
   if (CAT_SPRITES[cat.action]) catSprite = CAT_SPRITES[cat.action];
 
   const catOffsetX = Math.round(cat.x - 16);
-  const catOffsetY = Math.round(cat.y - 16);
+  const catOffsetY = Math.round(cat.y - 31);
 
   blitToBuffer(
     catBuffer,
@@ -125,7 +125,7 @@ export function generateWorldSvg(frame, themeSpec = {}, dimensions = {}) {
     if (MOUSE_SPRITES[mouse.action]) mouseSprite = MOUSE_SPRITES[mouse.action];
 
     const mouseOffsetX = Math.round(mouse.x - 12);
-    const mouseOffsetY = Math.round(mouse.y - 12);
+    const mouseOffsetY = Math.round(mouse.y - 23);
 
     blitToBuffer(
       mouseBuffer,
