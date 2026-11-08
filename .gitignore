@@ -13,6 +13,7 @@ scratch/
 dist/*
 !dist/*.gif
 !dist/*.png
+!dist/*.svg
 
 # Test and coverage artifacts
 coverage/
