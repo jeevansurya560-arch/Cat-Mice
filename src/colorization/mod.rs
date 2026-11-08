@@ -1,7 +1,24 @@
-//! Mathematical colorization engine: luminance extraction, OKLab blending, spatial priority field Q(x,y).
+//! Progressive luminance-preserving colorization engine using OKLab color space.
+
+pub mod blending;
+pub mod compositing;
+pub mod luminance;
+pub mod priority_map;
+pub mod tonal_ramp;
+
+pub use blending::ColorBlender;
+pub use compositing::ColorCompositor;
+pub use luminance::extract_luminance;
+pub use priority_map::compute_coverage;
+pub use tonal_ramp::TonalRamp;
+
+use image::RgbaImage;
+
+use crate::artwork::ArtworkPackage;
+use crate::language::{LanguageDistribution, PaletteRegistry};
 
 pub struct ColorizationEngine {
-    gamma: f64,
+    pub gamma: f64,
 }
 
 impl Default for ColorizationEngine {
@@ -11,12 +28,18 @@ impl Default for ColorizationEngine {
 }
 
 impl ColorizationEngine {
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new(gamma: f64) -> Self {
+        Self { gamma }
     }
 
-    /// Computes the progressive colorization intensity based on progress T: Intensity = T^1.15
-    pub fn compute_intensity(&self, progress: f64) -> f64 {
-        progress.clamp(0.0, 1.0).powf(self.gamma)
+    /// Renders a colorized frame for a given progress T in [0.0, 1.0].
+    pub fn render(
+        &self,
+        package: &ArtworkPackage,
+        distribution: &LanguageDistribution,
+        registry: &PaletteRegistry,
+        progress: f64,
+    ) -> RgbaImage {
+        ColorCompositor::render_frame(package, distribution, registry, progress, self.gamma)
     }
 }

@@ -33,6 +33,14 @@ pub enum Commands {
         /// Export format: png, gif, svg, or all
         #[arg(short, long, default_value = "all")]
         format: String,
+
+        /// Synchronize generated asset link into README.md markers
+        #[arg(long)]
+        sync_readme: bool,
+
+        /// Path to target README file for marker synchronization
+        #[arg(long, default_value = "README.md")]
+        readme: PathBuf,
     },
 
     /// Render a terminal and image preview across progression stages

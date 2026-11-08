@@ -1,22 +1,9 @@
-//! Programming-language classification, attribution, and palette registry.
+//! Programming language detection, Linguist classification, and color mapping.
 
-use std::collections::HashMap;
+pub mod attribution;
+pub mod detection;
+pub mod palette;
 
-#[derive(Debug, Clone)]
-pub struct LanguageDistribution {
-    pub shares: HashMap<String, f64>,
-    pub dominant: String,
-}
-
-impl Default for LanguageDistribution {
-    fn default() -> Self {
-        let mut shares = HashMap::new();
-        shares.insert("Rust".to_string(), 0.50);
-        shares.insert("Python".to_string(), 0.30);
-        shares.insert("TypeScript".to_string(), 0.20);
-        Self {
-            shares,
-            dominant: "Rust".to_string(),
-        }
-    }
-}
+pub use attribution::LanguageDistribution;
+pub use detection::LanguageDetector;
+pub use palette::{LanguageColor, PaletteRegistry};

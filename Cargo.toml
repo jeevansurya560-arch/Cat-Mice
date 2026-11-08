@@ -24,6 +24,7 @@ clap = { version = "4.5", features = ["derive", "env"] }
 # Graphics, Raster & Vector Processing
 image = { version = "0.25", default-features = false, features = ["png", "gif", "jpeg"] }
 gif = "0.13"
+base64 = "0.22"
 palette = { version = "0.7", features = ["std", "libm"] }
 tiny-skia = "0.11"
 resvg = "0.44"
