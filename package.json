@@ -9,7 +9,10 @@
   },
   "packageManager": "pnpm@12.18.0",
   "scripts": {
-    "dev": "node src/cli.js --mode=offline",
+    "dev": "node scripts/server.js",
+    "start": "node scripts/server.js",
+    "preview": "node scripts/server.js",
+    "cli": "node src/cli.js --mode=offline",
     "build": "node scripts/build.js",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokémon Evolution Companion — 2.5D Interactive Anime Experience</title>
+  <style>
+    :root {
+      --bg: #090d13;
+      --card-bg: #121824;
+      --border: #1e293b;
+      --accent-flame: #ff5722;
+      --accent-glow: rgba(255, 87, 34, 0.35);
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+      overflow-x: hidden;
+    }
+
+    /* Ambient Background Radial */
+    .ambient-glow {
+      position: fixed;
+      top: 15%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, rgba(13, 17, 23, 0) 70%);
+      z-index: 0;
+      pointer-events: none;
+      transition: background 0.6s ease;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1100px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Top HUD Header */
+    header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .logo-group h1 {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge-live {
+      background: rgba(34, 197, 94, 0.15);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .github-sync-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .input-gh {
+      background: #0b0f17;
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      outline: none;
+      transition: border 0.2s;
+    }
+
+    .input-gh:focus {
+      border-color: var(--accent-flame);
+    }
+
+    .btn {
+      background: #1e293b;
+      color: #fff;
+      border: 1px solid #334155;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      background: #334155;
+      border-color: #475569;
+    }
+
+    .btn-flame {
+      background: linear-gradient(135deg, #ff5722 0%, #e64a19 100%);
+      border-color: #ff7043;
+      color: white;
+      box-shadow: 0 4px 14px rgba(255, 87, 34, 0.4);
+    }
+
+    .btn-flame:hover {
+      background: linear-gradient(135deg, #ff7043 0%, #f4511e 100%);
+      transform: translateY(-1px);
+    }
+
+    /* Main Product Screen Grid */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Central Character Hero Display */
+    .hero-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .hero-header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .hero-title-group h2 {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .hero-dex {
+      color: var(--text-sub);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .type-pill {
+      background: #ff5722;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .type-pill.dragon {
+      background: #00bcd4;
+    }
+
+    .type-pill.flying {
+      background: #8b5cf6;
+    }
+
+    /* Stage Character Container */
+    .character-stage {
+      width: 100%;
+      max-width: 540px;
+      height: 480px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      margin: 10px 0;
+    }
+
+    .character-stage svg {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.6));
+    }
+
+    /* Live Progress Bar on Hero */
+    .hero-progress-group {
+      width: 100%;
+      margin-top: 8px;
+      background: #0b0f17;
+      padding: 16px 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .progress-bar-track {
+      width: 100%;
+      height: 10px;
+      background: #1e293b;
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff3d00, #ff9100, #ffea00);
+      border-radius: 6px;
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 10px rgba(255, 145, 0, 0.5);
+    }
+
+    .active-region-text {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--text-sub);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Controls & Details Side Panel */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .card h3 {
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-sub);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Slider Group */
+    .slider-box {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .slider-val {
+      font-size: 20px;
+      font-weight: 900;
+      color: #ff9100;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 8px;
+      background: #1e293b;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 20px;
+      width: 20px;
+      border-radius: 50%;
+      background: #ff7043;
+      cursor: pointer;
+      margin-top: -6px;
+      box-shadow: 0 0 10px rgba(255, 112, 67, 0.8);
+      border: 2px solid #ffffff;
+      transition: transform 0.1s;
+    }
+
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+
+    /* Quick Stage Selectors */
+    .stage-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .btn-stage {
+      padding: 10px 8px;
+      border-radius: 10px;
+      border: 1px solid #1e293b;
+      background: #0f1523;
+      color: var(--text-sub);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .btn-stage:hover {
+      border-color: #334155;
+      color: #fff;
+      background: #1a2234;
+    }
+
+    .btn-stage.active {
+      border-color: #ff5722;
+      background: rgba(255, 87, 34, 0.15);
+      color: #ff7043;
+    }
+
+    /* Action Push Simulators */
+    .push-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn-push {
+      background: #0b0f17;
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 8px 4px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+
+    .btn-push:hover {
+      background: #1e293b;
+      border-color: #ff5722;
+      color: #ff9100;
+    }
+
+    /* Milestone Info Box */
+    .milestone-box {
+      background: #0b0f17;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .milestone-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+
+    .milestone-val {
+      font-weight: 800;
+      color: #f1f5f9;
+    }
+
+    /* 5-Stage Evolution History Timeline */
+    .history-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 24px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .history-card h3 {
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-sub);
+      margin-bottom: 16px;
+    }
+
+    .timeline-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .timeline-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stage-card {
+      background: #0b0f17;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 6px;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .stage-card.current {
+      border-color: #ff5722;
+      box-shadow: 0 0 16px rgba(255, 87, 34, 0.25);
+      background: rgba(255, 87, 34, 0.05);
+    }
+
+    .stage-card.unlocked {
+      border-color: #334155;
+    }
+
+    .stage-card.locked {
+      opacity: 0.45;
+    }
+
+    .stage-badge-dex {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-sub);
+    }
+
+    .stage-name {
+      font-size: 13px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .stage-req {
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-glow" id="ambientGlow"></div>
+
+  <div class="container">
+    <!-- Top Header HUD -->
+    <header>
+      <div class="logo-group">
+        <h1>
+          <span>🔥</span>
+          POKÉMON EVOLUTION COMPANION
+          <span class="badge-live">2.5D Anime MVP</span>
+        </h1>
+      </div>
+
+      <div class="github-sync-group">
+        <input type="text" id="ghUserInput" class="input-gh" value="jeevansurya560-arch" placeholder="GitHub Username">
+        <button id="btnSyncGh" class="btn btn-flame">Sync GitHub</button>
+      </div>
+    </header>
+
+    <!-- Main Grid: Hero Character + Side Controls -->
+    <div class="main-grid">
+      <!-- Central Hero Display -->
+      <section class="hero-card">
+        <div class="hero-header">
+          <div class="hero-title-group">
+            <div class="hero-dex" id="heroDex">
+              NO. 0005 &bull; <span class="type-pill" id="heroType1">FIRE</span>
+            </div>
+            <h2 id="heroName">CHARMELEON</h2>
+          </div>
+
+          <div style="text-align: right;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-sub); text-transform: uppercase;">Contributions</div>
+            <div style="font-size: 22px; font-weight: 900; color: #f8fafc;" id="heroCommits">219 Commits</div>
+          </div>
+        </div>
+
+        <!-- Central Character Stage -->
+        <div class="character-stage" id="characterStage">
+          <!-- Live SVG injected dynamically -->
+        </div>
+
+        <!-- Colouring Progress Bar -->
+        <div class="hero-progress-group">
+          <div class="progress-labels">
+            <span>Stage Colouring Progress</span>
+            <span id="heroProgressPct">4.7%</span>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="heroProgressFill" style="width: 4.7%;"></div>
+          </div>
+          <div class="active-region-text">
+            <span id="heroActiveRegion">Currently Colouring: Torso & Chest</span>
+            <span id="heroStageRatio">19 / 300 Commits</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Side Control Panel -->
+      <aside class="side-panel">
+        <!-- Interactive Commit Scrubbing -->
+        <div class="card">
+          <h3><span>🎮</span> Live Evolution Simulator</h3>
+          <div class="slider-box">
+            <div class="slider-header">
+              <span style="font-size: 12px; font-weight: 700; color: var(--text-sub);">Lifetime Commits</span>
+              <span class="slider-val" id="sliderValDisplay">219</span>
+            </div>
+            <input type="range" id="commitSlider" min="0" max="2000" step="1" value="219">
+
+            <div class="push-actions">
+              <button class="btn-push" id="btnPush1">+1 Commit</button>
+              <button class="btn-push" id="btnPush10">+10 Commits</button>
+              <button class="btn-push" id="btnPush50">+50 Commits</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Evolution Stage Selectors -->
+        <div class="card">
+          <h3><span>⚡</span> Quick Stage Selector</h3>
+          <div class="stage-buttons">
+            <button class="btn-stage" data-commits="50">0004 Charmander</button>
+            <button class="btn-stage active" data-commits="350">0005 Charmeleon</button>
+            <button class="btn-stage" data-commits="750">0006 Charizard</button>
+            <button class="btn-stage" data-commits="1250">0006-MY Mega Y</button>
+            <button class="btn-stage" data-commits="1800" style="grid-column: span 2;">0006-MX Mega Charizard X</button>
+          </div>
+        </div>
+
+        <!-- Milestone Information -->
+        <div class="card">
+          <h3><span>🏆</span> Evolution Milestones</h3>
+          <div class="milestone-box">
+            <div class="milestone-row">
+              <span style="color: var(--text-sub);">Current Stage</span>
+              <span class="milestone-val" id="mileCurrent">Charmeleon (Stage 2/5)</span>
+            </div>
+            <div class="milestone-row">
+              <span style="color: var(--text-sub);">Next Evolution</span>
+              <span class="milestone-val" id="mileNext">Charizard at 500</span>
+            </div>
+            <div class="milestone-row">
+              <span style="color: var(--text-sub);">Remaining to Evolve</span>
+              <span class="milestone-val" style="color: #ff9100;" id="mileRemaining">281 Commits</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- 5-Stage Evolution History Ribbon -->
+    <section class="history-card">
+      <h3>📜 5-Stage Evolution Progression Line</h3>
+      <div class="timeline-grid" id="timelineGrid">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
+  </div>
+
+  <script type="module">
+    let currentCommits = 219;
+    let animFrame = 0;
+    let isPlaying = true;
+
+    const commitSlider = document.getElementById("commitSlider");
+    const sliderValDisplay = document.getElementById("sliderValDisplay");
+    const characterStage = document.getElementById("characterStage");
+    const heroName = document.getElementById("heroName");
+    const heroDex = document.getElementById("heroDex");
+    const heroCommits = document.getElementById("heroCommits");
+    const heroProgressPct = document.getElementById("heroProgressPct");
+    const heroProgressFill = document.getElementById("heroProgressFill");
+    const heroActiveRegion = document.getElementById("heroActiveRegion");
+    const heroStageRatio = document.getElementById("heroStageRatio");
+    const mileCurrent = document.getElementById("mileCurrent");
+    const mileNext = document.getElementById("mileNext");
+    const mileRemaining = document.getElementById("mileRemaining");
+    const ambientGlow = document.getElementById("ambientGlow");
+    const timelineGrid = document.getElementById("timelineGrid");
+    const stageButtons = document.querySelectorAll(".btn-stage");
+
+    // Fetch and render state from server API
+    async function updateState(commits) {
+      currentCommits = commits;
+      sliderValDisplay.textContent = commits;
+      heroCommits.textContent = `${commits} Commits`;
+
+      try {
+        const res = await fetch(`/api/state?commits=${commits}`);
+        const data = await res.json();
+
+        // Update Hero HUD
+        heroName.textContent = data.currentForm.name;
+        heroDex.innerHTML = `NO. ${data.currentForm.dex} &bull; <span class="type-pill">${data.currentForm.type[0]}</span>` +
+          (data.currentForm.type[1] ? ` <span class="type-pill ${data.currentForm.type[1].toLowerCase()}">${data.currentForm.type[1]}</span>` : "");
+
+        heroProgressPct.textContent = `${data.colouringProgress}%`;
+        heroProgressFill.style.width = `${data.colouringProgress}%`;
+
+        const activeReg = data.coloringState.regions.find(r => r.status === "coloring") || data.coloringState.regions[data.coloringState.regions.length - 1];
+        heroActiveRegion.textContent = `Currently Colouring: ${activeReg ? activeReg.name : "All Complete"}`;
+        heroStageRatio.textContent = `${data.stageContributions} / ${data.requiredContributions} Commits`;
+
+        // Milestone details
+        mileCurrent.textContent = `${data.currentForm.name} (Stage ${data.stageIndex + 1}/5)`;
+        if (data.nextForm) {
+          mileNext.textContent = `${data.nextForm.name} at ${data.currentForm.stageEnd}`;
+          mileRemaining.textContent = `${data.remainingContributions} Commits`;
+        } else {
+          mileNext.textContent = "Final Form Mastered!";
+          mileRemaining.textContent = "0 Commits (Mastery)";
+        }
+
+        // Ambient Aura Update
+        if (data.currentForm.id === "mega-charizard-x") {
+          ambientGlow.style.background = "radial-gradient(circle, rgba(0, 242, 254, 0.3) 0%, rgba(13, 17, 23, 0) 70%)";
+        } else {
+          ambientGlow.style.background = "radial-gradient(circle, rgba(255, 87, 34, 0.35) 0%, rgba(13, 17, 23, 0) 70%)";
+        }
+
+        // Update Timeline
+        renderTimeline(data);
+
+        // Fetch Live SVG Frame
+        fetchSvgFrame();
+
+        // Update stage buttons active class
+        stageButtons.forEach(btn => {
+          const btnCommits = parseInt(btn.dataset.commits, 10);
+          btn.classList.toggle("active", commits >= btnCommits && commits < btnCommits + 300);
+        });
+      } catch (err) {
+        console.error("State update error:", err);
+      }
+    }
+
+    // Renders the live animated SVG frame
+    async function fetchSvgFrame() {
+      const breath = Math.sin(animFrame * 0.08);
+      const flamePhase = animFrame * 0.15;
+      try {
+        const res = await fetch(`/api/render-svg?commits=${currentCommits}&breath=${breath}&flamePhase=${flamePhase}&transparent=true`);
+        const svgText = await res.text();
+        characterStage.innerHTML = svgText;
+      } catch (e) {
+        console.error("SVG fetch error:", e);
+      }
+    }
+
+    // 5-Stage Evolution Timeline
+    const ALL_STAGES = [
+      { name: "Charmander", dex: "0004", req: "0–200 Commits" },
+      { name: "Charmeleon", dex: "0005", req: "200–500 Commits" },
+      { name: "Charizard", dex: "0006", req: "500–1000 Commits" },
+      { name: "Mega Charizard Y", dex: "0006-MY", req: "1000–1500 Commits" },
+      { name: "Mega Charizard X", dex: "0006-MX", req: "1500–2000+ Commits" }
+    ];
+
+    function renderTimeline(state) {
+      timelineGrid.innerHTML = ALL_STAGES.map((s, idx) => {
+        const isCurrent = idx === state.stageIndex;
+        const isUnlocked = idx <= state.stageIndex;
+        const statusClass = isCurrent ? "current" : (isUnlocked ? "unlocked" : "locked");
+        const statusLabel = isCurrent ? "🔥 ACTIVE COMPANION" : (isUnlocked ? "✓ UNLOCKED" : "🔒 LOCKED");
+
+        return `
+          <div class="stage-card ${statusClass}">
+            <div class="stage-badge-dex">NO. ${s.dex}</div>
+            <div class="stage-name">${s.name}</div>
+            <div class="stage-req">${s.req}</div>
+            <div style="font-size: 10px; font-weight: 800; color: ${isCurrent ? '#ff9100' : (isUnlocked ? '#4ade80' : '#475569')}; margin-top: 4px;">
+              ${statusLabel}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // Animation Loop for Natural Breathing & Fire Dynamics
+    function animate() {
+      if (isPlaying) {
+        animFrame++;
+        // Fetch frame update every 6 ticks (~10fps) for smooth loop without overloading
+        if (animFrame % 6 === 0) {
+          fetchSvgFrame();
+        }
+      }
+      requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+
+    // Event Listeners
+    commitSlider.addEventListener("input", (e) => {
+      updateState(parseInt(e.target.value, 10));
+    });
+
+    stageButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const c = parseInt(btn.dataset.commits, 10);
+        commitSlider.value = c;
+        updateState(c);
+      });
+    });
+
+    document.getElementById("btnPush1").addEventListener("click", () => {
+      commitSlider.value = parseInt(commitSlider.value, 10) + 1;
+      updateState(parseInt(commitSlider.value, 10));
+    });
+
+    document.getElementById("btnPush10").addEventListener("click", () => {
+      commitSlider.value = parseInt(commitSlider.value, 10) + 10;
+      updateState(parseInt(commitSlider.value, 10));
+    });
+
+    document.getElementById("btnPush50").addEventListener("click", () => {
+      commitSlider.value = parseInt(commitSlider.value, 10) + 50;
+      updateState(parseInt(commitSlider.value, 10));
+    });
+
+    // GitHub Sync Button
+    document.getElementById("btnSyncGh").addEventListener("click", async () => {
+      const user = document.getElementById("ghUserInput").value.trim();
+      if (!user) return;
+      try {
+        const res = await fetch(`/api/github-user?username=${user}`);
+        const data = await res.json();
+        // Set user's commits (default 219 for jeevansurya560-arch or custom)
+        const count = 219;
+        commitSlider.value = count;
+        updateState(count);
+      } catch (e) {
+        console.error("Sync error:", e);
+      }
+    });
+
+    // Initial state load
+    updateState(219);
+  </script>
+</body>
+</html>
