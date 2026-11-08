@@ -1,15 +1,16 @@
 /**
  * @file Modern pixel-art Environmental backdrop and prop rasterizer.
- * Renders a lush storybook garden & cottage scene: atmospheric dusk sky,
- * wooden signboard with carved Octocat emblem, hanging warm brass lantern with glowing light cast,
- * mossy stone ledge with stone bricks, arched mouse hole, fresh fish bowl, cheese, and yarn ball.
+ * Renders an overhead, top-down (90° bird's-eye view) storybook garden map:
+ * lush lawn terrain, winding cobblestone pathway with carved Octocat stone medallion,
+ * crystal-clear garden pond with lily pads and swimming fish, overhead tree canopies,
+ * warm garden lantern post, top-down mouse burrow, ceramic fish bowl, cheese, and wool ball.
  */
 
 import { fillRect, setPixel } from "./canvas.js";
 import { fillCircle, drawBorder } from "./geometry.js";
 
 /**
- * Draws the atmospheric background, foliage, hanging lantern, and mossy stone ledge.
+ * Draws the top-down garden landscape: grass terrain, stone path, pond, trees, and lantern.
  *
  * @param {Uint8ClampedArray} buffer
  * @param {number} width
@@ -17,178 +18,216 @@ import { fillCircle, drawBorder } from "./geometry.js";
  * @param {Record<string, [number, number, number, number]>} palette
  */
 export function renderBackdrop(buffer, width, height, palette) {
-  // 1. Twilight / Enchanted evening sky gradient
-  const skyHeight = 70;
-  for (let y = 0; y < skyHeight; y++) {
-    const t = y / skyHeight;
-    // Dark twilight blue-indigo gradient
-    const r = Math.round(18 + t * 14);
-    const g = Math.round(22 + t * 18);
-    const b = Math.round(34 + t * 24);
-    fillRect(buffer, width, height, 0, y, width, 1, [r, g, b, 255]);
-  }
+  // 1. Lush Green Grass Lawn (Base Top-Down Terrain)
+  const grassBase = [46, 104, 52, 255];
+  const grassLight = [54, 118, 62, 255];
+  const grassDark = [38, 88, 44, 255];
 
-  // Soft distant stars/fireflies in the evening sky
-  const stars = [
-    [75, 14],
-    [115, 22],
-    [148, 10],
-    [178, 26],
-    [92, 38],
-    [132, 44]
-  ];
-  for (const [sx, sy] of stars) {
-    setPixel(buffer, width, height, sx, sy, [255, 255, 220, 180]);
-  }
+  fillRect(buffer, width, height, 0, 0, width, height, grassBase);
 
-  // 2. Hanging canopy foliage & cherry blossom petals at top
-  const canopyGreen = [52, 94, 58, 255];
-  const canopyLight = [75, 138, 82, 255];
-  const canopyDark = [32, 60, 38, 255];
-  const blossomPink = [255, 172, 190, 255];
-  const blossomDeep = [235, 128, 155, 255];
-
-  // Top leaf clusters
-  for (let x = 0; x < width; x += 12) {
-    const wave = Math.sin(x * 0.08) * 4;
-    const lh = Math.round(8 + wave);
-    fillRect(buffer, width, height, x, 0, 12, lh, canopyDark);
-    fillRect(buffer, width, height, x + 2, 0, 8, lh - 2, canopyGreen);
-    fillRect(buffer, width, height, x + 4, 0, 4, lh - 4, canopyLight);
-  }
-
-  // Left top foliage & cherry blossoms
-  for (let y = 0; y < 35; y += 4) {
-    const w = Math.round(28 - y * 0.6);
-    fillRect(buffer, width, height, 0, y, w, 4, canopyGreen);
-    fillRect(buffer, width, height, 0, y + 1, w - 3, 2, canopyLight);
-    // Cherry blossoms
-    if (y % 8 === 0) {
-      setPixel(buffer, width, height, w - 2, y + 2, blossomPink);
-      setPixel(buffer, width, height, w - 1, y + 1, blossomDeep);
-    }
-  }
-
-  // 3. Wooden Signboard with Carved GitHub Octocat (Left Side)
-  const signX = 14;
-  const signY = 20;
-  const signW = 34;
-  const signH = 26;
-
-  // Wooden hanging posts & border
-  fillRect(buffer, width, height, signX - 2, 0, 3, signY, [80, 50, 30, 255]);
-  fillRect(buffer, width, height, signX + signW - 1, 0, 3, signY, [80, 50, 30, 255]);
-
-  // Signboard wood planks
-  fillRect(buffer, width, height, signX, signY, signW, signH, [130, 85, 52, 255]);
-  fillRect(buffer, width, height, signX + 2, signY + 2, signW - 4, signH - 4, [155, 105, 65, 255]);
-  drawBorder(buffer, width, height, signX, signY, signW, signH, 1, [70, 42, 24, 255]);
-  // Wood plank seam
-  fillRect(
-    buffer,
-    width,
-    height,
-    signX + 1,
-    signY + Math.round(signH / 2),
-    signW - 2,
-    1,
-    [105, 68, 40, 255]
-  );
-
-  // Carved GitHub Octocat Silhouette on wood sign
-  const cx = signX + Math.round(signW / 2);
-  const cy = signY + Math.round(signH / 2);
-  const carveColor = [70, 40, 22, 255];
-  const carveLight = [185, 130, 85, 255];
-
-  // Head and ears
-  setPixel(buffer, width, height, cx - 4, cy - 5, carveColor);
-  setPixel(buffer, width, height, cx + 4, cy - 5, carveColor);
-  fillRect(buffer, width, height, cx - 4, cy - 4, 9, 7, carveColor);
-  fillRect(buffer, width, height, cx - 5, cy - 3, 11, 5, carveColor);
-  // Highlights around carving
-  setPixel(buffer, width, height, cx - 4, cy + 3, carveLight);
-  setPixel(buffer, width, height, cx + 4, cy + 3, carveLight);
-
-  // 4. Hanging Brass Lantern with Warm Light Glow (Right Side)
-  const lanX = 205;
-  const lanY = 14;
-
-  // Hanging chain from roof
-  fillRect(buffer, width, height, lanX - 1, 0, 2, lanY, [50, 45, 55, 255]);
-
-  // Lantern cap (brass)
-  fillRect(buffer, width, height, lanX - 7, lanY, 14, 3, [180, 130, 45, 255]);
-  fillRect(buffer, width, height, lanX - 5, lanY - 2, 10, 2, [140, 100, 35, 255]);
-
-  // Golden glowing glass body
-  fillRect(buffer, width, height, lanX - 6, lanY + 3, 12, 12, [255, 215, 80, 255]);
-  fillRect(buffer, width, height, lanX - 4, lanY + 5, 8, 8, [255, 250, 210, 255]);
-  // Lantern frame struts
-  drawBorder(buffer, width, height, lanX - 6, lanY + 3, 12, 12, 1, [110, 75, 25, 255]);
-  fillRect(buffer, width, height, lanX - 1, lanY + 3, 2, 12, [110, 75, 25, 255]);
-
-  // Lantern bottom
-  fillRect(buffer, width, height, lanX - 7, lanY + 15, 14, 2, [180, 130, 45, 255]);
-  fillRect(buffer, width, height, lanX - 2, lanY + 17, 4, 3, [140, 100, 35, 255]);
-
-  // Soft Ambient Golden Light Cast (radial glow over the ledge)
-  const glowR = 48;
-  for (let dy = -glowR; dy <= glowR; dy += 2) {
-    for (let dx = -glowR; dx <= glowR; dx += 2) {
-      const d = Math.hypot(dx, dy);
-      if (d <= glowR) {
-        const alpha = Math.round((1 - d / glowR) * 38);
-        setPixel(buffer, width, height, lanX + dx, lanY + 8 + dy, [255, 220, 120, alpha]);
+  // Procedural grass texture tufts (subtle top-down dither)
+  for (let y = 0; y < height; y += 4) {
+    for (let x = 0; x < width; x += 4) {
+      const hash = ((x * 37) ^ (y * 73)) % 17;
+      if (hash === 1 || hash === 5) {
+        setPixel(buffer, width, height, x, y, grassLight);
+        setPixel(buffer, width, height, x + 1, y, grassLight);
+      } else if (hash === 9) {
+        setPixel(buffer, width, height, x, y, grassDark);
       }
     }
   }
 
-  // 5. Mossy Stone Ledge & Foundation (Ground & Walking Surface)
-  const groundY = 70;
-
-  // Ledge top stone paver pathway (y: 70 to 78)
-  const paverHeight = 8;
-  fillRect(buffer, width, height, 0, groundY, width, paverHeight, [75, 88, 108, 255]);
-  fillRect(buffer, width, height, 0, groundY, width, 1, [105, 122, 148, 255]); // top highlight line
-
-  // Stone cobblestone tile seams & moss patches
-  for (let x = 0; x < width; x += 24) {
-    fillRect(buffer, width, height, x, groundY, 1, paverHeight, [48, 56, 70, 255]);
-    // Moss clusters on stone
-    if (x % 48 === 0) {
-      fillRect(buffer, width, height, x + 3, groundY + 1, 6, 2, [65, 120, 72, 255]);
-      setPixel(buffer, width, height, x + 5, groundY, [95, 165, 105, 255]);
+  // Scattered tiny wildflowers (buttercups, forget-me-nots, daisies)
+  const flowers = [
+    [25, 45, [255, 220, 75, 255]],
+    [35, 105, [255, 185, 205, 255]],
+    [75, 25, [140, 200, 255, 255]],
+    [95, 110, [255, 220, 75, 255]],
+    [135, 20, [255, 255, 240, 255]],
+    [155, 100, [140, 200, 255, 255]],
+    [175, 15, [255, 185, 205, 255]],
+    [195, 112, [255, 220, 75, 255]],
+    [225, 45, [255, 255, 240, 255]],
+    [110, 115, [255, 185, 205, 255]]
+  ];
+  for (const [fx, fy, fColor] of flowers) {
+    if (fx < width && fy < height) {
+      setPixel(buffer, width, height, fx, fy, fColor);
+      setPixel(buffer, width, height, fx + 1, fy, fColor);
+      setPixel(buffer, width, height, fx, fy + 1, fColor);
+      setPixel(buffer, width, height, fx - 1, fy, [255, 250, 180, 255]); // center dot
     }
   }
 
-  // Front stone wall foundation (y: 78 to height)
-  for (let y = groundY + paverHeight; y < height; y++) {
-    const t = (y - 78) / (height - 78);
-    const r = Math.round(48 - t * 14);
-    const g = Math.round(56 - t * 15);
-    const b = Math.round(70 - t * 18);
-    fillRect(buffer, width, height, 0, y, width, 1, [r, g, b, 255]);
+  // 2. Top-Down Winding Cobblestone Pathway
+  // Path flows from top center (x: 120, y: 0) down through center courtyard (x: 115, y: 58) to right (x: 205, y: 85)
+  const pathBase = [85, 96, 112, 255];
+  const stoneLight = [120, 132, 148, 255];
+  const stoneDark = [58, 66, 78, 255];
+
+  // Draw garden path corridor
+  const pathWaypoints = [
+    [120, 0, 14],
+    [120, 12, 15],
+    [118, 24, 16],
+    [116, 36, 18],
+    [115, 48, 20],
+    [115, 60, 22],
+    [125, 70, 18],
+    [142, 75, 16],
+    [160, 78, 16],
+    [180, 80, 16],
+    [200, 82, 15],
+    [218, 84, 14]
+  ];
+
+  for (const [px, py, pr] of pathWaypoints) {
+    fillCircle(buffer, width, height, px, py, pr, pathBase);
   }
 
-  // Stone block grid mortar lines on wall face
-  const blockW = 32;
-  const blockH = 10;
-  for (let row = 0; row < 5; row++) {
-    const by = groundY + paverHeight + row * blockH;
-    fillRect(buffer, width, height, 0, by, width, 1, [32, 38, 48, 255]);
-    const xOff = row % 2 === 1 ? blockW / 2 : 0;
-    for (let bx = xOff; bx < width; bx += blockW) {
-      fillRect(buffer, width, height, Math.floor(bx), by, 1, blockH, [32, 38, 48, 255]);
+  // Place rounded cobblestone pavers on the pathway
+  for (const [px, py, pr] of pathWaypoints) {
+    const numStones = 3;
+    for (let s = 0; s < numStones; s++) {
+      const angle = (s * Math.PI * 2) / numStones;
+      const dist = pr * 0.45;
+      const sx = Math.round(px + Math.cos(angle) * dist);
+      const sy = Math.round(py + Math.sin(angle) * dist);
+      fillCircle(buffer, width, height, sx, sy, 3, stoneLight);
+      drawBorder(buffer, width, height, sx - 2, sy - 2, 5, 5, 1, stoneDark);
     }
   }
 
-  // Grass & wildflower tufts along the bottom ledge edge
-  const tufts = [18, 55, 95, 140, 185];
-  for (const tx of tufts) {
-    fillRect(buffer, width, height, tx, groundY - 2, 2, 3, [70, 135, 78, 255]);
-    setPixel(buffer, width, height, tx - 1, groundY - 1, [95, 168, 105, 255]);
-    setPixel(buffer, width, height, tx + 2, groundY - 1, [95, 168, 105, 255]);
+  // Engraved GitHub Octocat Stone Medallion in Central Courtyard (x: 115, y: 58)
+  const cx = 115;
+  const cy = 58;
+  fillCircle(buffer, width, height, cx, cy, 14, stoneDark);
+  fillCircle(buffer, width, height, cx, cy, 12, pathBase);
+  drawBorder(buffer, width, height, cx - 12, cy - 12, 24, 24, 1, stoneLight);
+
+  // Carved Octocat Silhouette in Medallion
+  const carveColor = [45, 52, 62, 255];
+  const carveHighlight = [160, 175, 195, 255];
+  // Ears
+  setPixel(buffer, width, height, cx - 4, cy - 5, carveColor);
+  setPixel(buffer, width, height, cx + 4, cy - 5, carveColor);
+  // Head
+  fillRect(buffer, width, height, cx - 4, cy - 4, 9, 7, carveColor);
+  fillRect(buffer, width, height, cx - 5, cy - 3, 11, 5, carveColor);
+  // Highlight edge
+  setPixel(buffer, width, height, cx - 4, cy + 3, carveHighlight);
+  setPixel(buffer, width, height, cx + 4, cy + 3, carveHighlight);
+
+  // 3. Top-Down Circular/Oval Garden Pond (Left side: x: 50, y: 64)
+  const pondX = 50;
+  const pondY = 64;
+  const pondRx = 28;
+  const pondRy = 19;
+
+  // River stone bank / pebble shoreline surrounding pond
+  for (let dy = -pondRy - 3; dy <= pondRy + 3; dy++) {
+    for (let dx = -pondRx - 3; dx <= pondRx + 3; dx++) {
+      const d =
+        (dx * dx) / ((pondRx + 3) * (pondRx + 3)) + (dy * dy) / ((pondRy + 3) * (pondRy + 3));
+      if (d <= 1.0) {
+        const stoneColor = (dx + dy) % 3 === 0 ? stoneLight : stoneDark;
+        setPixel(buffer, width, height, pondX + dx, pondY + dy, stoneColor);
+      }
+    }
+  }
+
+  // Clear turquoise-blue water layers
+  const waterDeep = [38, 88, 136, 255];
+  const waterMid = [48, 116, 176, 255];
+  const waterShallow = [72, 158, 222, 255];
+
+  for (let dy = -pondRy; dy <= pondRy; dy++) {
+    for (let dx = -pondRx; dx <= pondRx; dx++) {
+      const d = (dx * dx) / (pondRx * pondRx) + (dy * dy) / (pondRy * pondRy);
+      if (d <= 1.0) {
+        const color = d > 0.7 ? waterShallow : d > 0.35 ? waterMid : waterDeep;
+        setPixel(buffer, width, height, pondX + dx, pondY + dy, color);
+      }
+    }
+  }
+
+  // Water ripple highlights
+  const ripples = [
+    [pondX - 12, pondY - 6],
+    [pondX + 8, pondY - 8],
+    [pondX - 4, pondY + 5],
+    [pondX + 10, pondY + 6]
+  ];
+  for (const [rx, ry] of ripples) {
+    fillRect(buffer, width, height, rx, ry, 5, 1, [150, 225, 255, 200]);
+    setPixel(buffer, width, height, rx + 1, ry - 1, [180, 240, 255, 160]);
+  }
+
+  // Water Lily Pad with pink blossom in pond
+  const lilyX = pondX - 10;
+  const lilyY = pondY + 4;
+  fillCircle(buffer, width, height, lilyX, lilyY, 4, [45, 125, 55, 255]);
+  setPixel(buffer, width, height, lilyX, lilyY, [28, 85, 38, 255]); // notch
+  setPixel(buffer, width, height, lilyX - 1, lilyY - 1, [255, 170, 195, 255]); // flower
+  setPixel(buffer, width, height, lilyX, lilyY - 2, [255, 250, 255, 255]);
+
+  // Swimming fish inside pond (orange-gold koi)
+  const fishX = pondX + 8;
+  const fishY = pondY - 2;
+  fillRect(buffer, width, height, fishX - 2, fishY, 6, 2, [245, 125, 45, 255]);
+  fillRect(buffer, width, height, fishX, fishY - 1, 3, 4, [255, 165, 60, 255]);
+  setPixel(buffer, width, height, fishX + 4, fishY, [230, 85, 30, 255]); // tail
+  setPixel(buffer, width, height, fishX - 3, fishY, [30, 40, 60, 255]); // eye
+
+  // 4. Top-Down Overhead Tree Canopies
+  // Top-left cherry tree canopy
+  const t1x = 18;
+  const t1y = 12;
+  const t1r = 24;
+  fillCircle(buffer, width, height, t1x, t1y, t1r + 2, [28, 62, 32, 255]);
+  fillCircle(buffer, width, height, t1x, t1y, t1r, [42, 98, 48, 255]);
+  fillCircle(buffer, width, height, t1x - 3, t1y - 3, t1r - 6, [62, 138, 70, 255]);
+  fillCircle(buffer, width, height, t1x - 6, t1y - 6, t1r - 12, [82, 172, 92, 255]);
+
+  // Cherry blossoms on canopy
+  const blossomPink = [255, 172, 195, 255];
+  const blossomDeep = [235, 125, 155, 255];
+  for (let b = 0; b < 10; b++) {
+    const bx = t1x - 12 + ((b * 19) % 24);
+    const by = t1y - 12 + ((b * 23) % 24);
+    setPixel(buffer, width, height, bx, by, blossomPink);
+    setPixel(buffer, width, height, bx + 1, by, blossomDeep);
+  }
+
+  // Top-right oak canopy
+  const t2x = 224;
+  const t2y = 12;
+  const t2r = 20;
+  fillCircle(buffer, width, height, t2x, t2y, t2r + 2, [28, 62, 32, 255]);
+  fillCircle(buffer, width, height, t2x, t2y, t2r, [38, 90, 44, 255]);
+  fillCircle(buffer, width, height, t2x - 3, t2y - 3, t2r - 6, [56, 126, 64, 255]);
+
+  // 5. Top-Down Garden Lantern Post (x: 185, y: 26)
+  const lx = 185;
+  const ly = 26;
+  // Wooden post base
+  fillRect(buffer, width, height, lx - 2, ly - 2, 4, 4, [85, 52, 30, 255]);
+  // Brass cap
+  fillCircle(buffer, width, height, lx, ly, 3, [180, 130, 45, 255]);
+  // Glowing core
+  fillRect(buffer, width, height, lx - 1, ly - 1, 2, 2, [255, 245, 180, 255]);
+
+  // Soft Ambient Golden Lantern Glow (top-down radial light cast)
+  const glowR = 36;
+  for (let dy = -glowR; dy <= glowR; dy += 2) {
+    for (let dx = -glowR; dx <= glowR; dx += 2) {
+      const d = Math.hypot(dx, dy);
+      if (d <= glowR) {
+        const alpha = Math.round((1 - d / glowR) * 32);
+        setPixel(buffer, width, height, lx + dx, ly + dy, [255, 220, 110, alpha]);
+      }
+    }
   }
 
   // 6. Primary & Secondary Language Accent Frame Accents
@@ -210,7 +249,7 @@ export function renderBackdrop(buffer, width, height, palette) {
 }
 
 /**
- * Draws modern pixel-art props (fresh blue fish dish, fish bones, cheese wedge, wool ball, arched mouse hole).
+ * Draws top-down pixel-art props (ceramic fish dish, fish bones, cheese wedge, wool ball, mouse burrow).
  *
  * @param {Uint8ClampedArray} buffer
  * @param {number} width
@@ -221,23 +260,25 @@ export function renderBackdrop(buffer, width, height, palette) {
 export function renderProps(buffer, width, height, props, _palette) {
   if (!props) return;
 
-  // 1. Arched Wooden Mouse Hole (Right Stone Wall)
+  // 1. Top-Down Mouse Burrow / Hole (Right side lawn)
   const hole = props.mouseHole || props.burrow;
   if (hole) {
     const hx = Math.round(hole.x);
     const hy = Math.round(hole.y);
 
-    // Arched wooden frame
-    fillRect(buffer, width, height, hx - 8, hy - 10, 16, 14, [75, 48, 30, 255]);
-    fillCircle(buffer, width, height, hx, hy - 9, 8, [75, 48, 30, 255]);
+    // Earthen mound / stone circle ring
+    fillCircle(buffer, width, height, hx, hy, 9, [75, 52, 34, 255]);
+    fillCircle(buffer, width, height, hx, hy, 7, [95, 72, 48, 255]);
 
-    // Dark cozy hole interior
-    fillRect(buffer, width, height, hx - 6, hy - 8, 12, 12, [18, 16, 24, 255]);
-    fillCircle(buffer, width, height, hx, hy - 7, 6, [18, 16, 24, 255]);
+    // Cozy dark circular burrow entry
+    fillCircle(buffer, width, height, hx, hy, 5, [18, 16, 24, 255]);
+    fillCircle(buffer, width, height, hx + 1, hy + 1, 3, [10, 8, 14, 255]);
 
-    // Polished stone threshold step
-    fillRect(buffer, width, height, hx - 9, hy + 3, 18, 2, [95, 108, 130, 255]);
-    fillRect(buffer, width, height, hx - 10, hy + 5, 20, 2, [55, 64, 78, 255]);
+    // Small stone threshold pebbles around opening
+    setPixel(buffer, width, height, hx - 6, hy - 2, [125, 135, 148, 255]);
+    setPixel(buffer, width, height, hx + 6, hy - 1, [125, 135, 148, 255]);
+    setPixel(buffer, width, height, hx - 2, hy + 6, [125, 135, 148, 255]);
+    setPixel(buffer, width, height, hx + 3, hy + 6, [125, 135, 148, 255]);
   }
 
   // 2. Ceramic Blue Fish Dish & Fresh Fish / Fish Bones
@@ -245,87 +286,77 @@ export function renderProps(buffer, width, height, props, _palette) {
     const fx = Math.round(props.fish.x);
     const fy = Math.round(props.fish.y);
 
-    // Ceramic ocean-blue serving bowl/dish
-    fillRect(buffer, width, height, fx - 10, fy + 2, 20, 4, [45, 95, 145, 255]);
-    fillRect(buffer, width, height, fx - 8, fy + 1, 16, 2, [75, 145, 205, 255]);
-    fillRect(buffer, width, height, fx - 11, fy + 3, 22, 1, [30, 65, 105, 255]);
+    // Ceramic ocean-blue circular serving bowl (top-down view)
+    fillCircle(buffer, width, height, fx, fy, 8, [35, 75, 120, 255]);
+    fillCircle(buffer, width, height, fx, fy, 7, [55, 120, 185, 255]);
+    fillCircle(buffer, width, height, fx, fy, 5, [25, 55, 95, 255]); // inner basin
+    fillCircle(buffer, width, height, fx - 2, fy - 2, 2, [85, 165, 235, 255]); // highlight
 
     if (!props.fish.consumed) {
-      // Fresh delicious silver-blue fish
+      // Fresh delicious silver-blue fish lying in dish
       const fishBlue = [75, 160, 225, 255];
       const fishSilver = [215, 235, 255, 255];
       const fishDark = [25, 55, 90, 255];
 
-      // Fish body
-      fillRect(buffer, width, height, fx - 6, fy - 1, 12, 4, fishBlue);
-      fillRect(buffer, width, height, fx - 4, fy, 8, 2, fishSilver);
-      // Head & eye
-      fillRect(buffer, width, height, fx + 5, fy, 2, 2, fishBlue);
-      setPixel(buffer, width, height, fx + 5, fy, fishDark);
-      // Fins
-      fillRect(buffer, width, height, fx - 8, fy - 2, 2, 2, fishBlue); // tail top
-      fillRect(buffer, width, height, fx - 8, fy + 2, 2, 2, fishBlue); // tail bottom
-      setPixel(buffer, width, height, fx, fy - 2, fishBlue); // dorsal
+      fillRect(buffer, width, height, fx - 4, fy - 1, 8, 3, fishBlue);
+      fillRect(buffer, width, height, fx - 2, fy, 5, 1, fishSilver);
+      // Tail & eye
+      fillRect(buffer, width, height, fx - 5, fy - 1, 2, 3, fishBlue);
+      setPixel(buffer, width, height, fx + 3, fy, fishDark);
     } else {
       // Clean neat fish bones skeleton
       const bone = [245, 248, 252, 255];
       const boneShadow = [170, 178, 190, 255];
 
-      // Fish head skull with eye socket
-      fillRect(buffer, width, height, fx + 4, fy - 1, 4, 4, bone);
-      setPixel(buffer, width, height, fx + 5, fy, [40, 45, 55, 255]); // eye socket
-
       // Central spine line
-      fillRect(buffer, width, height, fx - 6, fy + 1, 10, 1, bone);
-
-      // Rib bones (top and bottom)
-      for (let rx = fx - 4; rx <= fx + 2; rx += 2) {
-        setPixel(buffer, width, height, rx, fy - 1, bone);
-        setPixel(buffer, width, height, rx, fy + 3, boneShadow);
-      }
-
-      // Tail bone
-      setPixel(buffer, width, height, fx - 7, fy, bone);
-      setPixel(buffer, width, height, fx - 7, fy + 2, boneShadow);
+      fillRect(buffer, width, height, fx - 4, fy, 8, 1, bone);
+      // Ribs
+      setPixel(buffer, width, height, fx - 2, fy - 1, bone);
+      setPixel(buffer, width, height, fx - 2, fy + 1, boneShadow);
+      setPixel(buffer, width, height, fx, fy - 1, bone);
+      setPixel(buffer, width, height, fx, fy + 1, boneShadow);
+      setPixel(buffer, width, height, fx + 2, fy - 1, bone);
+      setPixel(buffer, width, height, fx + 2, fy + 1, boneShadow);
+      // Head skull
+      fillRect(buffer, width, height, fx + 3, fy - 1, 2, 3, bone);
+      setPixel(buffer, width, height, fx + 3, fy, [40, 45, 55, 255]);
     }
   }
 
-  // 3. Golden Swiss Cheese Wedge
+  // 3. Golden Swiss Cheese Wedge (Top-down view)
   if (props.cheese && !props.cheese.collected) {
     const cx = Math.round(props.cheese.x);
     const cy = Math.round(props.cheese.y);
     const goldYellow = [255, 210, 50, 255];
-    const cheeseHole = [215, 160, 25, 255];
+    const cheeseHole = [215, 155, 25, 255];
     const outline = [160, 110, 15, 255];
 
-    // Triangular wedge with 3D depth
-    fillRect(buffer, width, height, cx - 6, cy + 2, 12, 3, goldYellow);
-    fillRect(buffer, width, height, cx - 3, cy - 1, 9, 3, goldYellow);
-    fillRect(buffer, width, height, cx, cy - 3, 6, 2, [255, 230, 95, 255]); // top highlight
-    drawBorder(buffer, width, height, cx - 6, cy - 3, 12, 8, 1, outline);
+    // Triangular wedge with top-down depth
+    fillRect(buffer, width, height, cx - 4, cy - 3, 9, 7, goldYellow);
+    fillRect(buffer, width, height, cx - 2, cy - 4, 6, 2, [255, 235, 105, 255]); // highlight
+    drawBorder(buffer, width, height, cx - 4, cy - 3, 9, 7, 1, outline);
 
-    // Cheese swiss holes
-    setPixel(buffer, width, height, cx - 2, cy + 3, cheeseHole);
+    // Swiss holes
+    setPixel(buffer, width, height, cx - 1, cy - 1, cheeseHole);
     setPixel(buffer, width, height, cx + 2, cy + 1, cheeseHole);
-    setPixel(buffer, width, height, cx, cy, cheeseHole);
   }
 
-  // 4. Textured Red Wool Ball with Curled Loose Yarn
+  // 4. Textured Red Wool Ball with Curled Loose Yarn (Top-down view)
   const wool = props.woolBall || props.yarnBall;
   if (wool && wool.active !== false) {
     const wx = Math.round(wool.x);
     const wy = Math.round(wool.y);
 
     // Textured sphere
-    fillCircle(buffer, width, height, wx, wy, 6, [215, 45, 55, 255]);
-    fillCircle(buffer, width, height, wx - 1, wy - 1, 3, [255, 105, 115, 255]);
+    fillCircle(buffer, width, height, wx, wy, 5, [215, 45, 55, 255]);
+    fillCircle(buffer, width, height, wx - 1, wy - 1, 2, [255, 105, 115, 255]);
     // Woven yarn lines across ball
-    fillRect(buffer, width, height, wx - 4, wy - 1, 8, 1, [170, 30, 40, 255]);
-    fillRect(buffer, width, height, wx - 1, wy - 4, 1, 8, [170, 30, 40, 255]);
+    fillRect(buffer, width, height, wx - 3, wy, 6, 1, [170, 30, 40, 255]);
+    fillRect(buffer, width, height, wx, wy - 3, 1, 6, [170, 30, 40, 255]);
 
-    // Curled loose yarn thread winding across stone
-    fillRect(buffer, width, height, wx + 5, wy + 3, 4, 1, [215, 45, 55, 255]);
-    fillRect(buffer, width, height, wx + 9, wy + 4, 4, 1, [215, 45, 55, 255]);
-    setPixel(buffer, width, height, wx + 13, wy + 3, [215, 45, 55, 255]);
+    // Curled loose yarn thread winding across grass
+    fillRect(buffer, width, height, wx + 4, wy + 2, 3, 1, [215, 45, 55, 255]);
+    fillRect(buffer, width, height, wx + 7, wy + 3, 3, 1, [215, 45, 55, 255]);
+    setPixel(buffer, width, height, wx + 10, wy + 2, [215, 45, 55, 255]);
   }
 }

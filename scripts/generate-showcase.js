@@ -1,152 +1,182 @@
 /**
- * @file Generates dist/showcase.png progression showcase matrix.
- * Demonstrates Cat growth stages and Mouse companion tiers side-by-side like git-koi.
+ * @file Generates dist/showcase.png and assets/generated/showcase.png progression showcase matrix.
+ * Demonstrates Cat growth stages and Mouse companion tiers side-by-side across language themes like git-koi.
  */
 
 import fs from "node:fs";
+import path from "node:path";
 import { PNG } from "pngjs";
 import { createBuffer, blitSprite, fillRect } from "../src/rendering/canvas.js";
 import { CAT_SPRITES, getCatColorMap } from "../src/rendering/cat.js";
 import { MOUSE_SPRITES, getMouseColorMap } from "../src/rendering/mouse.js";
 
+/**
+ * Generates the multi-row, multi-column progression matrix matching git-koi style.
+ *
+ * @param {string} [outputPath="dist/showcase.png"]
+ */
 export function generateShowcase(outputPath = "dist/showcase.png") {
-  const W = 640;
-  const H = 240;
+  const W = 800;
+  const H = 600;
   const buffer = createBuffer(W, H);
 
-  // 1. Dark elegant backdrop
-  fillRect(buffer, W, H, 0, 0, W, H, [13, 17, 23, 255]); // #0d1117
-  // Border
+  // 1. Sleek pitch-dark background (#0d1117)
+  fillRect(buffer, W, H, 0, 0, W, H, [13, 17, 23, 255]);
+
+  // Subtle clean border (#21262d)
   fillRect(buffer, W, H, 0, 0, W, 1, [33, 38, 45, 255]);
   fillRect(buffer, W, H, 0, H - 1, W, 1, [33, 38, 45, 255]);
   fillRect(buffer, W, H, 0, 0, 1, H, [33, 38, 45, 255]);
   fillRect(buffer, W, H, W - 1, 0, 1, H, [33, 38, 45, 255]);
 
-  // Decorative middle subtle divider
-  fillRect(buffer, W, H, 24, 120, W - 48, 1, [30, 36, 46, 255]);
+  // Subtle horizontal track guides between rows
+  for (let y = 110; y <= 470; y += 90) {
+    fillRect(buffer, W, H, 32, y, W - 64, 1, [22, 27, 34, 255]);
+  }
+
+  // Row 5 divider separating Cat ecosystem and Mouse companion
+  fillRect(buffer, W, H, 24, 470, W - 48, 1, [38, 44, 54, 255]);
 
   const palette = {
     transparent: [0, 0, 0, 0],
-    catScarf: [165, 42, 58, 255]
+    catScarf: [165, 42, 58, 255],
+    primaryAccent: [165, 42, 58, 255]
   };
 
-  // Row 1: Cat Growth Stages (5 columns)
-  const catCols = [
-    { name: "Kitten", desc: "0 - 50", sprite: CAT_SPRITES.SLEEP, variant: "tabby", x: 64, y: 55 },
-    {
-      name: "Young",
-      desc: "51 - 250",
-      sprite: CAT_SPRITES.WALK_0,
-      variant: "ginger",
-      x: 192,
-      y: 55
-    },
-    {
-      name: "Adult",
-      desc: "251 - 1,000",
-      sprite: CAT_SPRITES.IDLE,
-      variant: "ginger",
-      x: 320,
-      y: 55
-    },
-    {
-      name: "Pro",
-      desc: "1,001 - 2,500",
-      sprite: CAT_SPRITES.PLAY,
-      variant: "midnight",
-      x: 448,
-      y: 55
-    },
-    {
-      name: "Master",
-      desc: "2,501+",
-      sprite: CAT_SPRITES.IDLE,
-      variant: "ginger",
-      crown: true,
-      x: 576,
-      y: 55
-    }
+  const colCenters = [90, 225, 375, 525, 685];
+
+  // Rows 1 - 5: Cat Growth Stages across Language / Coat Themes
+  const catRows = [
+    { name: "Rust / Ginger", variant: "rust", y: 60 },
+    { name: "Python", variant: "python", y: 150 },
+    { name: "JavaScript", variant: "javascript", y: 240 },
+    { name: "C++", variant: "cpp", y: 330 },
+    { name: "Midnight", variant: "midnight", y: 420 }
   ];
 
-  for (const c of catCols) {
-    const colorMap = getCatColorMap(c.variant, palette);
-    blitSprite(buffer, W, H, c.sprite, colorMap, c.x - 32, c.y - 32, { scale: 2 });
-    if (c.crown) {
-      // Golden crown on master cat head
-      fillRect(buffer, W, H, c.x - 12, c.y - 40, 24, 4, [249, 199, 79, 255]);
-      fillRect(buffer, W, H, c.x - 12, c.y - 46, 6, 6, [249, 199, 79, 255]);
-      fillRect(buffer, W, H, c.x - 3, c.y - 48, 6, 8, [249, 199, 79, 255]);
-      fillRect(buffer, W, H, c.x + 6, c.y - 46, 6, 6, [249, 199, 79, 255]);
-      fillRect(buffer, W, H, c.x - 2, c.y - 42, 4, 4, [217, 119, 6, 255]); // ruby
+  const catStageSpecs = [
+    { name: "Kitten", scale: 1.0, sprite: CAT_SPRITES.SLEEP },
+    { name: "Young", scale: 1.3, sprite: CAT_SPRITES.WALK_SOUTH_0 },
+    { name: "Adult", scale: 1.6, sprite: CAT_SPRITES.IDLE_SOUTH },
+    { name: "Pro", scale: 1.9, sprite: CAT_SPRITES.PLAY },
+    { name: "Master", scale: 2.2, sprite: CAT_SPRITES.IDLE_SOUTH, crown: true }
+  ];
+
+  for (const row of catRows) {
+    const colorMap = getCatColorMap(row.variant, palette);
+
+    for (let c = 0; c < 5; c++) {
+      const cx = colCenters[c];
+      const cy = row.y;
+      const spec = catStageSpecs[c];
+
+      const spriteW = 32;
+      const spriteH = 32;
+      const drawW = Math.round(spriteW * spec.scale);
+      const drawH = Math.round(spriteH * spec.scale);
+      const destX = Math.round(cx - drawW / 2);
+      const destY = Math.round(cy - drawH / 2);
+
+      blitSprite(buffer, W, H, spec.sprite, colorMap, destX, destY, { scale: spec.scale });
+
+      if (spec.crown) {
+        // Royal golden crown on Master cat head
+        const crW = Math.round(20 * (spec.scale / 2));
+        const crX = cx - Math.round(crW / 2);
+        const crY = destY - 8;
+        fillRect(buffer, W, H, crX, crY, crW, 3, [249, 199, 79, 255]);
+        fillRect(buffer, W, H, crX, crY - 5, 4, 5, [249, 199, 79, 255]);
+        fillRect(buffer, W, H, cx - 2, crY - 7, 5, 7, [249, 199, 79, 255]);
+        fillRect(buffer, W, H, crX + crW - 4, crY - 5, 4, 5, [249, 199, 79, 255]);
+        fillRect(buffer, W, H, cx - 1, crY - 2, 3, 3, [217, 119, 6, 255]); // ruby gem
+      }
     }
   }
 
-  // Row 2: Mouse Consistency Tiers (5 columns)
-  const mouseCols = [
+  // Row 6: Mouse Companion Evolution across Consistency Tiers (y: 535)
+  const mouseSpecs = [
     {
       name: "Newbie",
-      desc: "0 - 15",
-      sprite: MOUSE_SPRITES.IDLE,
       tier: "NEWBIE",
       variant: "field_mouse",
-      x: 64,
-      y: 175
+      scale: 1.2,
+      sprite: MOUSE_SPRITES.IDLE_SOUTH
     },
     {
       name: "Regular",
-      desc: "16 - 50",
-      sprite: MOUSE_SPRITES.WALK_0,
       tier: "REGULAR",
       variant: "companion",
-      x: 192,
-      y: 175
+      scale: 1.4,
+      sprite: MOUSE_SPRITES.WALK_SOUTH_0
     },
     {
       name: "Consistent",
-      desc: "51 - 150",
-      sprite: MOUSE_SPRITES.COLLECT,
       tier: "CONSISTENT",
       variant: "companion",
-      x: 320,
-      y: 175
+      scale: 1.6,
+      sprite: MOUSE_SPRITES.COLLECT
     },
     {
       name: "Dedicated",
-      desc: "151 - 300",
-      sprite: MOUSE_SPRITES.WORK,
       tier: "DEDICATED",
       variant: "companion",
-      x: 448,
-      y: 175
+      scale: 1.8,
+      sprite: MOUSE_SPRITES.WORK
     },
     {
       name: "Streaker",
-      desc: "301+",
-      sprite: MOUSE_SPRITES.CHEER,
       tier: "STREAKER",
       variant: "companion",
-      crown: true,
-      x: 576,
-      y: 175
+      scale: 2.1,
+      sprite: MOUSE_SPRITES.CHEER,
+      crown: true
     }
   ];
 
-  for (const m of mouseCols) {
-    const colorMap = getMouseColorMap(m.tier, m.variant, palette);
-    blitSprite(buffer, W, H, m.sprite, colorMap, m.x - 24, m.y - 24, { scale: 2 });
-    if (m.crown) {
-      // Golden crown on streaker mouse head
-      fillRect(buffer, W, H, m.x - 8, m.y - 32, 16, 4, [249, 199, 79, 255]);
-      fillRect(buffer, W, H, m.x - 8, m.y - 38, 4, 6, [249, 199, 79, 255]);
-      fillRect(buffer, W, H, m.x - 2, m.y - 40, 4, 8, [249, 199, 79, 255]);
-      fillRect(buffer, W, H, m.x + 4, m.y - 38, 4, 6, [249, 199, 79, 255]);
+  const mouseRowY = 530;
+  for (let c = 0; c < 5; c++) {
+    const spec = mouseSpecs[c];
+    const colorMap = getMouseColorMap(spec.tier, spec.variant, palette);
+    const cx = colCenters[c];
+    const cy = mouseRowY;
+
+    const spriteW = 24;
+    const spriteH = 24;
+    const drawW = Math.round(spriteW * spec.scale);
+    const drawH = Math.round(spriteH * spec.scale);
+    const destX = Math.round(cx - drawW / 2);
+    const destY = Math.round(cy - drawH / 2);
+
+    blitSprite(buffer, W, H, spec.sprite, colorMap, destX, destY, { scale: spec.scale });
+
+    if (spec.crown) {
+      // Golden crown on Streaker mouse head
+      const crW = Math.round(16 * (spec.scale / 2));
+      const crX = cx - Math.round(crW / 2);
+      const crY = destY - 6;
+      fillRect(buffer, W, H, crX, crY, crW, 3, [249, 199, 79, 255]);
+      fillRect(buffer, W, H, crX, crY - 4, 3, 4, [249, 199, 79, 255]);
+      fillRect(buffer, W, H, cx - 2, crY - 6, 4, 6, [249, 199, 79, 255]);
+      fillRect(buffer, W, H, crX + crW - 3, crY - 4, 3, 4, [249, 199, 79, 255]);
     }
   }
 
+  // Write PNG buffer
   const png = new PNG({ width: W, height: H });
   png.data = Buffer.from(buffer);
-  fs.writeFileSync(outputPath, PNG.sync.write(png));
+  const pngData = PNG.sync.write(png);
+
+  // Ensure output directory exists
+  const resolvedOut = path.resolve(process.cwd(), outputPath);
+  fs.mkdirSync(path.dirname(resolvedOut), { recursive: true });
+  fs.writeFileSync(resolvedOut, pngData);
   console.log(`Generated ${outputPath} successfully.`);
+
+  // Also write to assets/generated/showcase.png
+  const assetOut = path.resolve(process.cwd(), "assets/generated/showcase.png");
+  fs.mkdirSync(path.dirname(assetOut), { recursive: true });
+  fs.writeFileSync(assetOut, pngData);
+  console.log(`Generated assets/generated/showcase.png successfully.`);
 }
 
 if (process.argv[1]?.endsWith("generate-showcase.js")) {

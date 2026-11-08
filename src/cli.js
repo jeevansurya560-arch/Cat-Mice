@@ -192,7 +192,9 @@ export async function main(
   if (outputDir) {
     exportSummary = await exportArtifacts(rendered, {
       outputDir,
-      filenamePrefix: "cat-mice"
+      filenamePrefix: "cat-mice",
+      frame: timeline.frames[0],
+      themeSpec: progression.theme
     });
   }
 

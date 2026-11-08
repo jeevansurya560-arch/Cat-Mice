@@ -7,11 +7,12 @@ import { writeFile, mkdir, stat } from "node:fs/promises";
 import { resolve } from "node:path";
 
 /**
- * Writes encoded GIF and PNG binary buffers to disk with filesystem validation.
+ * Writes encoded GIF, PNG, and SVG buffers to disk with filesystem validation.
  *
  * @param {object} params
  * @param {Uint8Array} params.gifData
  * @param {Buffer} params.pngData
+ * @param {string|Buffer} [params.svgData]
  * @param {string} [params.outputDir="output"]
  * @param {string} [params.filenamePrefix="cat-mice"]
  * @returns {Promise<{
@@ -19,12 +20,15 @@ import { resolve } from "node:path";
  *   gifSize: number,
  *   pngPath: string,
  *   pngSize: number,
+ *   svgPath?: string,
+ *   svgSize?: number,
  *   writtenAt: string
  * }>}
  */
 export async function writeArtifacts({
   gifData,
   pngData,
+  svgData,
   outputDir = "output",
   filenamePrefix = "cat-mice"
 }) {
@@ -33,11 +37,20 @@ export async function writeArtifacts({
 
   const gifPath = resolve(targetDir, `${filenamePrefix}.gif`);
   const pngPath = resolve(targetDir, `${filenamePrefix}.png`);
+  const svgPath = resolve(targetDir, `${filenamePrefix}.svg`);
 
   await writeFile(gifPath, gifData);
   await writeFile(pngPath, pngData);
+  if (svgData) {
+    await writeFile(svgPath, svgData);
+  }
 
   const [gifStats, pngStats] = await Promise.all([stat(gifPath), stat(pngPath)]);
+  let svgSize = 0;
+  if (svgData) {
+    const svgStats = await stat(svgPath);
+    svgSize = svgStats.size;
+  }
 
   if (gifStats.size === 0 || pngStats.size === 0) {
     throw new Error("Export failure: Output artifacts were written with 0 bytes.");
@@ -48,6 +61,8 @@ export async function writeArtifacts({
     gifSize: gifStats.size,
     pngPath,
     pngSize: pngStats.size,
+    svgPath: svgData ? svgPath : undefined,
+    svgSize: svgData ? svgSize : undefined,
     writtenAt: new Date().toISOString()
   };
 }

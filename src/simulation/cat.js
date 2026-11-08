@@ -218,20 +218,24 @@ export function updateCat(cat, mouse, props, bounds, rng) {
 
   // Position update and boundary constraints
   const margin = 16 * updated.scale;
-  const targetY =
-    bounds.height === 120
-      ? Math.max(69, Math.min(73, updated.y + updated.vy * 0.15))
-      : updated.y + updated.vy;
-  const nextPos = clampToBounds({ x: updated.x + updated.vx, y: targetY }, bounds, margin);
+  const nextPos = clampToBounds(
+    { x: updated.x + updated.vx, y: updated.y + updated.vy },
+    bounds,
+    margin
+  );
 
   updated.x = Number(nextPos.x.toFixed(1));
   updated.y = Number(nextPos.y.toFixed(1));
 
-  // Determine facing direction
-  if (updated.vx > 0.1) {
-    updated.facing = "right";
-  } else if (updated.vx < -0.1) {
-    updated.facing = "left";
+  // Determine top-down directional heading
+  const absVx = Math.abs(updated.vx);
+  const absVy = Math.abs(updated.vy);
+  if (absVx > 0.08 || absVy > 0.08) {
+    if (absVx >= absVy) {
+      updated.facing = updated.vx > 0 ? "east" : "west";
+    } else {
+      updated.facing = updated.vy > 0 ? "south" : "north";
+    }
   }
 
   return updated;

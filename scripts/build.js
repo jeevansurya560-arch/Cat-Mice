@@ -1,6 +1,6 @@
 /**
  * @file Build and end-to-end pipeline verification script.
- * Validates dependencies, project structure, and produces distribution artifacts in dist/.
+ * Validates dependencies, project structure, and produces distribution artifacts in dist/ and assets/.
  */
 
 import { mkdir } from "node:fs/promises";
@@ -14,14 +14,17 @@ import { renderTimeline } from "../src/rendering/index.js";
 import { exportArtifacts } from "../src/export/index.js";
 import { deriveIdentitySeed, deriveSimulationSeed } from "../src/core/seed.js";
 import { generateShowcase } from "./generate-showcase.js";
+import { generateAllCharacterSvgs } from "./generate-character-svgs.js";
 
 async function build() {
   console.log("CAT-MICE: Verifying project build integrity...");
 
   const outputDir = resolve(process.cwd(), "output");
   const distDir = resolve(process.cwd(), "dist");
+  const assetsGenDir = resolve(process.cwd(), "assets/generated");
   await mkdir(outputDir, { recursive: true });
   await mkdir(distDir, { recursive: true });
+  await mkdir(assetsGenDir, { recursive: true });
 
   // 1. Verify configuration
   if (!config.application.name) {
@@ -53,19 +56,33 @@ async function build() {
   // 4. Export Production Artifacts to dist/
   const exportSummary = await exportArtifacts(rendered, {
     outputDir: "dist",
-    filenamePrefix: "cat-mice"
+    filenamePrefix: "cat-mice",
+    frame: timeline.frames[0],
+    themeSpec: progression.theme
+  });
+
+  // Mirror P0 artifacts to assets/generated/
+  await exportArtifacts(rendered, {
+    outputDir: "assets/generated",
+    filenamePrefix: "cat-mice",
+    frame: timeline.frames[0],
+    themeSpec: progression.theme
   });
 
   // 5. Generate progression matrix showcase banner
   generateShowcase("dist/showcase.png");
+
+  // 6. Generate standalone character SVGs
+  generateAllCharacterSvgs();
 
   console.log(`✓ Configuration valid: ${config.application.name} v${config.application.version}`);
   console.log(
     `✓ Pipeline verified: ${snapshot.user.login} (${analytics.totalContributions} contributions)`
   );
   console.log(
-    `✓ Distribution artifacts built: GIF (${(exportSummary.gifSize / 1024).toFixed(1)} KB) | PNG (${(exportSummary.pngSize / 1024).toFixed(1)} KB)`
+    `✓ Distribution artifacts built: GIF (${(exportSummary.gifSize / 1024).toFixed(1)} KB) | SVG (${((exportSummary.svgSize || 0) / 1024).toFixed(1)} KB)`
   );
+  console.log("✓ Standalone character SVGs generated in assets/characters/");
   console.log("✓ Build complete. Application is fully operational.");
 }
 

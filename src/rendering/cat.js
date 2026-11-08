@@ -1,11 +1,11 @@
 /**
- * @file Modern pixel-art Cat sprites and coat color resolution.
- * Provides high-fidelity 32x32 chibi cat animations with signature scarf,
- * expressive face, cream belly, white socks, and striped tail.
+ * @file Modern Top-Down 2D Pixel-Art Cat Sprites & Color Palette Resolution.
+ * Orthographic overhead (90° bird's-eye view) directional sprites for Cat:
+ * North (up), South (down), East (right), West (left), plus activity animations.
  */
 
 /*
-  Legend:
+  Palette Legend:
   . = transparent
   B = dark warm outline [50, 26, 20, 255]
   O = primary ginger fur [242, 141, 53, 255]
@@ -23,8 +23,8 @@
 */
 
 export const CAT_SPRITES = {
-  // Sitting Idle with signature scarf & curled tail
-  IDLE: [
+  // 1. South Facing (Facing Down toward camera) - Top-down view of ears, face, scarf, back & tail
+  IDLE_SOUTH: [
     "................................",
     "................................",
     ".......BB.............BB........",
@@ -59,8 +59,116 @@ export const CAT_SPRITES = {
     "............BBBB................"
   ],
 
-  // Walking cycle frame 0: stepping forward
-  WALK_0: [
+  // 2. North Facing (Facing Up / away from camera) - Back of head, upright ears, back coat & swishing tail
+  IDLE_NORTH: [
+    "................................",
+    "................................",
+    ".......BB.............BB........",
+    "......BOOB...........BOOB.......",
+    ".....BOOPPB.........BOOPPB......",
+    ".....BOOOBB.........BBOOOB......",
+    "....BOOOOB...........BOOOOB.....",
+    "...BOOOOOBBBBBBBBBBBBBOOOOOB....",
+    "...BOOOOOHHHHHHHHHHHHHOOOOOB....",
+    "..BOOOOOOHHDDDDDDHHHHOOOOOOB....",
+    "..BOOOOOHHDDDDDDDDHHHOOOOOOB....",
+    "..BOOOOHHDDDDDDDDDDHHHOOOOOB....",
+    "..BOOOOHDDDDDDDDDDDDHHOOOOOB....",
+    "..BOOOOHHDDDDDDDDDDDDHOOOOOB....",
+    "..BOOOOHHDDDDDDDDDDDDHHOOOOB....",
+    "...BOOOOHHHHHHHHHHHHHOOOOB......",
+    "...BBSSSSSSSSSSSSSSSSSSBB.......",
+    "....BSSSSSSSSSSSSSSSSSSB........",
+    "....BssSSSSSSSSSSSSSSssB........",
+    "....BOOBSSSSSSSSSSSSBOOB..BB....",
+    "...BOOOBssssssssssssBOOOBBODB...",
+    "...BOOODBBBBBBBBBBBBDOOOBBODOB..",
+    "..BOOOODDDDDDDDDDDDDDOOOBBODOB..",
+    "..BOOOOOOOOODDDDOOOOOOOOBBODOB..",
+    "..BOOOOODDODDDDDOODDOOOOBBODOB..",
+    "..BOOOOOODDODDDDOODDOOOOBBODOB..",
+    "..BOOOOODDODDDDDOODDOOOOBBWWOB..",
+    "...BOOOBBBBBBBBBBBBBBOOOBBWWOB..",
+    "....BBB...BOOODDOOB...BBBBB.BBB.",
+    ".........BOOODDDOOOB............",
+    "..........BBBOOOBBB.............",
+    "............BBB................."
+  ],
+
+  // 3. East Facing (Facing Right) - Top-down horizontal view with head right, body center, tail trailing left
+  IDLE_EAST: [
+    "................................",
+    "................................",
+    "......................BB...BB...",
+    ".....................BOOB.BOOB..",
+    "....................BOOPPBBOOPB.",
+    "....................BOOPPBBOOPB.",
+    "...................BOOOPPBBOOOB.",
+    "..................BOOOOBBBBBBB..",
+    "..........BBBBBBBOOOOOOHHHHHB...",
+    "........BBOOOOOOBOOOOOHHDDEEB...",
+    ".......BODDOOOOOBOOOOHDCCCPPB...",
+    "......BODDOODDDDOOOOHDCCCCppb...",
+    ".....BODDOOOOOOOBOOOHDDCCCCB....",
+    "....BODDOODDDDOOBOOOOHDDCCCB....",
+    "...BODDOOOOOOOOOBBSSSSSSSSBB....",
+    "..BODDOODDDDOOOOBSSSSSSSSLWB....",
+    "..BODDOOOOOOOOOOBsSSSSSSSLWB....",
+    "..BODDOODDDDOOOOBssSSSSSssBB....",
+    "..BODDOOOOOOOOOOBBOOBWWBOOB.....",
+    "...BODDOODDDDOOOBOOOBWWBOOB.....",
+    "....BODDOOOOOOOBOOOOBWWBOOB.....",
+    ".....BODDOODDDDBOOOOOBBBBOOB....",
+    "......BBODDOOOOBBBBBBB..BBBB....",
+    ".......BBBODDOOB.BWWWB..BWWWB...",
+    ".........BBBODDOOBWWWB..BWWWB...",
+    "...........BBBODOBBBBB..BBBBB...",
+    ".............BBODB..............",
+    "...............BBB..............",
+    "................................",
+    "................................",
+    "................................",
+    "................................"
+  ],
+
+  // 4. West Facing (Facing Left)
+  IDLE_WEST: [
+    "................................",
+    "................................",
+    "...BB...BB......................",
+    "..BOOB.BOOB.....................",
+    ".BPOOBBPOOPB....................",
+    ".BPOOBBPOOPB....................",
+    ".BOOOBBPOOOB....................",
+    "..BBBBBBBOOOOB..................",
+    "...BHHHHHOOOOOOOBBBBBBB.........",
+    "...BEEDDHHOOOOOBOOOOOOBB........",
+    "...BPPCCCDHOOOOBOOOOOODOB.......",
+    "...bppCCCCDHHOOOODDDDOODDOB.....",
+    "....BCCCCDDHOOOBBBBOOOOOODOB....",
+    "....BCCCDDHOOOOBOODDDDOODDOB....",
+    "....BBSSSSSSSSBBOOOOOOOOODDOB...",
+    "....BWLSSSSSSSSBOOOODDDDOODDOB..",
+    "....BWLSSSSSSSSBOOOOOOOOOODDOB..",
+    "....BBssSSSSSssBOOOODDDDOODDOB..",
+    ".....BOOBWWBOOBBOOOOOOOOOODDOB..",
+    ".....BOOBWWBOOOBOOOODDDDOODDOB..",
+    ".....BOOBWWBOOOOBOOOOOOOODDOB...",
+    "....BOOBBBBOOOOOOBDDDDOODDOB....",
+    "....BBBB..BBBBBBBOOOODDOBB......",
+    "...BWWWB..BWWWB.BOODDOBBB.......",
+    "...BWWWB..BWWWB.BOODDOBBB.......",
+    "...BBBBB..BBBBB.BODOBBB.........",
+    "..............BDDOBB............",
+    "..............BBB...............",
+    "................................",
+    "................................",
+    "................................",
+    "................................"
+  ],
+
+  // Walking Cycles - 4 frames South
+  WALK_SOUTH_0: [
     "................................",
     "................................",
     ".......BB.............BB........",
@@ -95,8 +203,7 @@ export const CAT_SPRITES = {
     "............BBBB................"
   ],
 
-  // Walking cycle frame 1: passing stance
-  WALK_1: [
+  WALK_SOUTH_1: [
     "................................",
     "................................",
     ".......BB.............BB........",
@@ -131,8 +238,7 @@ export const CAT_SPRITES = {
     "............BBBB................"
   ],
 
-  // Walking cycle frame 2: opposite stride
-  WALK_2: [
+  WALK_SOUTH_2: [
     "................................",
     "................................",
     ".......BB.............BB........",
@@ -167,7 +273,324 @@ export const CAT_SPRITES = {
     "............BBBB................"
   ],
 
-  // Eating fresh fish happily
+  WALK_SOUTH_3: [
+    "................................",
+    "................................",
+    ".......BB.............BB........",
+    "......BOOB...........BOOB.......",
+    ".....BOOPPB.........BOOPPB......",
+    ".....BOOPPB.........BOOPPB......",
+    "....BOOOPPB.........BOOOPPB.....",
+    "....BOOOOBBBBBBBBBBBBOOOOB......",
+    "...BOOOOOHHHHHHHHHHHHOOOOOB.....",
+    "...BOOOOHHHDDDDDDHHHHHOOOOB.....",
+    "..BOOOOHHDDDDDDDDDDHHHOOOOB.....",
+    "..BOOOOHDDDDDDDDDDDDHHOOOOB.....",
+    "..BOOOHHDDDDDDDDDDDDHHOOOOB.....",
+    "..BCCCHHDDDEECCCCEEDDDHHCCCB....",
+    ".BCCCCCHDDDEECCCCEEDDDHCCCCCB...",
+    ".BCCCCCCCCHHCBPPBCHHCCCCCCCCB...",
+    ".BCCCCCCCCCCHBBBBHCCCCCCCCCCB...",
+    "..BCCCCCCCCCCCCCCCCCCCCCCCCB....",
+    "...BBSSSSSSSSSSSSSSSSSSBB.......",
+    "....BSSSSSSSSSSSSSSSSSSB........",
+    "....BsSSSSSSLWLLSSSSSSsB........",
+    "....BssSSSSSWLLWSSSSSSsB...BB...",
+    "....BOOBSSSSWLLWSSSSBOOB..BODB..",
+    "...BOOOBssssSSSSssssBOOOBBODOB..",
+    "...BOOODBBBBWWWWBBBBDOOOBBODOB..",
+    "..BOOOODDDDDWWWWDDDDDOOOBBODOB..",
+    "..BOOOOOOOODWWWWDOOOOOOOBBODOB..",
+    "..BOOOOODDODWWWWDOODDOOOBBODOB..",
+    "...BOOOODDOWWWWDOODDOOOBBWWOB...",
+    "...BOOOBBBBBWWWWBBBBBOOOBBWWOB..",
+    "....BBB....BWWWWb...BBBBB.BBB...",
+    "............BBBB................"
+  ],
+
+  // Walking Cycles - 4 frames North
+  WALK_NORTH_0: [
+    "................................",
+    "................................",
+    ".......BB.............BB........",
+    "......BOOB...........BOOB.......",
+    ".....BOOPPB.........BOOPPB......",
+    ".....BOOOBB.........BBOOOB......",
+    "....BOOOOB...........BOOOOB.....",
+    "...BOOOOOBBBBBBBBBBBBBOOOOOB....",
+    "...BOOOOOHHHHHHHHHHHHHOOOOOB....",
+    "..BOOOOOOHHDDDDDDHHHHOOOOOOB....",
+    "..BOOOOOHHDDDDDDDDHHHOOOOOOB....",
+    "..BOOOOHHDDDDDDDDDDHHHOOOOOB....",
+    "..BOOOOHDDDDDDDDDDDDHHOOOOOB....",
+    "..BOOOOHHDDDDDDDDDDDDHOOOOOB....",
+    "..BOOOOHHDDDDDDDDDDDDHHOOOOB....",
+    "...BOOOOHHHHHHHHHHHHHOOOOB......",
+    "...BBSSSSSSSSSSSSSSSSSSBB.......",
+    "....BSSSSSSSSSSSSSSSSSSB........",
+    "....BssSSSSSSSSSSSSSSssB........",
+    "....BOOBSSSSSSSSSSSSBOOB..BB....",
+    "...BOOOBssssssssssssBOOOBBODB...",
+    "..BWWBBBBBBBBBBBBBBBDOOOBBODOB..",
+    ".BWWWB.DDDDDDDDDDDDDDOOOBBODOB..",
+    "..BBB.OOOOOODDDDOOOOOOOOBBODOB..",
+    "....BOOOOODDODDDDDOODDOOOOBBODOB",
+    "....BOOOOOODDODDDDOODDOOOOBBWWOB",
+    "....BOOOOODDODDDDDOODDOOOOBBWWOB",
+    ".....BOOOBBBBBBBBBBBBBBOOOB.BBB.",
+    ".......BBB...BOOODDOOB...BBBBB..",
+    "............BOOODDDOOOB.........",
+    ".............BBBOOOBBB..........",
+    "...............BBB.............."
+  ],
+
+  WALK_NORTH_1: [
+    "................................",
+    "................................",
+    ".......BB.............BB........",
+    "......BOOB...........BOOB.......",
+    ".....BOOPPB.........BOOPPB......",
+    ".....BOOOBB.........BBOOOB......",
+    "....BOOOOB...........BOOOOB.....",
+    "...BOOOOOBBBBBBBBBBBBBOOOOOB....",
+    "...BOOOOOHHHHHHHHHHHHHOOOOOB....",
+    "..BOOOOOOHHDDDDDDHHHHOOOOOOB....",
+    "..BOOOOOHHDDDDDDDDHHHOOOOOOB....",
+    "..BOOOOHHDDDDDDDDDDHHHOOOOOB....",
+    "..BOOOOHDDDDDDDDDDDDHHOOOOOB....",
+    "..BOOOOHHDDDDDDDDDDDDHOOOOOB....",
+    "..BOOOOHHDDDDDDDDDDDDHHOOOOB....",
+    "...BOOOOHHHHHHHHHHHHHOOOOB......",
+    "...BBSSSSSSSSSSSSSSSSSSBB.......",
+    "....BSSSSSSSSSSSSSSSSSSB........",
+    "....BssSSSSSSSSSSSSSSssB........",
+    "....BOOBSSSSSSSSSSSSBOOB..BB....",
+    "...BOOOBssssssssssssBOOOBBODB...",
+    "...BOOODBBBBBBBBBBBBDOOOBBODOB..",
+    "..BOOOODDDDDDDDDDDDDDOOOBBODOB..",
+    "..BOOOOOOOOODDDDOOOOOOOOBBODOB..",
+    "..BOOOOODDODDDDDOODDOOOOBBODOB..",
+    "..BOOOOOODDODDDDOODDOOOOBBODOB..",
+    "..BOOOOODDODDDDDOODDOOOOBBWWOB..",
+    "...BOOOBBBBBBBBBBBBBBOOOBBWWOB..",
+    "....BBB...BOOODDOOB...BBBBB.BBB.",
+    ".........BOOODDDOOOB............",
+    "..........BBBOOOBBB.............",
+    "............BBB................."
+  ],
+
+  WALK_NORTH_2: [
+    "................................",
+    "................................",
+    ".......BB.............BB........",
+    "......BOOB...........BOOB.......",
+    ".....BOOPPB.........BOOPPB......",
+    ".....BOOOBB.........BBOOOB......",
+    "....BOOOOB...........BOOOOB.....",
+    "...BOOOOOBBBBBBBBBBBBBOOOOOB....",
+    "...BOOOOOHHHHHHHHHHHHHOOOOOB....",
+    "..BOOOOOOHHDDDDDDHHHHOOOOOOB....",
+    "..BOOOOOHHDDDDDDDDHHHOOOOOOB....",
+    "..BOOOOHHDDDDDDDDDDHHHOOOOOB....",
+    "..BOOOOHDDDDDDDDDDDDHHOOOOOB....",
+    "..BOOOOHHDDDDDDDDDDDDHOOOOOB....",
+    "..BOOOOHHDDDDDDDDDDDDHHOOOOB....",
+    "...BOOOOHHHHHHHHHHHHHOOOOB......",
+    "...BBSSSSSSSSSSSSSSSSSSBB.......",
+    "....BSSSSSSSSSSSSSSSSSSB........",
+    "....BssSSSSSSSSSSSSSSssB........",
+    "....BOOBSSSSSSSSSSSSBOOB..BB....",
+    "...BOOOBssssssssssssBOOOBBODB...",
+    "..BOOODBBBBBBBBBBBBWWWWBBODOB...",
+    "..BOOOODDDDDDDDDDDDDWWWB.BODOB..",
+    "..BOOOOOOOOODDDDOOOOOBBB.BODOB..",
+    "..BOOOOODDODDDDDOODDOOOOBBODOB..",
+    "..BOOOOOODDODDDDOODDOOOOBBODOB..",
+    "..BWWBBBDDODDDDDOODDOOOOBBWWOB..",
+    "..BWWWB.BBBBBBBBBBBBBOOOBBWWOB..",
+    "...BBB....BOOODDOOB...BBBBB.BBB.",
+    ".........BOOODDDOOOB............",
+    "..........BBBOOOBBB.............",
+    "............BBB................."
+  ],
+
+  WALK_NORTH_3: [
+    "................................",
+    "................................",
+    ".......BB.............BB........",
+    "......BOOB...........BOOB.......",
+    ".....BOOPPB.........BOOPPB......",
+    ".....BOOOBB.........BBOOOB......",
+    "....BOOOOB...........BOOOOB.....",
+    "...BOOOOOBBBBBBBBBBBBBOOOOOB....",
+    "...BOOOOOHHHHHHHHHHHHHOOOOOB....",
+    "..BOOOOOOHHDDDDDDHHHHOOOOOOB....",
+    "..BOOOOOHHDDDDDDDDHHHOOOOOOB....",
+    "..BOOOOHHDDDDDDDDDDHHHOOOOOB....",
+    "..BOOOOHDDDDDDDDDDDDHHOOOOOB....",
+    "..BOOOOHHDDDDDDDDDDDDHOOOOOB....",
+    "..BOOOOHHDDDDDDDDDDDDHHOOOOB....",
+    "...BOOOOHHHHHHHHHHHHHOOOOB......",
+    "...BBSSSSSSSSSSSSSSSSSSBB.......",
+    "....BSSSSSSSSSSSSSSSSSSB........",
+    "....BssSSSSSSSSSSSSSSssB........",
+    "....BOOBSSSSSSSSSSSSBOOB..BB....",
+    "...BOOOBssssssssssssBOOOBBODB...",
+    "...BOOODBBBBBBBBBBBBDOOOBBODOB..",
+    "..BOOOODDDDDDDDDDDDDDOOOBBODOB..",
+    "..BOOOOOOOOODDDDOOOOOOOOBBODOB..",
+    "..BOOOOODDODDDDDOODDOOOOBBODOB..",
+    "..BOOOOOODDODDDDOODDOOOOBBODOB..",
+    "..BOOOOODDODDDDDOODDOOOOBBWWOB..",
+    "...BOOOBBBBBBBBBBBBBBOOOBBWWOB..",
+    "....BBB...BOOODDOOB...BBBBB.BBB.",
+    ".........BOOODDDOOOB............",
+    "..........BBBOOOBBB.............",
+    "............BBB................."
+  ],
+
+  // Walking Cycles - 4 frames East
+  WALK_EAST_0: [
+    "................................",
+    "................................",
+    "......................BB...BB...",
+    ".....................BOOB.BOOB..",
+    "....................BOOPPBBOOPB.",
+    "....................BOOPPBBOOPB.",
+    "...................BOOOPPBBOOOB.",
+    "..................BOOOOBBBBBBB..",
+    "..........BBBBBBBOOOOOOHHHHHB...",
+    "........BBOOOOOOBOOOOOHHDDEEB...",
+    ".......BODDOOOOOBOOOOHDCCCPPB...",
+    "......BODDOODDDDOOOOHDCCCCppb...",
+    ".....BODDOOOOOOOBOOOHDDCCCCB....",
+    "....BODDOODDDDOOBOOOOHDDCCCB....",
+    "...BODDOOOOOOOOOBBSSSSSSSSBB....",
+    "..BODDOODDDDOOOOBSSSSSSSSLWB....",
+    "..BODDOOOOOOOOOOBsSSSSSSSLWB....",
+    "..BODDOODDDDOOOOBssSSSSSssBB....",
+    "..BODDOOOOOOOOOOBBOOBWWBOOB.....",
+    "...BODDOODDDDOOOBOOOBWWBOOB.....",
+    "....BODDOOOOOOOBOOOOBWWBOOB.....",
+    ".....BODDOODDDDBOOOOOBBBBOOB....",
+    "......BBODDOOOOBBBBBBB..BBBB....",
+    ".......BBBODDOOB.BWWWB..BWWWB...",
+    ".........BBBODDOOBWWWB..BWWWB...",
+    "...........BBBODOBBBBB..BBBBB...",
+    ".............BBODB..............",
+    "...............BBB..............",
+    "................................",
+    "................................",
+    "................................",
+    "................................"
+  ],
+
+  WALK_EAST_1: [
+    "................................",
+    "................................",
+    "......................BB...BB...",
+    ".....................BOOB.BOOB..",
+    "....................BOOPPBBOOPB.",
+    "....................BOOPPBBOOPB.",
+    "...................BOOOPPBBOOOB.",
+    "..................BOOOOBBBBBBB..",
+    "..........BBBBBBBOOOOOOHHHHHB...",
+    "........BBOOOOOOBOOOOOHHDDEEB...",
+    ".......BODDOOOOOBOOOOHDCCCPPB...",
+    "......BODDOODDDDOOOOHDCCCCppb...",
+    ".....BODDOOOOOOOBOOOHDDCCCCB....",
+    "....BODDOODDDDOOBOOOOHDDCCCB....",
+    "...BODDOOOOOOOOOBBSSSSSSSSBB....",
+    "..BODDOODDDDOOOOBSSSSSSSSLWB....",
+    "..BODDOOOOOOOOOOBsSSSSSSSLWB....",
+    "..BODDOODDDDOOOOBssSSSSSssBB....",
+    "..BODDOOOOOOOOOOBBOOBWWBOOB.....",
+    "...BODDOODDDDOOOBOOOBWWBOOB.....",
+    "....BODDOOOOOOOBOOOOBWWBOOB.....",
+    ".....BODDOODDDDBOOOOOBBBBOOB....",
+    "......BBODDOOOOBBBBBBB..BBBB....",
+    ".......BBBODDOOB..BWWWB.BWWWB...",
+    ".........BBBODDOO.BWWWB.BWWWB...",
+    "...........BBBODOBBBBBB.BBBBB...",
+    ".............BBODB..............",
+    "...............BBB..............",
+    "................................",
+    "................................",
+    "................................",
+    "................................"
+  ],
+
+  WALK_EAST_2: [
+    "................................",
+    "................................",
+    "......................BB...BB...",
+    ".....................BOOB.BOOB..",
+    "....................BOOPPBBOOPB.",
+    "....................BOOPPBBOOPB.",
+    "...................BOOOPPBBOOOB.",
+    "..................BOOOOBBBBBBB..",
+    "..........BBBBBBBOOOOOOHHHHHB...",
+    "........BBOOOOOOBOOOOOHHDDEEB...",
+    ".......BODDOOOOOBOOOOHDCCCPPB...",
+    "......BODDOODDDDOOOOHDCCCCppb...",
+    ".....BODDOOOOOOOBOOOHDDCCCCB....",
+    "....BODDOODDDDOOBOOOOHDDCCCB....",
+    "...BODDOOOOOOOOOBBSSSSSSSSBB....",
+    "..BODDOODDDDOOOOBSSSSSSSSLWB....",
+    "..BODDOOOOOOOOOOBsSSSSSSSLWB....",
+    "..BODDOODDDDOOOOBssSSSSSssBB....",
+    "..BODDOOOOOOOOOOBBOOBWWBOOB.....",
+    "...BODDOODDDDOOOBOOOBWWBOOB.....",
+    "....BODDOOOOOOOBOOOOBWWBOOB.....",
+    ".....BODDOODDDDBOOOOOBBBBOOB....",
+    "......BBODDOOOOBBBBBBB..BBBB....",
+    ".......BBBODDOOB.BWWWB..BWWWB...",
+    ".........BBBODDOOBWWWB..BWWWB...",
+    "...........BBBODOBBBBB..BBBBB...",
+    ".............BBODB..............",
+    "...............BBB..............",
+    "................................",
+    "................................",
+    "................................",
+    "................................"
+  ],
+
+  WALK_EAST_3: [
+    "................................",
+    "................................",
+    "......................BB...BB...",
+    ".....................BOOB.BOOB..",
+    "....................BOOPPBBOOPB.",
+    "....................BOOPPBBOOPB.",
+    "...................BOOOPPBBOOOB.",
+    "..................BOOOOBBBBBBB..",
+    "..........BBBBBBBOOOOOOHHHHHB...",
+    "........BBOOOOOOBOOOOOHHDDEEB...",
+    ".......BODDOOOOOBOOOOHDCCCPPB...",
+    "......BODDOODDDDOOOOHDCCCCppb...",
+    ".....BODDOOOOOOOBOOOHDDCCCCB....",
+    "....BODDOODDDDOOBOOOOHDDCCCB....",
+    "...BODDOOOOOOOOOBBSSSSSSSSBB....",
+    "..BODDOODDDDOOOOBSSSSSSSSLWB....",
+    "..BODDOOOOOOOOOOBsSSSSSSSLWB....",
+    "..BODDOODDDDOOOOBssSSSSSssBB....",
+    "..BODDOOOOOOOOOOBBOOBWWBOOB.....",
+    "...BODDOODDDDOOOBOOOBWWBOOB.....",
+    "....BODDOOOOOOOBOOOOBWWBOOB.....",
+    ".....BODDOODDDDBOOOOOBBBBOOB....",
+    "......BBODDOOOOBBBBBBB..BBBB....",
+    ".......BBBODDOOB..BWWWB.BWWWB...",
+    ".........BBBODDOO.BWWWB.BWWWB...",
+    "...........BBBODOBBBBBB.BBBBB...",
+    ".............BBODB..............",
+    "...............BBB..............",
+    "................................",
+    "................................",
+    "................................",
+    "................................"
+  ],
+
+  // 5. Eating fresh fish happily at the pond bank
   EAT: [
     "................................",
     "................................",
@@ -203,7 +626,7 @@ export const CAT_SPRITES = {
     "....................BBBB........"
   ],
 
-  // Grooming paw
+  // 6. Grooming paw contentedly
   GROOM: [
     "................................",
     "................................",
@@ -239,7 +662,7 @@ export const CAT_SPRITES = {
     "................BBBB............"
   ],
 
-  // Playing with wool ball (batting paw)
+  // 7. Playing with red wool ball
   PLAY: [
     "................................",
     "................................",
@@ -275,7 +698,7 @@ export const CAT_SPRITES = {
     "................BBBB............"
   ],
 
-  // Sleeping curled loaf
+  // 8. Sleeping curled circular loaf viewed from above
   SLEEP: [
     "................................",
     "................................",
@@ -312,17 +735,23 @@ export const CAT_SPRITES = {
   ]
 };
 
-// Aliases for seamless backward compatibility
+// Seamless Backward-Compatibility Aliases
+CAT_SPRITES.IDLE = CAT_SPRITES.IDLE_SOUTH;
+CAT_SPRITES.WALK_0 = CAT_SPRITES.WALK_SOUTH_0;
+CAT_SPRITES.WALK_1 = CAT_SPRITES.WALK_SOUTH_1;
+CAT_SPRITES.WALK_2 = CAT_SPRITES.WALK_SOUTH_2;
+CAT_SPRITES.WALK_3 = CAT_SPRITES.WALK_SOUTH_3;
 CAT_SPRITES.SLEEPING = CAT_SPRITES.SLEEP;
 CAT_SPRITES.WALKING_0 = CAT_SPRITES.WALK_0;
 CAT_SPRITES.WALKING_1 = CAT_SPRITES.WALK_1;
 CAT_SPRITES.WALKING_2 = CAT_SPRITES.WALK_2;
+CAT_SPRITES.WALKING_3 = CAT_SPRITES.WALK_3;
 CAT_SPRITES.PROWLING_0 = CAT_SPRITES.WALK_0;
 CAT_SPRITES.PROWLING_1 = CAT_SPRITES.WALK_1;
 CAT_SPRITES.EATING_FISH = CAT_SPRITES.EAT;
 CAT_SPRITES.GROOMING = CAT_SPRITES.GROOM;
 CAT_SPRITES.PLAYING_WOOL = CAT_SPRITES.PLAY;
-CAT_SPRITES.EXPLORING = CAT_SPRITES.IDLE;
+CAT_SPRITES.EXPLORING = CAT_SPRITES.IDLE_SOUTH;
 CAT_SPRITES.STALKING = CAT_SPRITES.PLAY;
 CAT_SPRITES.POUNCING = CAT_SPRITES.PLAY;
 
@@ -360,6 +789,36 @@ export function getCatColorMap(variant, palette) {
       shadow = [215, 90, 20, 255];
       highlight = [252, 168, 78, 255];
       break;
+    case "rust":
+      primary = [222, 90, 42, 255];
+      shadow = [168, 56, 22, 255];
+      highlight = [248, 130, 82, 255];
+      break;
+    case "python":
+      primary = [55, 118, 172, 255];
+      shadow = [32, 74, 116, 255];
+      highlight = [84, 158, 224, 255];
+      cream = [255, 224, 102, 255];
+      eyes = [255, 212, 59, 255];
+      break;
+    case "javascript":
+      primary = [240, 218, 54, 255];
+      shadow = [198, 172, 28, 255];
+      highlight = [255, 238, 115, 255];
+      outline = [35, 38, 46, 255];
+      break;
+    case "cpp":
+      primary = [35, 115, 185, 255];
+      shadow = [20, 75, 130, 255];
+      highlight = [75, 165, 240, 255];
+      cream = [215, 235, 255, 255];
+      break;
+    case "java":
+      primary = [228, 62, 48, 255];
+      shadow = [165, 36, 26, 255];
+      highlight = [250, 108, 92, 255];
+      cream = [255, 236, 220, 255];
+      break;
     case "midnight":
       primary = [32, 34, 44, 255];
       shadow = [20, 22, 30, 255];
@@ -392,7 +851,6 @@ export function getCatColorMap(variant, palette) {
     E: eyes,
     G: [249, 199, 79, 255],
     g: [217, 119, 6, 255],
-    F: [75, 160, 225, 255], // fish dish in eating pose
-    b: [180, 180, 185, 255]
+    F: [75, 160, 225, 255] // fish dish in eating pose
   };
 }

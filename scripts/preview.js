@@ -41,7 +41,9 @@ async function preview() {
   const rendered = renderTimeline(timeline, progression.theme, { fps: config.rendering.fps });
   const exportSummary = await exportArtifacts(rendered, {
     outputDir,
-    filenamePrefix: "preview"
+    filenamePrefix: "preview",
+    frame: timeline.frames[0],
+    themeSpec: progression.theme
   });
 
   console.log("\n========================================");
