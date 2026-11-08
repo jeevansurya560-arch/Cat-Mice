@@ -101,6 +101,7 @@ pub struct ArtworkPackage {
     pub width: u32,
     pub height: u32,
     pub master_grayscale: RgbaImage,
+    pub master_color: RgbaImage,
     pub masks: HashMap<RegionMaskId, RegionMask>,
     pub priority_map: PriorityMap,
 }

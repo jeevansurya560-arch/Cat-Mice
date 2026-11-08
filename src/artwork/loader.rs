@@ -19,6 +19,7 @@ impl ArtworkLoader {
 
         let stage_dir = base.join("pokemon").join(stage.folder_name());
         let master_path = stage_dir.join("master_grayscale.png");
+        let color_path = stage_dir.join("master_color.png");
         let priority_path = stage_dir.join("priority_map.png");
         let masks_dir = stage_dir.join("masks");
 
@@ -116,11 +117,30 @@ impl ArtworkLoader {
             }
         }
 
+        let color_img = if color_path.exists() {
+            ImageReader::open(&color_path)
+                .map_err(|e| PokedexError::AssetNotFound {
+                    path: color_path.display().to_string(),
+                    message: e.to_string(),
+                })?
+                .decode()
+                .map_err(|e| PokedexError::AssetNotFound {
+                    path: color_path.display().to_string(),
+                    message: e.to_string(),
+                })?
+                .to_rgba8()
+        } else {
+            let generated = ArtworkGenerator::generate(stage);
+            let _ = generated.master_color.save(&color_path);
+            generated.master_color
+        };
+
         let package = ArtworkPackage {
             stage,
             width: w,
             height: h,
             master_grayscale: master_img,
+            master_color: color_img,
             masks,
             priority_map: PriorityMap {
                 width: priority_img.width(),

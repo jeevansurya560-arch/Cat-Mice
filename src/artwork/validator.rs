@@ -29,6 +29,15 @@ impl ArtworkValidator {
             });
         }
 
+        if package.master_color.width() != 160 || package.master_color.height() != 160 {
+            return Err(PokedexError::MaskDimensionMismatch {
+                expected_w: 160,
+                expected_h: 160,
+                actual_w: package.master_color.width(),
+                actual_h: package.master_color.height(),
+            });
+        }
+
         if package.priority_map.width != 160 || package.priority_map.height != 160 {
             return Err(PokedexError::MaskDimensionMismatch {
                 expected_w: 160,

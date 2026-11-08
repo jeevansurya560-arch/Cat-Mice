@@ -1,5 +1,5 @@
 use image::{GrayImage, Luma, Rgba, RgbaImage};
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use std::fs;
 use std::path::Path;
 
@@ -8,16 +8,15 @@ use crate::artwork::validator::ArtworkValidator;
 use crate::errors::{PokedexError, Result};
 use crate::evolution::PokemonStage;
 
+const CANONICAL_REF_BYTES: &[u8] =
+    include_bytes!("../../research/references/art-styles/evolution-canonical-reference.jpg");
+
 pub struct ArtworkGenerator;
 
 impl ArtworkGenerator {
-    /// Generates and validates the full artwork package for a given stage.
+    /// Generates and validates the full authentic printed pixel-art package for a given stage.
     pub fn generate(stage: PokemonStage) -> ArtworkPackage {
-        match stage {
-            PokemonStage::Charmander => Self::generate_charmander(),
-            PokemonStage::Charmeleon => Self::generate_charmeleon(),
-            PokemonStage::Charizard => Self::generate_charizard(),
-        }
+        Self::generate_from_canonical(stage)
     }
 
     /// Generates assets and persists them to the assets directory if not present.
@@ -32,10 +31,15 @@ impl ArtworkGenerator {
         for stage in stages {
             let stage_dir = base.join("pokemon").join(stage.folder_name());
             let master_path = stage_dir.join("master_grayscale.png");
+            let color_path = stage_dir.join("master_color.png");
             let priority_path = stage_dir.join("priority_map.png");
             let masks_dir = stage_dir.join("masks");
 
-            if !master_path.exists() || !priority_path.exists() || !masks_dir.exists() {
+            if !master_path.exists()
+                || !color_path.exists()
+                || !priority_path.exists()
+                || !masks_dir.exists()
+            {
                 fs::create_dir_all(&masks_dir).map_err(|e| PokedexError::AssetNotFound {
                     path: masks_dir.display().to_string(),
                     message: e.to_string(),
@@ -47,6 +51,13 @@ impl ArtworkGenerator {
                 package.master_grayscale.save(&master_path).map_err(|e| {
                     PokedexError::AssetNotFound {
                         path: master_path.display().to_string(),
+                        message: e.to_string(),
+                    }
+                })?;
+
+                package.master_color.save(&color_path).map_err(|e| {
+                    PokedexError::AssetNotFound {
+                        path: color_path.display().to_string(),
                         message: e.to_string(),
                     }
                 })?;
@@ -73,539 +84,387 @@ impl ArtworkGenerator {
         Ok(())
     }
 
-    fn generate_charmander() -> ArtworkPackage {
-        let w = 160u32;
-        let h = 160u32;
-        let mut sprite = RgbaImage::new(w, h);
-        let mut region_grid = vec![vec![None; w as usize]; h as usize];
-        let mut priority_grid = vec![vec![0.0f64; w as usize]; h as usize];
+    fn generate_from_canonical(stage: PokemonStage) -> ArtworkPackage {
+        let ref_img = image::load_from_memory(CANONICAL_REF_BYTES)
+            .expect("Embedded canonical pixel-art reference must be valid JPEG")
+            .to_rgb8();
 
-        // Geometric definition for Charmander (Lizard Pokémon)
-        // Canvas center: (80, 80). Charmander bounds: X in [52, 144], Y in [36, 138]
-        for y in 0..h {
-            for x in 0..w {
-                let fx = x as f64;
-                let fy = y as f64;
+        let (x1, y1, cw, ch, target_max_h, target_max_w) = match stage {
+            PokemonStage::Charmander => (35u32, 55u32, 240u32, 225u32, 125u32, 140u32),
+            PokemonStage::Charmeleon => (305u32, 18u32, 250u32, 262u32, 130u32, 140u32),
+            PokemonStage::Charizard => (610u32, 10u32, 400u32, 270u32, 125u32, 152u32),
+        };
 
-                // 1. Flame (Teardrop flame at tail tip: X ~ [118, 144], Y ~ [64, 102])
-                let dx_flame = fx - 131.0;
-                let dy_flame = fy - 83.0;
-                let flame_dist =
-                    (dx_flame * dx_flame) / (12.5 * 12.5) + (dy_flame * dy_flame) / (18.0 * 18.0);
-                let flame_taper = (fy - 65.0) / 36.0;
-                let flame_mod = if flame_taper > 0.0 && flame_taper < 1.0 {
-                    (1.0 - flame_taper * 0.4).max(0.2)
-                } else {
-                    1.0
+        let crop = image::imageops::crop_imm(&ref_img, x1, y1, cw, ch).to_image();
+        let mut mask_grid = vec![vec![false; cw as usize]; ch as usize];
+
+        for y in 0..ch {
+            for x in 0..cw {
+                let p = crop.get_pixel(x, y);
+                let (r, g, b) = (p[0] as i32, p[1] as i32, p[2] as i32);
+
+                let is_bg = (r < 45 && g < 45 && b < 60) || (r + g + b < 75);
+                let is_ground = match stage {
+                    PokemonStage::Charmander => {
+                        y > ch - 22
+                            && ((g > r + 3 && g > 40)
+                                || (r < 95 && g < 95 && b < 95 && !(r > 160 && g > 150 && b > 140)))
+                            || y > ch - 6
+                    }
+                    PokemonStage::Charmeleon => {
+                        (y > ch - 22
+                            && (r < 100 && g < 90 && b < 90 && !(r > 180 && g > 170 && b > 170)))
+                            || (y > ch - 30 && x < 45 && r < 140)
+                            || y > ch - 4
+                    }
+                    PokemonStage::Charizard => {
+                        (y > ch - 22
+                            && (r < 125 && g < 120 && b < 120 && !(r > 180 && g > 170 && b > 170)))
+                            || y > ch - 5
+                    }
                 };
 
-                if flame_dist * flame_mod <= 1.0 {
-                    region_grid[y as usize][x as usize] = Some(RegionMaskId::Flame);
-                    let q = 0.85 + 0.15 * (1.0 - flame_dist).clamp(0.0, 1.0);
-                    priority_grid[y as usize][x as usize] = q;
-                    continue;
-                }
-
-                // 2. Tail (Curving upward from pelvis to flame base)
-                let dx_tail = fx - 114.0;
-                let dy_tail = fy - 104.0;
-                let tail_dist =
-                    (dx_tail * dx_tail) / (18.0 * 18.0) + (dy_tail * dy_tail) / (14.0 * 14.0);
-                if tail_dist <= 1.0 && fx > 96.0 {
-                    region_grid[y as usize][x as usize] = Some(RegionMaskId::Tail);
-                    let q = 0.65 + 0.20 * ((fx - 96.0) / 35.0).clamp(0.0, 1.0);
-                    priority_grid[y as usize][x as usize] = q;
-                    continue;
-                }
-
-                // 3. Limbs & Claws (Feet: Y in [120, 138], Hands: Y in [84, 102])
-                let left_foot =
-                    ((fx - 68.0) * (fx - 68.0) / 100.0) + ((fy - 128.0) * (fy - 128.0) / 64.0);
-                let right_foot =
-                    ((fx - 98.0) * (fx - 98.0) / 121.0) + ((fy - 129.0) * (fy - 129.0) / 64.0);
-                let left_arm =
-                    ((fx - 56.0) * (fx - 56.0) / 49.0) + ((fy - 92.0) * (fy - 92.0) / 121.0);
-                let right_arm =
-                    ((fx - 96.0) * (fx - 96.0) / 49.0) + ((fy - 94.0) * (fy - 94.0) / 100.0);
-
-                if left_foot <= 1.0 || right_foot <= 1.0 || left_arm <= 1.0 || right_arm <= 1.0 {
-                    region_grid[y as usize][x as usize] = Some(RegionMaskId::LimbsClaws);
-                    let q = 0.50 + 0.25 * ((fy - 80.0) / 55.0).clamp(0.0, 1.0);
-                    priority_grid[y as usize][x as usize] = q;
-                    continue;
-                }
-
-                // 4. Belly (Pale cream chest/underside oval)
-                let dx_belly = fx - 78.0;
-                let dy_belly = fy - 96.0;
-                let belly_dist =
-                    (dx_belly * dx_belly) / (12.0 * 12.0) + (dy_belly * dy_belly) / (18.0 * 18.0);
-                if belly_dist <= 1.0 {
-                    region_grid[y as usize][x as usize] = Some(RegionMaskId::Belly);
-                    let q = 0.35 + 0.25 * (1.0 - belly_dist).clamp(0.0, 1.0);
-                    priority_grid[y as usize][x as usize] = q;
-                    continue;
-                }
-
-                // 5. Face & Eyes (Snout highlight, eye at (83, 52))
-                let dx_eye = fx - 83.0;
-                let dy_eye = fy - 52.0;
-                let eye_dist = (dx_eye * dx_eye) / (6.0 * 6.0) + (dy_eye * dy_eye) / (8.0 * 8.0);
-                if eye_dist <= 1.0 {
-                    region_grid[y as usize][x as usize] = Some(RegionMaskId::FaceEyes);
-                    priority_grid[y as usize][x as usize] = 0.05; // Eyes ignite right after head colorization
-                    continue;
-                }
-
-                // 6. Body (Head & Torso)
-                let dx_head = fx - 79.0;
-                let dy_head = fy - 56.0;
-                let head_dist =
-                    (dx_head * dx_head) / (20.0 * 20.0) + (dy_head * dy_head) / (19.0 * 19.0);
-
-                let dx_snout = fx - 64.0;
-                let dy_snout = fy - 60.0;
-                let snout_dist =
-                    (dx_snout * dx_snout) / (12.0 * 12.0) + (dy_snout * dy_snout) / (9.0 * 9.0);
-
-                let dx_torso = fx - 82.0;
-                let dy_torso = fy - 98.0;
-                let torso_dist =
-                    (dx_torso * dx_torso) / (19.0 * 19.0) + (dy_torso * dy_torso) / (22.0 * 22.0);
-
-                if head_dist <= 1.0 || snout_dist <= 1.0 || torso_dist <= 1.0 {
-                    region_grid[y as usize][x as usize] = Some(RegionMaskId::Body);
-                    let q = if head_dist <= 1.0 || snout_dist <= 1.0 {
-                        0.10 + 0.20 * ((fy - 37.0) / 38.0).clamp(0.0, 1.0)
-                    } else {
-                        0.35 + 0.25 * ((fy - 76.0) / 44.0).clamp(0.0, 1.0)
-                    };
-                    priority_grid[y as usize][x as usize] = q;
+                if !is_bg && !is_ground {
+                    mask_grid[y as usize][x as usize] = true;
                 }
             }
         }
 
-        Self::build_package(
-            PokemonStage::Charmander,
-            w,
-            h,
-            region_grid,
-            priority_grid,
-            &mut sprite,
-        )
-    }
+        // Connected component analysis: keep only major character body & flame (>= 800 px)
+        let mut visited = vec![vec![false; cw as usize]; ch as usize];
+        let mut cleaned_mask = vec![vec![false; cw as usize]; ch as usize];
 
-    fn generate_charmeleon() -> ArtworkPackage {
-        let w = 160u32;
-        let h = 160u32;
-        let mut sprite = RgbaImage::new(w, h);
-        let mut region_grid = vec![vec![None; w as usize]; h as usize];
-        let mut priority_grid = vec![vec![0.0f64; w as usize]; h as usize];
+        for y in 0..ch {
+            for x in 0..cw {
+                if mask_grid[y as usize][x as usize] && !visited[y as usize][x as usize] {
+                    let mut component = Vec::new();
+                    let mut queue = VecDeque::new();
+                    queue.push_back((x, y));
+                    visited[y as usize][x as usize] = true;
 
-        // Geometric definition for Charmeleon (Flame Pokémon)
-        // Canvas center: (80, 80). Horn, predatory snout, smirk tooth, 3 claws
-        for y in 0..h {
-            for x in 0..w {
-                let fx = x as f64;
-                let fy = y as f64;
-
-                // 1. Flame (Blazing torch flame at tail tip: X ~ [120, 150], Y ~ [58, 98])
-                let dx_flame = fx - 134.0;
-                let dy_flame = fy - 78.0;
-                let flame_dist =
-                    (dx_flame * dx_flame) / (14.0 * 14.0) + (dy_flame * dy_flame) / (19.0 * 19.0);
-                if flame_dist <= 1.0 {
-                    region_grid[y as usize][x as usize] = Some(RegionMaskId::Flame);
-                    let q = 0.85 + 0.15 * (1.0 - flame_dist).clamp(0.0, 1.0);
-                    priority_grid[y as usize][x as usize] = q;
-                    continue;
-                }
-
-                // 2. Tail (Powerful muscular tail)
-                let dx_tail = fx - 116.0;
-                let dy_tail = fy - 100.0;
-                let tail_dist =
-                    (dx_tail * dx_tail) / (20.0 * 20.0) + (dy_tail * dy_tail) / (15.0 * 15.0);
-                if tail_dist <= 1.0 && fx > 96.0 {
-                    region_grid[y as usize][x as usize] = Some(RegionMaskId::Tail);
-                    let q = 0.65 + 0.20 * ((fx - 96.0) / 38.0).clamp(0.0, 1.0);
-                    priority_grid[y as usize][x as usize] = q;
-                    continue;
-                }
-
-                // 3. Cranial Crest (Backward-curving single horn from rear skull: X in [88, 114], Y in [28, 48])
-                let dx_crest = fx - 101.0;
-                let dy_crest = fy - 38.0;
-                let crest_dist =
-                    (dx_crest * dx_crest) / (13.0 * 13.0) + (dy_crest * dy_crest) / (9.0 * 9.0);
-                if crest_dist <= 1.0 && (fx - 86.0) > (fy - 32.0) * 0.4 {
-                    region_grid[y as usize][x as usize] = Some(RegionMaskId::CranialCrest);
-                    priority_grid[y as usize][x as usize] = 0.12;
-                    continue;
-                }
-
-                // 4. Arms & Claws (Curved razor talons)
-                let left_arm =
-                    ((fx - 56.0) * (fx - 56.0) / 64.0) + ((fy - 90.0) * (fy - 90.0) / 169.0);
-                let right_arm =
-                    ((fx - 98.0) * (fx - 98.0) / 64.0) + ((fy - 92.0) * (fy - 92.0) / 144.0);
-                if left_arm <= 1.0 || right_arm <= 1.0 {
-                    region_grid[y as usize][x as usize] = Some(RegionMaskId::ArmsClaws);
-                    let q = 0.45 + 0.20 * ((fy - 78.0) / 45.0).clamp(0.0, 1.0);
-                    priority_grid[y as usize][x as usize] = q;
-                    continue;
-                }
-
-                // 5. Legs & Claws (Heavy ground talons: Y in [116, 142])
-                let left_leg =
-                    ((fx - 66.0) * (fx - 66.0) / 144.0) + ((fy - 128.0) * (fy - 128.0) / 121.0);
-                let right_leg =
-                    ((fx - 102.0) * (fx - 102.0) / 169.0) + ((fy - 129.0) * (fy - 129.0) / 121.0);
-                if left_leg <= 1.0 || right_leg <= 1.0 {
-                    region_grid[y as usize][x as usize] = Some(RegionMaskId::LegsClaws);
-                    let q = 0.55 + 0.25 * ((fy - 110.0) / 32.0).clamp(0.0, 1.0);
-                    priority_grid[y as usize][x as usize] = q;
-                    continue;
-                }
-
-                // 6. Belly (Pale beige underside patch)
-                let dx_belly = fx - 79.0;
-                let dy_belly = fy - 94.0;
-                let belly_dist =
-                    (dx_belly * dx_belly) / (13.0 * 13.0) + (dy_belly * dy_belly) / (19.0 * 19.0);
-                if belly_dist <= 1.0 {
-                    region_grid[y as usize][x as usize] = Some(RegionMaskId::Belly);
-                    let q = 0.35 + 0.25 * (1.0 - belly_dist).clamp(0.0, 1.0);
-                    priority_grid[y as usize][x as usize] = q;
-                    continue;
-                }
-
-                // 7. Body (Head, predatory downward beak snout, muscular torso)
-                let dx_head = fx - 78.0;
-                let dy_head = fy - 55.0;
-                let head_dist =
-                    (dx_head * dx_head) / (19.0 * 19.0) + (dy_head * dy_head) / (18.0 * 18.0);
-
-                let dx_snout = fx - 62.0;
-                let dy_snout = fy - 62.0;
-                let snout_dist =
-                    (dx_snout * dx_snout) / (14.0 * 14.0) + (dy_snout * dy_snout) / (10.0 * 10.0);
-
-                let dx_torso = fx - 82.0;
-                let dy_torso = fy - 96.0;
-                let torso_dist =
-                    (dx_torso * dx_torso) / (20.0 * 20.0) + (dy_torso * dy_torso) / (24.0 * 24.0);
-
-                if head_dist <= 1.0 || snout_dist <= 1.0 || torso_dist <= 1.0 {
-                    region_grid[y as usize][x as usize] = Some(RegionMaskId::Body);
-                    let q = if head_dist <= 1.0 || snout_dist <= 1.0 {
-                        0.05 + 0.25 * ((fy - 36.0) / 40.0).clamp(0.0, 1.0)
-                    } else {
-                        0.30 + 0.30 * ((fy - 72.0) / 48.0).clamp(0.0, 1.0)
-                    };
-                    priority_grid[y as usize][x as usize] = q;
-                }
-            }
-        }
-
-        Self::build_package(
-            PokemonStage::Charmeleon,
-            w,
-            h,
-            region_grid,
-            priority_grid,
-            &mut sprite,
-        )
-    }
-
-    fn generate_charizard() -> ArtworkPackage {
-        let w = 160u32;
-        let h = 160u32;
-        let mut sprite = RgbaImage::new(w, h);
-        let mut region_grid = vec![vec![None; w as usize]; h as usize];
-        let mut priority_grid = vec![vec![0.0f64; w as usize]; h as usize];
-
-        // Geometric definition for Charizard (Flame Pokémon / Dragon)
-        // Dual horns, massive wingspan, heavy dragon legs, roaring flame
-        for y in 0..h {
-            for x in 0..w {
-                let fx = x as f64;
-                let fy = y as f64;
-
-                // 1. Flame (Roaring inferno at tail tip: X ~ [124, 156], Y ~ [64, 108])
-                let dx_flame = fx - 139.0;
-                let dy_flame = fy - 86.0;
-                let flame_dist =
-                    (dx_flame * dx_flame) / (16.0 * 16.0) + (dy_flame * dy_flame) / (22.0 * 22.0);
-                if flame_dist <= 1.0 {
-                    region_grid[y as usize][x as usize] = Some(RegionMaskId::Flame);
-                    let q = 0.85 + 0.15 * (1.0 - flame_dist).clamp(0.0, 1.0);
-                    priority_grid[y as usize][x as usize] = q;
-                    continue;
-                }
-
-                // 2. Tail (Heavy serpentine tail)
-                let dx_tail = fx - 120.0;
-                let dy_tail = fy - 108.0;
-                let tail_dist =
-                    (dx_tail * dx_tail) / (22.0 * 22.0) + (dy_tail * dy_tail) / (16.0 * 16.0);
-                if tail_dist <= 1.0 && fx > 98.0 {
-                    region_grid[y as usize][x as usize] = Some(RegionMaskId::Tail);
-                    let q = 0.65 + 0.20 * ((fx - 98.0) / 40.0).clamp(0.0, 1.0);
-                    priority_grid[y as usize][x as usize] = q;
-                    continue;
-                }
-
-                // 3. Head & Horns (Dual cranial horns: X in [74, 98], Y in [22, 42])
-                let dx_horn1 = fx - 82.0;
-                let dy_horn1 = fy - 28.0;
-                let horn1_dist =
-                    (dx_horn1 * dx_horn1) / (7.0 * 7.0) + (dy_horn1 * dy_horn1) / (11.0 * 11.0);
-
-                let dx_horn2 = fx - 94.0;
-                let dy_horn2 = fy - 32.0;
-                let horn2_dist =
-                    (dx_horn2 * dx_horn2) / (7.0 * 7.0) + (dy_horn2 * dy_horn2) / (11.0 * 11.0);
-
-                if horn1_dist <= 1.0 || horn2_dist <= 1.0 {
-                    region_grid[y as usize][x as usize] = Some(RegionMaskId::HeadHorns);
-                    priority_grid[y as usize][x as usize] = 0.08;
-                    continue;
-                }
-
-                // 4. Wings Outer (Draconic wing bones and outer armatures)
-                let left_wing_outer =
-                    ((fx - 44.0) * (fx - 44.0) / 484.0) + ((fy - 54.0) * (fy - 54.0) / 1024.0);
-                let right_wing_outer =
-                    ((fx - 122.0) * (fx - 122.0) / 576.0) + ((fy - 52.0) * (fy - 52.0) / 1024.0);
-
-                // 5. Wings Inner (Teal/Cyan inner membranes)
-                let left_wing_inner =
-                    ((fx - 46.0) * (fx - 46.0) / 256.0) + ((fy - 56.0) * (fy - 56.0) / 576.0);
-                let right_wing_inner =
-                    ((fx - 120.0) * (fx - 120.0) / 324.0) + ((fy - 54.0) * (fy - 54.0) / 576.0);
-
-                if (left_wing_inner <= 1.0 || right_wing_inner <= 1.0) && (fx < 64.0 || fx > 98.0) {
-                    region_grid[y as usize][x as usize] = Some(RegionMaskId::WingsInner);
-                    priority_grid[y as usize][x as usize] = 0.25;
-                    continue;
-                }
-
-                if (left_wing_outer <= 1.0 || right_wing_outer <= 1.0) && (fx < 66.0 || fx > 96.0) {
-                    region_grid[y as usize][x as usize] = Some(RegionMaskId::WingsOuter);
-                    priority_grid[y as usize][x as usize] = 0.20;
-                    continue;
-                }
-
-                // 6. Limbs & Claws (Heavy dragon legs, feet talons: Y in [116, 144])
-                let left_leg =
-                    ((fx - 64.0) * (fx - 64.0) / 196.0) + ((fy - 130.0) * (fy - 130.0) / 144.0);
-                let right_leg =
-                    ((fx - 100.0) * (fx - 100.0) / 225.0) + ((fy - 131.0) * (fy - 131.0) / 144.0);
-                if left_leg <= 1.0 || right_leg <= 1.0 {
-                    region_grid[y as usize][x as usize] = Some(RegionMaskId::LimbsClaws);
-                    let q = 0.55 + 0.25 * ((fy - 110.0) / 34.0).clamp(0.0, 1.0);
-                    priority_grid[y as usize][x as usize] = q;
-                    continue;
-                }
-
-                // 7. Belly (Cream segmented belly plates)
-                let dx_belly = fx - 80.0;
-                let dy_belly = fy - 94.0;
-                let belly_dist =
-                    (dx_belly * dx_belly) / (14.0 * 14.0) + (dy_belly * dy_belly) / (20.0 * 20.0);
-                if belly_dist <= 1.0 {
-                    region_grid[y as usize][x as usize] = Some(RegionMaskId::Belly);
-                    let q = 0.35 + 0.25 * (1.0 - belly_dist).clamp(0.0, 1.0);
-                    priority_grid[y as usize][x as usize] = q;
-                    continue;
-                }
-
-                // 8. Body (Draconic neck, jaw, shoulders, torso)
-                let dx_head = fx - 78.0;
-                let dy_head = fy - 52.0;
-                let head_dist =
-                    (dx_head * dx_head) / (18.0 * 18.0) + (dy_head * dy_head) / (16.0 * 16.0);
-
-                let dx_snout = fx - 64.0;
-                let dy_snout = fy - 56.0;
-                let snout_dist =
-                    (dx_snout * dx_snout) / (14.0 * 14.0) + (dy_snout * dy_snout) / (10.0 * 10.0);
-
-                let dx_torso = fx - 82.0;
-                let dy_torso = fy - 96.0;
-                let torso_dist =
-                    (dx_torso * dx_torso) / (22.0 * 22.0) + (dy_torso * dy_torso) / (26.0 * 26.0);
-
-                if head_dist <= 1.0 || snout_dist <= 1.0 || torso_dist <= 1.0 {
-                    region_grid[y as usize][x as usize] = Some(RegionMaskId::Body);
-                    let q = if head_dist <= 1.0 || snout_dist <= 1.0 {
-                        0.05 + 0.20 * ((fy - 36.0) / 36.0).clamp(0.0, 1.0)
-                    } else {
-                        0.30 + 0.30 * ((fy - 70.0) / 52.0).clamp(0.0, 1.0)
-                    };
-                    priority_grid[y as usize][x as usize] = q;
-                }
-            }
-        }
-
-        Self::build_package(
-            PokemonStage::Charizard,
-            w,
-            h,
-            region_grid,
-            priority_grid,
-            &mut sprite,
-        )
-    }
-
-    fn build_package(
-        stage: PokemonStage,
-        w: u32,
-        h: u32,
-        region_grid: Vec<Vec<Option<RegionMaskId>>>,
-        priority_grid: Vec<Vec<f64>>,
-        sprite: &mut RgbaImage,
-    ) -> ArtworkPackage {
-        let mut masks_map: HashMap<RegionMaskId, GrayImage> = HashMap::new();
-        let mut priority_map = GrayImage::new(w, h);
-
-        // Pre-create mask images
-        for y in 0..h {
-            for x in 0..w {
-                if let Some(id) = region_grid[y as usize][x as usize] {
-                    masks_map.entry(id).or_insert_with(|| GrayImage::new(w, h));
-                }
-            }
-        }
-
-        // Compute 5-stop luminance and populate sprite pixels
-        for y in 0..h {
-            for x in 0..w {
-                let fx = x as f64;
-                let fy = y as f64;
-
-                if let Some(id) = region_grid[y as usize][x as usize] {
-                    // Mark binary mask
-                    masks_map.get_mut(&id).unwrap().put_pixel(x, y, Luma([255]));
-
-                    // Priority map value
-                    let q_val = (priority_grid[y as usize][x as usize].clamp(0.0, 1.0) * 255.0)
-                        .round() as u8;
-                    priority_map.put_pixel(x, y, Luma([q_val]));
-
-                    // Directional light from top-left (dx = -1.0, dy = -1.0)
-                    let light_angle = ((fx - 40.0) * 0.5 + (fy - 30.0) * 0.5) / 100.0;
-                    let form_shading = (1.0 - light_angle).clamp(0.0, 1.0);
-
-                    // 5-stop monochromatic luminance calculation
-                    let luma_norm = match id {
-                        RegionMaskId::Flame => {
-                            // Flame has high internal radiance
-                            0.70 + 0.28 * form_shading
-                        }
-                        RegionMaskId::Belly => {
-                            // Belly is pale diffuse cream
-                            0.60 + 0.25 * form_shading
-                        }
-                        RegionMaskId::FaceEyes => {
-                            // Specular glint in pupil
-                            if x % 2 == 0 && y % 2 == 0 {
-                                0.95
-                            } else {
-                                0.20
+                    while let Some((cx, cy)) = queue.pop_front() {
+                        component.push((cx, cy));
+                        for (dx, dy) in [(-1i32, 0), (1, 0), (0, -1), (0, 1)] {
+                            let nx = cx as i32 + dx;
+                            let ny = cy as i32 + dy;
+                            if nx >= 0 && ny >= 0 && nx < cw as i32 && ny < ch as i32 {
+                                let (ux, uy) = (nx as u32, ny as u32);
+                                if mask_grid[uy as usize][ux as usize]
+                                    && !visited[uy as usize][ux as usize]
+                                {
+                                    visited[uy as usize][ux as usize] = true;
+                                    queue.push_back((ux, uy));
+                                }
                             }
+                        }
+                    }
+
+                    if component.len() >= 800 {
+                        for (cx, cy) in component {
+                            cleaned_mask[cy as usize][cx as usize] = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        let mut min_cx = cw;
+        let mut max_cx = 0;
+        let mut min_cy = ch;
+        let mut max_cy = 0;
+
+        for y in 0..ch {
+            for x in 0..cw {
+                if cleaned_mask[y as usize][x as usize] {
+                    if x < min_cx {
+                        min_cx = x;
+                    }
+                    if x > max_cx {
+                        max_cx = x;
+                    }
+                    if y < min_cy {
+                        min_cy = y;
+                    }
+                    if y > max_cy {
+                        max_cy = y;
+                    }
+                }
+            }
+        }
+
+        let char_w = max_cx - min_cx + 1;
+        let char_h = max_cy - min_cy + 1;
+
+        let scale_w = target_max_w as f64 / char_w as f64;
+        let scale_h = target_max_h as f64 / char_h as f64;
+        let scale = scale_w.min(scale_h);
+
+        let scaled_w = ((char_w as f64 * scale).round() as u32).min(156);
+        let scaled_h = ((char_h as f64 * scale).round() as u32).min(156);
+
+        let offset_x = (160u32.saturating_sub(scaled_w)) / 2;
+        let offset_y = (160u32.saturating_sub(scaled_h)) / 2;
+
+        let mut sprite_gray = RgbaImage::new(160, 160);
+        let mut sprite_color = RgbaImage::new(160, 160);
+        let mut region_grid = vec![vec![None; 160]; 160];
+        let mut priority_grid = vec![vec![0.0f64; 160]; 160];
+
+        for y in 0..scaled_h {
+            for x in 0..scaled_w {
+                let orig_cx = min_cx + ((x as f64 / scale).floor() as u32).min(char_w - 1);
+                let orig_cy = min_cy + ((y as f64 / scale).floor() as u32).min(char_h - 1);
+
+                if cleaned_mask[orig_cy as usize][orig_cx as usize] {
+                    let dest_x = offset_x + x;
+                    let dest_y = offset_y + y;
+                    if dest_x >= 160 || dest_y >= 160 {
+                        continue;
+                    }
+
+                    let p = crop.get_pixel(orig_cx, orig_cy);
+                    let (pr, pg, pb) = (p[0] as f64, p[1] as f64, p[2] as f64);
+
+                    let region = match stage {
+                        PokemonStage::Charmander => {
+                            if dest_x > offset_x + (scaled_w * 65 / 100)
+                                && dest_y < offset_y + (scaled_h * 65 / 100)
+                                && (pr > 150.0 && pg > 50.0)
+                            {
+                                RegionMaskId::Flame
+                            } else if dest_x > offset_x + (scaled_w * 60 / 100)
+                                && dest_y >= offset_y + (scaled_h * 55 / 100)
+                            {
+                                RegionMaskId::Tail
+                            } else if dest_x >= offset_x + (scaled_w * 35 / 100)
+                                && dest_x <= offset_x + (scaled_w * 55 / 100)
+                                && dest_y <= offset_y + (scaled_h * 40 / 100)
+                                && pb > 80.0
+                                && pb > pr * 0.7
+                            {
+                                RegionMaskId::FaceEyes
+                            } else if dest_x >= offset_x + (scaled_w * 25 / 100)
+                                && dest_x <= offset_x + (scaled_w * 55 / 100)
+                                && dest_y >= offset_y + (scaled_h * 45 / 100)
+                                && dest_y <= offset_y + (scaled_h * 85 / 100)
+                                && pr > 160.0
+                                && pg > 140.0
+                                && pb > 95.0
+                            {
+                                RegionMaskId::Belly
+                            } else if (dest_y > offset_y + (scaled_h * 88 / 100)
+                                || dest_y < offset_y + (scaled_h * 75 / 100))
+                                && pr > 190.0
+                                && pg > 180.0
+                                && pb > 170.0
+                            {
+                                RegionMaskId::LimbsClaws
+                            } else {
+                                RegionMaskId::Body
+                            }
+                        }
+                        PokemonStage::Charmeleon => {
+                            if dest_x > offset_x + (scaled_w * 65 / 100)
+                                && dest_y < offset_y + (scaled_h * 60 / 100)
+                                && (pr > 140.0 && pg > 50.0)
+                            {
+                                RegionMaskId::Flame
+                            } else if dest_x > offset_x + (scaled_w * 48 / 100)
+                                && dest_y < offset_y + (scaled_h * 20 / 100)
+                            {
+                                RegionMaskId::CranialCrest
+                            } else if dest_x > offset_x + (scaled_w * 62 / 100)
+                                && dest_y >= offset_y + (scaled_h * 50 / 100)
+                            {
+                                RegionMaskId::Tail
+                            } else if dest_x >= offset_x + (scaled_w * 25 / 100)
+                                && dest_x <= offset_x + (scaled_w * 55 / 100)
+                                && dest_y >= offset_y + (scaled_h * 45 / 100)
+                                && dest_y <= offset_y + (scaled_h * 85 / 100)
+                                && pr > 140.0
+                                && pg > 120.0
+                                && pb > 80.0
+                            {
+                                RegionMaskId::Belly
+                            } else if pr > 185.0 && pg > 175.0 && pb > 175.0 {
+                                if dest_y > offset_y + (scaled_h * 80 / 100) {
+                                    RegionMaskId::LegsClaws
+                                } else {
+                                    RegionMaskId::ArmsClaws
+                                }
+                            } else {
+                                RegionMaskId::Body
+                            }
+                        }
+                        PokemonStage::Charizard => {
+                            if (dest_x < offset_x + (scaled_w * 25 / 100)
+                                && dest_y > offset_y + (scaled_h * 50 / 100)
+                                && pr > 140.0
+                                && pg > 50.0)
+                                || (dest_x > offset_x + (scaled_w * 80 / 100)
+                                    && pr > 140.0
+                                    && pg > 50.0)
+                            {
+                                RegionMaskId::Flame
+                            } else if dest_x >= offset_x + (scaled_w * 55 / 100)
+                                && dest_x <= offset_x + (scaled_w * 85 / 100)
+                                && dest_y < offset_y + (scaled_h * 30 / 100)
+                            {
+                                RegionMaskId::HeadHorns
+                            } else if (pb > 70.0 || pg > 80.0)
+                                && pr < 130.0
+                                && (dest_x < offset_x + (scaled_w * 48 / 100)
+                                    || dest_x > offset_x + (scaled_w * 80 / 100))
+                            {
+                                RegionMaskId::WingsInner
+                            } else if (dest_x < offset_x + (scaled_w * 45 / 100)
+                                || dest_x > offset_x + (scaled_w * 78 / 100))
+                                && dest_y < offset_y + (scaled_h * 65 / 100)
+                            {
+                                RegionMaskId::WingsOuter
+                            } else if dest_x < offset_x + (scaled_w * 35 / 100)
+                                && dest_y >= offset_y + (scaled_h * 60 / 100)
+                            {
+                                RegionMaskId::Tail
+                            } else if dest_x >= offset_x + (scaled_w * 52 / 100)
+                                && dest_x <= offset_x + (scaled_w * 75 / 100)
+                                && dest_y >= offset_y + (scaled_h * 45 / 100)
+                                && dest_y <= offset_y + (scaled_h * 85 / 100)
+                                && pr > 140.0
+                                && pg > 120.0
+                            {
+                                RegionMaskId::Belly
+                            } else if pr > 185.0 && pg > 175.0 && pb > 175.0 {
+                                RegionMaskId::LimbsClaws
+                            } else {
+                                RegionMaskId::Body
+                            }
+                        }
+                    };
+
+                    region_grid[dest_y as usize][dest_x as usize] = Some(region);
+
+                    let q = match region {
+                        RegionMaskId::Flame => 0.85 + 0.15 * ((pr + pg) / 510.0),
+                        RegionMaskId::Tail => {
+                            0.65 + 0.20 * ((dest_x as f64 - 95.0) / 45.0).clamp(0.0, 1.0)
                         }
                         RegionMaskId::LimbsClaws
                         | RegionMaskId::ArmsClaws
-                        | RegionMaskId::LegsClaws => 0.45 + 0.35 * form_shading,
-                        RegionMaskId::CranialCrest | RegionMaskId::HeadHorns => {
-                            0.48 + 0.38 * form_shading
+                        | RegionMaskId::LegsClaws => 0.55,
+                        RegionMaskId::Belly => {
+                            0.35 + 0.25
+                                * (1.0 - (dest_y as f64 - 90.0).abs() / 30.0).clamp(0.0, 1.0)
                         }
-                        RegionMaskId::WingsInner => 0.35 + 0.30 * form_shading,
-                        RegionMaskId::WingsOuter => 0.42 + 0.32 * form_shading,
-                        _ => {
-                            // Body / Tail
-                            0.40 + 0.35 * form_shading
+                        RegionMaskId::FaceEyes => 0.05,
+                        RegionMaskId::CranialCrest | RegionMaskId::HeadHorns => 0.10,
+                        RegionMaskId::WingsInner => 0.25,
+                        RegionMaskId::WingsOuter => 0.20,
+                        RegionMaskId::Body => {
+                            0.10 + 0.30 * ((dest_y as f64 - 40.0) / 60.0).clamp(0.0, 1.0)
                         }
                     };
+                    priority_grid[dest_y as usize][dest_x as usize] = q.clamp(0.0, 1.0);
 
-                    let gray_val = (luma_norm.clamp(0.05, 0.98) * 255.0) as u8;
-
-                    // Check if edge pixel (outline)
-                    let is_outline = Self::is_boundary_pixel(x, y, w, h, &region_grid);
-                    if is_outline {
-                        // Crisp dark outline contour #1a0f0d
-                        sprite.put_pixel(x, y, Rgba([26, 15, 13, 255]));
-                    } else {
-                        sprite.put_pixel(x, y, Rgba([gray_val, gray_val, gray_val, 255]));
-                    }
-                } else {
-                    // Fully transparent outside silhouette
-                    sprite.put_pixel(x, y, Rgba([0, 0, 0, 0]));
-                    priority_map.put_pixel(x, y, Luma([0]));
+                    let luma = (0.299 * pr + 0.587 * pg + 0.114 * pb).round() as u8;
+                    let clamped_luma = (luma as f64 * 0.85 + 25.0).clamp(20.0, 250.0) as u8;
+                    sprite_gray.put_pixel(
+                        dest_x,
+                        dest_y,
+                        Rgba([clamped_luma, clamped_luma, clamped_luma, 255]),
+                    );
+                    sprite_color.put_pixel(dest_x, dest_y, Rgba([p[0], p[1], p[2], 255]));
                 }
             }
         }
 
+        // Apply perimeter dark outline (#1a0f0d) on outer silhouette
+        for y in 0..160 {
+            for x in 0..160 {
+                if region_grid[y][x].is_some() {
+                    let mut is_edge = false;
+                    for (dx, dy) in [(-1i32, 0), (1, 0), (0, -1), (0, 1)] {
+                        let nx = x as i32 + dx;
+                        let ny = y as i32 + dy;
+                        if nx < 0
+                            || ny < 0
+                            || nx >= 160
+                            || ny >= 160
+                            || region_grid[ny as usize][nx as usize].is_none()
+                        {
+                            is_edge = true;
+                            break;
+                        }
+                    }
+                    if is_edge {
+                        sprite_gray.put_pixel(x as u32, y as u32, Rgba([26, 15, 13, 255]));
+                        sprite_color.put_pixel(x as u32, y as u32, Rgba([26, 15, 13, 255]));
+                    }
+                }
+            }
+        }
+
+        // Build disjoint region masks
         let mut masks = HashMap::new();
-        for (id, img) in masks_map {
+        for row in &region_grid {
+            for &opt in row {
+                if let Some(id) = opt {
+                    masks.entry(id).or_insert_with(|| GrayImage::new(160, 160));
+                }
+            }
+        }
+
+        let mut priority_map = GrayImage::new(160, 160);
+        for y in 0..160 {
+            for x in 0..160 {
+                if let Some(id) = region_grid[y][x] {
+                    masks
+                        .get_mut(&id)
+                        .unwrap()
+                        .put_pixel(x as u32, y as u32, Luma([255]));
+                    let q_val = (priority_grid[y][x] * 255.0).round() as u8;
+                    priority_map.put_pixel(x as u32, y as u32, Luma([q_val]));
+                }
+            }
+        }
+
+        let mut final_masks = HashMap::new();
+        for (id, img) in masks {
             let mut count = 0;
             for p in img.pixels() {
                 if p[0] > 127 {
                     count += 1;
                 }
             }
-            masks.insert(
+            final_masks.insert(
                 id,
                 RegionMask {
                     id,
-                    width: w,
-                    height: h,
+                    width: 160,
+                    height: 160,
                     pixel_count: count,
                     mask: img,
                 },
             );
         }
 
-        ArtworkPackage {
+        let package = ArtworkPackage {
             stage,
-            width: w,
-            height: h,
-            master_grayscale: sprite.clone(),
-            masks,
+            width: 160,
+            height: 160,
+            master_grayscale: sprite_gray,
+            master_color: sprite_color,
+            masks: final_masks,
             priority_map: PriorityMap {
-                width: w,
-                height: h,
+                width: 160,
+                height: 160,
                 map: priority_map,
             },
-        }
-    }
+        };
 
-    fn is_boundary_pixel(
-        x: u32,
-        y: u32,
-        w: u32,
-        h: u32,
-        grid: &[Vec<Option<RegionMaskId>>],
-    ) -> bool {
-        if x == 0 || y == 0 || x == w - 1 || y == h - 1 {
-            return true;
-        }
+        ArtworkValidator::validate(&package)
+            .expect("Generated artwork package must pass validation");
 
-        let neighbors = [
-            (x.wrapping_sub(1), y),
-            (x + 1, y),
-            (x, y.wrapping_sub(1)),
-            (x, y + 1),
-        ];
-
-        for (nx, ny) in neighbors {
-            if nx >= w || ny >= h || grid[ny as usize][nx as usize].is_none() {
-                return true;
-            }
-        }
-
-        false
+        package
     }
 }
