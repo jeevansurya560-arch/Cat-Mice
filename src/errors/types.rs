@@ -31,6 +31,9 @@ pub enum PokedexError {
         actual_h: u32,
     },
 
+    #[error("Mask validation error: {0}")]
+    MaskValidation(String),
+
     #[error("Rendering error: {0}")]
     Rendering(String),
 

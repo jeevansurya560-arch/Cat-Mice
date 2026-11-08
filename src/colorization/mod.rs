@@ -20,4 +20,3 @@ impl ColorizationEngine {
         progress.clamp(0.0, 1.0).powf(self.gamma)
     }
 }
-

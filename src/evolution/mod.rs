@@ -1,10 +1,38 @@
 //! Deterministic Pokémon evolution thresholds and progression calculation.
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum PokemonStage {
     Charmander,
     Charmeleon,
     Charizard,
+}
+
+impl PokemonStage {
+    pub fn folder_name(&self) -> &'static str {
+        match self {
+            Self::Charmander => "charmander",
+            Self::Charmeleon => "charmeleon",
+            Self::Charizard => "charizard",
+        }
+    }
+
+    pub fn display_name(&self) -> &'static str {
+        match self {
+            Self::Charmander => "Charmander",
+            Self::Charmeleon => "Charmeleon",
+            Self::Charizard => "Charizard",
+        }
+    }
+
+    pub fn dex_number(&self) -> &'static str {
+        match self {
+            Self::Charmander => "0004",
+            Self::Charmeleon => "0005",
+            Self::Charizard => "0006",
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -54,4 +82,3 @@ pub fn evaluate_evolution(contributions: u32) -> EvolutionState {
         }
     }
 }
-

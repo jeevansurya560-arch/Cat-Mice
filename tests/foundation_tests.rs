@@ -66,4 +66,3 @@ fn test_evolution_threshold_charizard() {
     assert_eq!(s5000.stage, PokemonStage::Charizard);
     assert_eq!(s5000.progress_percent, 100);
 }
-

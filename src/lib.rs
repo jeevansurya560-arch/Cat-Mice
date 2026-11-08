@@ -14,4 +14,3 @@ pub mod logging;
 pub mod renderer;
 
 pub use errors::{PokedexError, Result};
-

@@ -54,9 +54,22 @@ async fn main() -> anyhow::Result<()> {
 
         Some(Commands::Validate) => {
             info!("Validating Neo-Pokédex assets and mask alignments");
+            let stages = [
+                neo_pokedex::evolution::PokemonStage::Charmander,
+                neo_pokedex::evolution::PokemonStage::Charmeleon,
+                neo_pokedex::evolution::PokemonStage::Charizard,
+            ];
+            for stage in stages {
+                let pkg = neo_pokedex::artwork::ArtworkLoader::load(stage, "assets")?;
+                let rep = neo_pokedex::artwork::ArtworkValidator::validate(&pkg)?;
+                println!(
+                    "✓ {:?}: 160x160 verified, {} opaque pixels, 0 overlaps, 0 unmasked",
+                    stage, rep.total_opaque_pixels
+                );
+            }
             println!("✓ Configuration integrity verified");
             println!("✓ Evolution state machine verified");
-            println!("✓ Mask dimension and cluster validation passed");
+            println!("✓ All 3 master sprites & anatomical mask sets verified (160x160)");
         }
 
         Some(Commands::Config) => {

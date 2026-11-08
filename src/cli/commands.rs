@@ -55,4 +55,3 @@ pub enum Commands {
     /// Print version and engine build details
     Version,
 }
-
