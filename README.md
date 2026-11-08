@@ -4,16 +4,16 @@
 
 <!-- POKEMON-EVOLUTION:START -->
 <p align="center">
-  <img src="./assets/generated/pokemon-evolution.gif" alt="Charizard — Pokémon Evolution Companion" width="480" />
+  <img src="./assets/generated/pokemon-evolution.gif" alt="Charmeleon — Pokémon Evolution Companion" width="480" />
 </p>
 
 <p align="center">
-  <strong>Current Form:</strong> Charizard (No. 0006) &nbsp;|&nbsp;
-  <strong>Lifetime Activity:</strong> 750 contributions &nbsp;|&nbsp;
-  <strong>Stage Colouring:</strong> 47.5%
+  <strong>Current Form:</strong> Charmeleon (No. 0005) &nbsp;|&nbsp;
+  <strong>Lifetime Activity:</strong> 219 contributions &nbsp;|&nbsp;
+  <strong>Stage Colouring:</strong> 4.7%
 </p>
 <p align="center">
-  <em>250 / 500 contributions to evolve</em>
+  <em>19 / 300 contributions to evolve</em>
 </p>
 <!-- POKEMON-EVOLUTION:END -->
 

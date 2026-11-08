@@ -1,6 +1,6 @@
 🚀 Excited to share my latest open-source project: GitHub Pokémon Evolution Companion!
 
-Tired of static contribution grids? I wanted to turn daily engineering consistency into an interactive game companion that visually evolves alongside my developer journey (currently evolving Charizard!).
+Tired of static contribution grids? I wanted to turn daily engineering consistency into an interactive game companion that visually evolves alongside my developer journey (currently evolving Charmeleon!).
 
 ✨ How It Works:
 Instead of a simple contribution graph, your GitHub activity powers an animated 2.5D Pokémon companion on your Profile README:

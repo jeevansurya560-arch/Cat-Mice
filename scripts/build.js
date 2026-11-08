@@ -21,8 +21,9 @@ async function build() {
   await mkdir(assetsGenDir, { recursive: true });
   await mkdir(assetsSocialDir, { recursive: true });
 
-  // 1. Evaluate Evolution at Baseline Demo Milestone (Charizard: 750 contributions, 50% stage progress)
-  const evolutionState = evaluateEvolution(750);
+  // 1. Evaluate Evolution for active companion milestone (219 contributions for Charmeleon No. 0005)
+  const commits = process.env.COMMITS ? parseInt(process.env.COMMITS, 10) : 219;
+  const evolutionState = evaluateEvolution(commits);
   console.log(
     `✓ Evolution state calculated: ${evolutionState.currentForm.name} (Progress: ${evolutionState.colouringProgress}%)`
   );

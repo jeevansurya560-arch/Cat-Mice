@@ -159,143 +159,174 @@ export function renderCharmanderVector(palette, animationState = {}) {
 }
 
 /**
- * Generates front-facing SVG vector markup for Charmeleon (No. 0005).
- * ViewBox: 0 0 520 480 (Centered at X=260)
+ * Generates SVG vector markup for Charmeleon (No. 0005) matching the official Pokédex artwork.
+ * ViewBox: 0 0 520 480
  *
  * @param {Record<string, string>} palette
  * @param {object} [animationState]
  * @returns {string} Inner SVG markup
  */
 export function renderCharmeleonVector(palette, animationState = {}) {
-  const breathY = (animationState.breath || 0) * 3.5;
+  const breathY = (animationState.breath || 0) * 3.0;
   const flamePhase = animationState.flamePhase || 0;
-  const flameFlickerX = Math.sin(flamePhase * 1.8) * 5;
-  const flameFlickerY = Math.cos(flamePhase * 2.2) * 6;
+  const flameFlickerX = Math.sin(flamePhase * 1.8) * 4;
+  const flameFlickerY = Math.cos(flamePhase * 2.2) * 5;
 
   return `
-    <g id="charmeleon" class="pokemon-2d-anime front-facing" transform="translate(0, ${breathY})">
-      <!-- Tail & Tail Flame (Region: tail_flame) -->
+    <g id="charmeleon" class="pokemon-2d-anime official-pokedex" transform="translate(0, ${breathY})">
+      <!-- Ground Contact Shadow -->
+      <ellipse cx="250" cy="445" rx="130" ry="14" fill="#000000" opacity="0.25"/>
+
+      <!-- TAIL (Thick, muscular tail sweeping right and curving up) -->
       <g id="region-tail">
-        <path d="M 285 330 C 340 338 390 310 405 260 C 418 225 408 190 395 165 C 388 185 382 215 365 240 C 345 268 310 290 280 305 Z"
-              fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="5" stroke-linejoin="round"/>
-        <path d="M 284 324 C 335 332 382 305 398 258 C 410 228 402 195 390 174 C 384 192 376 218 360 242 C 340 270 308 290 280 304 Z"
+        <!-- Tail Shadow Layer -->
+        <path d="M 270 350 C 310 365 365 375 395 350 C 410 335 412 310 398 290 C 390 305 382 322 368 335 C 342 355 305 352 272 342 Z"
+              fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="4.5" stroke-linejoin="round"/>
+        <!-- Tail Base -->
+        <path d="M 272 346 C 312 360 364 368 392 346 C 406 332 408 312 396 295 C 388 308 380 324 366 336 C 342 354 306 350 274 340 Z"
               fill="${palette.base}"/>
+        <!-- Tail Top Highlight -->
+        <path d="M 305 356 C 335 360 365 355 385 338"
+              stroke="${palette.highlight}" stroke-width="3.5" stroke-linecap="round" fill="none"/>
       </g>
 
-      <!-- Fierce Tail Flame -->
+      <!-- TAIL FLAME (Torch fire at the tip) -->
       <g id="region-tail_flame" transform="translate(${flameFlickerX}, ${flameFlickerY})">
-        <path d="M 395 170 C 370 142 350 95 380 55 C 400 88 408 108 428 92 C 448 76 442 45 462 30 C 472 72 466 112 444 140 C 428 160 412 170 395 170 Z"
-              fill="${palette.flameOuter}" filter="drop-shadow(0 0 12px ${palette.flameOuter})"/>
-        <path d="M 395 165 C 375 140 358 100 384 68 C 400 94 406 110 424 98 C 438 88 434 60 450 50 C 458 82 452 112 434 135 Z"
-              fill="${palette.base}"/>
-        <path d="M 397 160 C 382 138 370 110 390 85 C 402 104 408 112 420 105 C 432 96 430 75 438 65 C 445 90 438 112 426 130 Z"
+        <!-- Outer Fire -->
+        <path d="M 396 295 C 380 275 368 240 382 205 C 392 230 400 240 408 228 C 420 215 415 185 432 170 C 445 205 440 245 422 270 C 412 285 404 292 396 295 Z"
+              fill="${palette.flameOuter}" filter="drop-shadow(0 0 14px ${palette.flameOuter})"/>
+        <!-- Mid Fire Tongues -->
+        <path d="M 396 290 C 384 270 376 242 388 215 C 396 235 402 242 412 232 C 422 222 418 198 430 185 C 438 212 434 245 420 268 C 410 282 402 288 396 290 Z"
+              fill="#ff9800"/>
+        <!-- Inner Hot Core Flame -->
+        <path d="M 398 285 C 388 268 382 248 392 228 C 398 242 404 246 412 240 C 418 232 416 215 424 205 C 430 225 426 250 416 268 Z"
               fill="${palette.flameInner}"/>
       </g>
 
-      <!-- Muscular Left Leg & Claws (Region: legs) -->
-      <g id="region-legs-left">
-        <ellipse cx="195" cy="350" rx="38" ry="28" fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="5"/>
-        <ellipse cx="195" cy="347" rx="30" ry="22" fill="${palette.base}"/>
-        <!-- 3 Sharp Claws Planted Forward -->
-        <polygon points="168,375 162,388 174,380" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
-        <polygon points="186,377 184,392 194,381" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
-        <polygon points="206,375 208,389 214,379" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
-      </g>
-
-      <!-- Muscular Right Leg & Claws (Region: legs) -->
+      <!-- RIGHT LEG & FOOT (Viewer's right - midground) -->
       <g id="region-legs-right">
-        <ellipse cx="325" cy="350" rx="38" ry="28" fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="5"/>
-        <ellipse cx="325" cy="347" rx="30" ry="22" fill="${palette.base}"/>
-        <!-- 3 Sharp Claws Planted Forward -->
-        <polygon points="306,375 312,389 314,379" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
-        <polygon points="326,377 336,392 334,381" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
-        <polygon points="346,375 358,388 352,380" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
+        <!-- Muscular Thigh -->
+        <path d="M 270 325 C 295 330 325 350 322 390 C 320 415 310 435 295 442 C 285 435 278 410 272 385 C 268 360 265 340 270 325 Z"
+              fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="4.5" stroke-linejoin="round"/>
+        <path d="M 272 328 C 294 334 320 352 318 388 C 316 412 306 432 294 438 C 285 432 280 410 274 385 C 270 360 268 342 272 328 Z"
+              fill="${palette.base}"/>
+        <!-- 3 Right Foot Claws -->
+        <path d="M 278 440 L 268 450 L 286 446 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
+        <path d="M 288 444 L 284 456 L 298 448 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
+        <path d="M 300 442 L 302 454 L 310 442 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
       </g>
 
-      <!-- Torso & Muscular Chest (Region: torso) -->
+      <!-- TORSO & BELLY -->
       <g id="region-torso">
-        <!-- Broad Muscular Front Torso -->
-        <path d="M 190 230 C 180 280 190 345 225 365 C 260 372 290 365 330 345 C 340 280 330 230 295 215 C 260 210 225 215 190 230 Z"
+        <!-- Back & Torso Silhouette -->
+        <path d="M 230 220 C 215 250 205 285 205 320 C 205 365 225 400 255 405 C 285 405 305 375 305 330 C 305 270 295 230 275 205 Z"
               fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="5" stroke-linejoin="round"/>
-        <path d="M 194 228 C 185 275 195 340 228 360 C 260 366 288 360 326 340 C 335 275 325 228 292 215 C 260 210 226 215 194 228 Z"
+        <path d="M 232 220 C 218 250 210 285 210 318 C 210 360 228 395 255 400 C 282 400 300 372 300 330 C 300 272 292 232 274 206 Z"
               fill="${palette.base}"/>
-        <!-- Golden-Cream Chest & Belly Shield -->
-        <path d="M 225 220 C 215 260 220 320 240 345 C 260 350 280 345 300 320 C 305 260 295 220 260 218 Z"
+
+        <!-- PALE BEIGE/CREAM BELLY PATCH (As seen in reference) -->
+        <path d="M 226 250 C 215 280 212 315 218 345 C 224 372 240 388 256 388 C 272 388 280 365 278 335 C 275 295 258 260 236 248 Z"
+              fill="${palette.bellyShadow}"/>
+        <path d="M 228 252 C 218 280 216 312 222 342 C 226 368 240 384 254 384 C 268 384 276 362 274 334 C 272 296 256 262 236 250 Z"
               fill="${palette.belly}"/>
-        <!-- Muscle Definition Lines -->
-        <path d="M 240 270 Q 260 280 280 270" stroke="${palette.bellyShadow}" stroke-width="3" stroke-linecap="round" fill="none"/>
-        <path d="M 245 305 Q 260 312 275 305" stroke="${palette.bellyShadow}" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <!-- Belly subtle highlight -->
+        <path d="M 232 265 C 226 290 225 320 232 345"
+              stroke="#ffffff" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.35"/>
       </g>
 
-      <!-- Left Forearm & Razor Claws (Region: arms & claws_details) -->
-      <g id="region-arms-left">
-        <path d="M 195 235 C 160 245 142 270 148 290 C 155 300 175 295 190 275 Z"
-              fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="5"/>
-        <path d="M 194 235 C 164 245 148 268 152 286 C 158 294 172 290 186 272 Z"
-              fill="${palette.base}"/>
-        <!-- 3 Long White Razor Claws -->
-        <polygon points="144,282 128,288 142,294" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
-        <polygon points="146,290 134,302 148,300" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
-        <polygon points="152,296 145,310 158,304" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
-      </g>
-
-      <!-- Right Forearm & Razor Claws (Region: arms & claws_details) -->
+      <!-- RIGHT ARM (Viewer's right - midground) -->
       <g id="region-arms-right">
-        <path d="M 325 235 C 360 245 378 270 372 290 C 365 300 345 295 330 275 Z"
-              fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="5"/>
-        <path d="M 326 235 C 356 245 372 268 368 286 C 362 294 348 290 334 272 Z"
+        <path d="M 288 270 C 305 280 325 300 324 328 C 322 340 314 348 304 348 C 298 340 295 325 294 308 C 292 290 286 280 288 270 Z"
+              fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="4.5" stroke-linejoin="round"/>
+        <path d="M 290 272 C 304 282 322 300 320 326 C 318 336 312 344 304 344 C 298 336 296 322 295 308 C 294 292 288 282 290 272 Z"
               fill="${palette.base}"/>
-        <!-- 3 Long White Razor Claws -->
-        <polygon points="376,282 392,288 378,294" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
-        <polygon points="374,290 386,302 372,300" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
-        <polygon points="368,296 375,310 362,304" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
+        <!-- 3 Right Hand Claws -->
+        <path d="M 314 342 L 316 358 L 324 348 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="1.8"/>
+        <path d="M 322 346 L 328 362 L 334 350 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="1.8"/>
+        <path d="M 330 348 L 340 360 L 338 346 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="1.8"/>
       </g>
 
-      <!-- Head with Central Horn Crest (Region: head) - FRONT-FACING -->
+      <!-- LEFT LEG & FOOT (Viewer's left - foreground) -->
+      <g id="region-legs-left">
+        <!-- Muscular Thigh & Calf -->
+        <path d="M 210 320 C 185 330 170 355 174 385 C 178 408 190 422 188 435 C 182 435 174 425 170 410 C 165 390 175 350 200 325 Z"
+              fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="4.5" stroke-linejoin="round"/>
+        <path d="M 208 322 C 188 332 174 355 178 382 C 182 405 192 418 190 432 C 185 432 178 422 174 408 C 170 390 178 352 202 326 Z"
+              fill="${palette.base}"/>
+        <!-- 3 Left Foot Claws (Resting on Ground) -->
+        <path d="M 172 434 L 158 442 L 176 446 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
+        <path d="M 180 442 L 174 454 L 192 448 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
+        <path d="M 194 444 L 194 456 L 204 444 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
+      </g>
+
+      <!-- LEFT ARM (Viewer's left - foreground) -->
+      <g id="region-arms-left">
+        <!-- Shoulder, Bicep, Forearm reaching forward -->
+        <path d="M 206 265 C 185 275 168 298 162 322 C 158 338 168 345 178 342 C 188 335 194 315 198 295 C 200 282 204 272 206 265 Z"
+              fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="4.5" stroke-linejoin="round"/>
+        <path d="M 206 268 C 188 276 172 298 166 320 C 162 334 170 340 178 338 C 186 332 192 314 196 295 C 198 284 202 274 206 268 Z"
+              fill="${palette.base}"/>
+        <!-- 3 Prominent White Curved Hand Claws -->
+        <!-- Claw 1 (outer) -->
+        <path d="M 152 325 L 134 334 L 148 342 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
+        <!-- Claw 2 (middle) -->
+        <path d="M 154 340 L 140 354 L 158 350 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
+        <!-- Claw 3 (inner) -->
+        <path d="M 164 348 L 156 364 L 172 356 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
+      </g>
+
+      <!-- HEAD & HORN CREST (Exact official Pokédex head structure) -->
       <g id="region-head">
-        <!-- Single Prominent Crown Horn Crest (Center Top, extending up/back) -->
-        <path d="M 252 100 C 248 55 258 40 260 38 C 262 40 272 55 268 100 Z"
+        <!-- Neck Base -->
+        <path d="M 230 220 C 235 205 240 195 245 185 C 265 190 280 195 285 210 Z"
               fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="4.5"/>
-        <path d="M 254 98 C 252 60 258 46 260 42 C 262 46 268 60 266 98 Z"
-              fill="${palette.base}"/>
-        <path d="M 260 44 L 260 96" stroke="${palette.highlight}" stroke-width="3" stroke-linecap="round"/>
-
-        <!-- Head Base & Jaws -->
-        <path d="M 190 148 C 180 95 220 72 260 72 C 300 72 340 95 330 148 C 322 190 285 204 260 204 C 235 204 198 190 190 148 Z"
-              fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="5" stroke-linejoin="round"/>
-        <path d="M 194 146 C 185 98 222 76 260 76 C 298 76 335 98 326 146 C 318 185 284 200 260 200 C 236 200 202 185 194 146 Z"
+        <path d="M 232 218 C 236 205 241 196 246 186 C 264 191 278 196 283 208 Z"
               fill="${palette.base}"/>
 
-        <!-- Brow Ridges -->
-        <path d="M 210 115 Q 230 108 245 118" stroke="${palette.outline}" stroke-width="4" stroke-linecap="round" fill="none"/>
-        <path d="M 310 115 Q 290 108 275 118" stroke="${palette.outline}" stroke-width="4" stroke-linecap="round" fill="none"/>
+        <!-- ICONIC BACKWARD-SWEEPING HORN CREST -->
+        <path d="M 250 145 C 270 125 295 95 315 85 C 322 82 328 86 325 94 C 315 118 300 150 285 185 Z"
+              fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="4.5" stroke-linejoin="round"/>
+        <path d="M 252 143 C 272 124 296 95 314 86 C 320 84 324 87 322 93 C 314 116 298 148 284 182 Z"
+              fill="${palette.base}"/>
+        <!-- Horn Top Ridge Highlight -->
+        <path d="M 262 135 C 280 115 300 95 315 88"
+              stroke="${palette.highlight}" stroke-width="3" stroke-linecap="round" fill="none"/>
 
-        <!-- Snout Center & Nostrils -->
-        <circle cx="254" cy="154" r="2.5" fill="${palette.outline}"/>
-        <circle cx="266" cy="154" r="2.5" fill="${palette.outline}"/>
+        <!-- REPTILIAN HEAD & SNOUT -->
+        <path d="M 255 140 C 235 145 205 160 185 180 C 175 190 178 200 186 204 C 205 210 225 215 242 205 C 255 195 262 175 260 155 Z"
+              fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="4.5" stroke-linejoin="round"/>
+        <path d="M 254 138 C 236 143 206 158 186 178 C 178 188 180 198 188 202 C 206 208 224 212 240 203 C 252 193 258 174 256 154 Z"
+              fill="${palette.base}"/>
 
-        <!-- LEFT EYE (Clearly Visible, Fierce Emerald Anime Eye) -->
-        <g id="region-eye-left">
-          <polygon points="214,130 244,124 238,146 212,142" fill="#ffffff" stroke="${palette.outline}" stroke-width="3"/>
-          <polygon points="218,131 240,126 235,143 216,140" fill="${palette.eye}"/>
-          <ellipse cx="227" cy="135" rx="3.5" ry="7" fill="#0b1710"/>
-          <circle cx="224" cy="130" r="2.5" fill="#ffffff"/>
+        <!-- Far Brow Ridge (gives 3/4 dimensional depth) -->
+        <path d="M 240 142 C 246 148 248 155 246 160"
+              stroke="${palette.outline}" stroke-width="3" stroke-linecap="round" fill="none"/>
+
+        <!-- Snout Top Highlight -->
+        <path d="M 215 162 C 198 175 186 186 184 195"
+              stroke="${palette.highlight}" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+
+        <!-- Nostril -->
+        <ellipse cx="198" cy="186" rx="2.5" ry="1.8" fill="${palette.outline}"/>
+
+        <!-- DETERMINED TEAL ANIME EYE (Near Side) -->
+        <g id="region-eye">
+          <!-- Sharp Triangular Brow Ridge -->
+          <path d="M 210 162 L 235 165" stroke="${palette.outline}" stroke-width="3.5" stroke-linecap="round"/>
+          <!-- Sclera -->
+          <polygon points="212,165 233,167 228,185 215,182" fill="#ffffff" stroke="${palette.outline}" stroke-width="2.5"/>
+          <!-- Teal Iris -->
+          <polygon points="216,166 230,168 226,183 218,181" fill="${palette.eye}"/>
+          <!-- Pupil -->
+          <ellipse cx="223" cy="174" rx="3.5" ry="6" fill="#0b1710"/>
+          <!-- Specular White Reflection Dot -->
+          <circle cx="220" cy="170" r="2.2" fill="#ffffff"/>
         </g>
 
-        <!-- RIGHT EYE (Clearly Visible, Fierce Emerald Anime Eye) -->
-        <g id="region-eye-right">
-          <polygon points="306,130 276,124 282,146 308,142" fill="#ffffff" stroke="${palette.outline}" stroke-width="3"/>
-          <polygon points="302,131 280,126 285,143 304,140" fill="${palette.eye}"/>
-          <ellipse cx="293" cy="135" rx="3.5" ry="7" fill="#0b1710"/>
-          <circle cx="296" cy="130" r="2.5" fill="#ffffff"/>
-        </g>
-
-        <!-- Determined Fierce Grin with Sharp Canine Fangs -->
-        <path d="M 235 168 Q 260 180 285 168" stroke="${palette.outline}" stroke-width="4" fill="none" stroke-linecap="round"/>
-        <!-- Left Fang -->
-        <polygon points="244,169 248,179 252,170" fill="#ffffff" stroke="${palette.outline}" stroke-width="1.5"/>
-        <!-- Right Fang -->
-        <polygon points="268,170 272,179 276,169" fill="#ffffff" stroke="${palette.outline}" stroke-width="1.5"/>
+        <!-- Confident Smirk / Mouthline with Beak Notch -->
+        <path d="M 188 202 Q 206 208 228 198" stroke="${palette.outline}" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+        <!-- Small Tooth / Fang at corner of mouth -->
+        <polygon points="220,199 223,207 226,200" fill="#ffffff" stroke="${palette.outline}" stroke-width="1.2"/>
       </g>
     </g>
   `;
