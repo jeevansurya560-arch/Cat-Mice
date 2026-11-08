@@ -18,8 +18,7 @@
     "test:watch": "vitest",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "preview": "node scripts/preview.js"
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "gifenc": "^1.0.3",

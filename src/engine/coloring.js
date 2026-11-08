@@ -1,6 +1,7 @@
 /**
  * @file Mathematical Progressive Colouring Engine.
  * Implements area-weighted, anatomically sequenced, mathematically deterministic progressive colouring.
+ * Defaults to authentic, vibrant Pokémon anime coloration with contribution-based flame and stage progression.
  */
 
 import { MONOCHROME_PALETTE } from "../pokemon/definitions.js";
@@ -59,6 +60,8 @@ export function blendHex(hexA, hexB, t) {
  *
  * @param {typeof import("../pokemon/definitions.js").EVOLUTION_TIERS[0]} form
  * @param {number} stageProgress - Normalized progress [0, 1] within the current evolution stage
+ * @param {object} [options]
+ * @param {boolean} [options.blend=false] - Whether to apply monochrome desaturation blend (default: false for vibrant colors)
  * @returns {{
  *   stageProgress: number,
  *   overallPercentage: number,
@@ -75,7 +78,7 @@ export function blendHex(hexA, hexB, t) {
  *   palette: Record<string, string>
  * }}
  */
-export function calculateProgressiveColoring(form, stageProgress) {
+export function calculateProgressiveColoring(form, stageProgress, options = {}) {
   const safeProgress = clamp(stageProgress, 0, 1);
   const sortedRegions = [...form.regions].sort((a, b) => a.priority - b.priority);
 
@@ -118,13 +121,26 @@ export function calculateProgressiveColoring(form, stageProgress) {
 
   const overallPercentage = Number((weightedSum * 100).toFixed(1));
 
-  // Compute active dynamic palette blending monochrome and target colors
+  // Compute active dynamic palette:
+  // If progressive desaturation blend is explicitly requested (options.blend === true), blend with monochrome;
+  // otherwise, present the full, authentic, vibrant Pokémon anime colors!
   const dynamicPalette = {};
-  for (const key of Object.keys(form.colors)) {
-    const monoColor = MONOCHROME_PALETTE[key] || MONOCHROME_PALETTE.base;
-    const targetColor = form.colors[key];
-    // Blend according to safeProgress with smoothstep
-    dynamicPalette[key] = blendHex(monoColor, targetColor, smoothstep(safeProgress));
+  if (options.blend === true) {
+    for (const key of Object.keys(form.colors)) {
+      // Core vital features (eyes, tail flame, mouth flame) always stay 100% lit and vibrant
+      if (key.includes("flame") || key === "eye" || key === "mouthFlame") {
+        dynamicPalette[key] = form.colors[key];
+      } else {
+        const monoColor = MONOCHROME_PALETTE[key] || MONOCHROME_PALETTE.base;
+        const targetColor = form.colors[key];
+        dynamicPalette[key] = blendHex(monoColor, targetColor, smoothstep(safeProgress));
+      }
+    }
+  } else {
+    // Authentic, fully saturated, vibrant Pokémon coloration
+    for (const key of Object.keys(form.colors)) {
+      dynamicPalette[key] = form.colors[key];
+    }
   }
 
   return {

@@ -31,7 +31,7 @@ import { clamp, calculateProgressiveColoring } from "./coloring.js";
  *   coloringState: ReturnType<typeof calculateProgressiveColoring>
  * }}
  */
-export function evaluateEvolution(lifetimeContributions = 0) {
+export function evaluateEvolution(lifetimeContributions = 0, options = {}) {
   const safeContributions = Math.max(0, Number(lifetimeContributions) || 0);
 
   let currentTier = EVOLUTION_TIERS[0];
@@ -66,7 +66,7 @@ export function evaluateEvolution(lifetimeContributions = 0) {
   const stageProgress = clamp(stageContributions / requiredContributions, 0, 1);
 
   // Compute mathematical progressive coloring for current form
-  const coloringState = calculateProgressiveColoring(currentTier, stageProgress);
+  const coloringState = calculateProgressiveColoring(currentTier, stageProgress, options);
 
   // Build completed evolution history
   const evolutionHistory = [];

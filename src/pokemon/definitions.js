@@ -49,10 +49,10 @@ export const EVOLUTION_TIERS = Object.freeze([
     description:
       "Tough fights make it fiery. When it gets agitated, it spouts bluish-white flames.",
     colors: {
-      base: "#cc2e3b",
-      shadow: "#941a24",
-      highlight: "#f04856",
-      belly: "#ffdd99",
+      base: "#d82638",
+      shadow: "#9c1724",
+      highlight: "#ff4d5e",
+      belly: "#fedb8b",
       bellyShadow: "#d6b060",
       eye: "#2ecc71",
       flameInner: "#fff466",
@@ -81,14 +81,14 @@ export const EVOLUTION_TIERS = Object.freeze([
     description:
       "It spits fire that is hot enough to melt boulders. Known to cause forest fires unintentionally.",
     colors: {
-      base: "#ee6c25",
-      shadow: "#b94710",
-      highlight: "#ff914d",
-      belly: "#fae29c",
+      base: "#ff6e1a",
+      shadow: "#c44a07",
+      highlight: "#ffa359",
+      belly: "#ffe082",
       bellyShadow: "#d1b66b",
-      wingInner: "#2a8f85",
-      wingShadow: "#1a6058",
-      eye: "#00b4d8",
+      wingInner: "#18a49c",
+      wingShadow: "#0f6661",
+      eye: "#00c4ef",
       flameInner: "#fffb99",
       flameOuter: "#ff2a00",
       outline: "#2a150c"
@@ -152,18 +152,18 @@ export const EVOLUTION_TIERS = Object.freeze([
     description:
       "The overwhelming power that fills its entire body causes it to turn black and create intense blue flames.",
     colors: {
-      base: "#323846",
-      shadow: "#212530",
-      highlight: "#4c556b",
-      belly: "#7ad9ff",
-      bellyShadow: "#4ea6d1",
+      base: "#2b323f",
+      shadow: "#181c24",
+      highlight: "#485367",
+      belly: "#40c4ff",
+      bellyShadow: "#288ab8",
       wingInner: "#252b37",
       wingSpikes: "#8fe3ff",
-      eye: "#ff3b30",
+      eye: "#ff2d55",
       flameInner: "#ffffff",
       flameMid: "#00f2fe",
       flameOuter: "#0984e3",
-      mouthFlame: "#00d2d3",
+      mouthFlame: "#00f2fe",
       outline: "#13161c"
     },
     regions: [
