@@ -50,14 +50,15 @@ export const EVOLUTION_TIERS = Object.freeze([
       "Tough fights make it fiery. When it gets agitated, it spouts bluish-white flames.",
     colors: {
       base: "#dc4e42",
-      shadow: "#a92b28",
+      shadow: "#9a3528",
       highlight: "#ea6c65",
       belly: "#e8d5be",
-      bellyShadow: "#cca788",
-      eye: "#2a8f82",
-      flameInner: "#ffeb3b",
-      flameOuter: "#ff4500",
-      outline: "#3a1512"
+      bellyShadow: "#bfa792",
+      eye: "#1a7c73",
+      flameInner: "#fbed57",
+      flameMid: "#f89e22",
+      flameOuter: "#f14c24",
+      outline: "#2b100c"
     },
     regions: [
       { id: "head", name: "Head & Crest", weight: 0.2, priority: 1 },

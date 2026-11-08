@@ -167,7 +167,7 @@ export function renderCharmanderVector(palette, animationState = {}) {
  * @returns {string} Inner SVG markup
  */
 export function renderCharmeleonVector(palette, animationState = {}) {
-  const breathY = (animationState.breath || 0) * 3.0;
+  const breathY = (animationState.breath || 0) * 2.5;
   const flamePhase = animationState.flamePhase || 0;
   const flameFlickerX = Math.sin(flamePhase * 1.8) * 4;
   const flameFlickerY = Math.cos(flamePhase * 2.2) * 5;
@@ -175,158 +175,158 @@ export function renderCharmeleonVector(palette, animationState = {}) {
   return `
     <g id="charmeleon" class="pokemon-2d-anime official-pokedex" transform="translate(0, ${breathY})">
       <!-- Ground Contact Shadow -->
-      <ellipse cx="250" cy="445" rx="130" ry="14" fill="#000000" opacity="0.25"/>
+      <ellipse cx="205" cy="444" rx="140" ry="14" fill="#000000" opacity="0.28"/>
 
-      <!-- TAIL (Thick, muscular tail sweeping right and curving up) -->
+      <!-- 1. TAIL (Base at lower spine, curves right and hooks up) -->
       <g id="region-tail">
         <!-- Tail Shadow Layer -->
-        <path d="M 270 350 C 310 365 365 375 395 350 C 410 335 412 310 398 290 C 390 305 382 322 368 335 C 342 355 305 352 272 342 Z"
+        <path d="M 268 340 C 310 365 370 375 402 344 C 420 324 416 292 398 266 C 390 285 382 305 366 322 C 336 345 296 344 264 332 Z"
               fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="4.5" stroke-linejoin="round"/>
-        <!-- Tail Base -->
-        <path d="M 272 346 C 312 360 364 368 392 346 C 406 332 408 312 396 295 C 388 308 380 324 366 336 C 342 354 306 350 274 340 Z"
+        <!-- Tail Base Color -->
+        <path d="M 270 336 C 310 360 368 368 398 340 C 414 322 412 295 396 270 C 388 288 380 306 364 322 C 336 342 298 342 266 330 Z"
               fill="${palette.base}"/>
-        <!-- Tail Top Highlight -->
-        <path d="M 305 356 C 335 360 365 355 385 338"
-              stroke="${palette.highlight}" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+        <!-- Tail Top Ridge Highlight -->
+        <path d="M 310 350 C 344 354 374 346 394 326"
+              stroke="${palette.highlight}" stroke-width="3" stroke-linecap="round" fill="none"/>
       </g>
 
-      <!-- TAIL FLAME (Torch fire at the tip) -->
+      <!-- 2. TAIL FLAME (Blazing torch at X: 318..435, Y: 172..323) -->
       <g id="region-tail_flame" transform="translate(${flameFlickerX}, ${flameFlickerY})">
-        <!-- Outer Fire -->
-        <path d="M 396 295 C 380 275 368 240 382 205 C 392 230 400 240 408 228 C 420 215 415 185 432 170 C 445 205 440 245 422 270 C 412 285 404 292 396 295 Z"
-              fill="${palette.flameOuter}" filter="drop-shadow(0 0 14px ${palette.flameOuter})"/>
-        <!-- Mid Fire Tongues -->
-        <path d="M 396 290 C 384 270 376 242 388 215 C 396 235 402 242 412 232 C 422 222 418 198 430 185 C 438 212 434 245 420 268 C 410 282 402 288 396 290 Z"
-              fill="#ff9800"/>
-        <!-- Inner Hot Core Flame -->
-        <path d="M 398 285 C 388 268 382 248 392 228 C 398 242 404 246 412 240 C 418 232 416 215 424 205 C 430 225 426 250 416 268 Z"
+        <!-- Outer Roaring Flame Tongues -->
+        <path d="M 396 270 C 378 245 366 208 384 172 C 396 200 404 212 415 198 C 426 182 420 148 440 132 C 454 172 448 220 428 250 C 418 264 408 270 396 270 Z"
+              fill="${palette.flameOuter}" filter="drop-shadow(0 0 16px ${palette.flameOuter})"/>
+        <!-- Mid Fiery Golden Core -->
+        <path d="M 396 264 C 382 240 374 210 390 180 C 400 204 406 214 416 202 C 426 190 422 164 436 150 C 444 182 440 220 424 246 C 414 260 404 265 396 264 Z"
+              fill="${palette.flameMid || "#f89e22"}"/>
+        <!-- Inner Hot Incandescent Yellow -->
+        <path d="M 398 258 C 388 238 382 214 394 190 C 400 208 406 216 416 208 C 422 200 420 180 430 170 C 436 195 432 225 420 246 Z"
               fill="${palette.flameInner}"/>
       </g>
 
-      <!-- RIGHT LEG & FOOT (Viewer's right - midground) -->
+      <!-- 3. RIGHT LEG & FOOT (Midground, viewer's right) -->
       <g id="region-legs-right">
         <!-- Muscular Thigh -->
-        <path d="M 270 325 C 295 330 325 350 322 390 C 320 415 310 435 295 442 C 285 435 278 410 272 385 C 268 360 265 340 270 325 Z"
+        <path d="M 252 308 C 282 314 314 336 310 382 C 306 412 296 432 278 440 C 268 430 262 405 256 378 C 252 350 248 328 252 308 Z"
               fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="4.5" stroke-linejoin="round"/>
-        <path d="M 272 328 C 294 334 320 352 318 388 C 316 412 306 432 294 438 C 285 432 280 410 274 385 C 270 360 268 342 272 328 Z"
+        <path d="M 254 312 C 280 318 308 338 306 380 C 302 408 292 428 276 436 C 268 428 262 404 258 378 C 254 350 250 330 254 312 Z"
               fill="${palette.base}"/>
         <!-- 3 Right Foot Claws -->
-        <path d="M 278 440 L 268 450 L 286 446 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
-        <path d="M 288 444 L 284 456 L 298 448 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
-        <path d="M 300 442 L 302 454 L 310 442 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
+        <path d="M 262 438 L 248 448 L 268 444 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
+        <path d="M 270 442 L 264 454 L 280 446 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
+        <path d="M 282 440 L 282 452 L 292 440 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
       </g>
 
-      <!-- TORSO & BELLY -->
+      <!-- 4. TORSO & BELLY PATCH -->
       <g id="region-torso">
-        <!-- Back & Torso Silhouette -->
-        <path d="M 230 220 C 215 250 205 285 205 320 C 205 365 225 400 255 405 C 285 405 305 375 305 330 C 305 270 295 230 275 205 Z"
+        <!-- Muscular Back & Torso Silhouette -->
+        <path d="M 228 198 C 210 234 196 276 196 318 C 196 368 220 406 252 410 C 284 410 304 376 304 326 C 304 258 294 214 270 186 Z"
               fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="5" stroke-linejoin="round"/>
-        <path d="M 232 220 C 218 250 210 285 210 318 C 210 360 228 395 255 400 C 282 400 300 372 300 330 C 300 272 292 232 274 206 Z"
+        <path d="M 230 198 C 214 234 202 276 202 316 C 202 364 224 402 252 406 C 280 406 298 374 298 326 C 298 260 290 216 270 188 Z"
               fill="${palette.base}"/>
 
-        <!-- PALE BEIGE/CREAM BELLY PATCH (As seen in reference) -->
-        <path d="M 226 250 C 215 280 212 315 218 345 C 224 372 240 388 256 388 C 272 388 280 365 278 335 C 275 295 258 260 236 248 Z"
+        <!-- PALE BEIGE/CREAM BELLY PATCH (Exact coordinates X: 135..251, Y: 168..375) -->
+        <path d="M 218 230 C 206 262 202 302 210 338 C 218 370 238 388 254 388 C 272 388 280 364 278 328 C 274 284 256 244 230 228 Z"
               fill="${palette.bellyShadow}"/>
-        <path d="M 228 252 C 218 280 216 312 222 342 C 226 368 240 384 254 384 C 268 384 276 362 274 334 C 272 296 256 262 236 250 Z"
+        <path d="M 220 232 C 210 262 206 300 214 334 C 220 366 238 384 252 384 C 268 384 276 360 274 328 C 270 286 254 246 230 230 Z"
               fill="${palette.belly}"/>
-        <!-- Belly subtle highlight -->
-        <path d="M 232 265 C 226 290 225 320 232 345"
+        <!-- Belly soft sheen -->
+        <path d="M 224 246 C 216 276 214 310 224 342"
               stroke="#ffffff" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.35"/>
       </g>
 
-      <!-- RIGHT ARM (Viewer's right - midground) -->
+      <!-- 5. RIGHT ARM & CLAWS (Viewer's right, midground, X: 303, Y: 310) -->
       <g id="region-arms-right">
-        <path d="M 288 270 C 305 280 325 300 324 328 C 322 340 314 348 304 348 C 298 340 295 325 294 308 C 292 290 286 280 288 270 Z"
+        <!-- Arm hanging down at side -->
+        <path d="M 284 252 C 304 264 322 288 320 320 C 318 334 308 344 296 344 C 288 334 286 318 286 300 C 284 280 278 266 284 252 Z"
               fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="4.5" stroke-linejoin="round"/>
-        <path d="M 290 272 C 304 282 322 300 320 326 C 318 336 312 344 304 344 C 298 336 296 322 295 308 C 294 292 288 282 290 272 Z"
+        <path d="M 286 254 C 302 266 318 288 316 318 C 314 330 306 340 296 340 C 288 330 286 316 286 300 C 284 282 278 268 286 254 Z"
               fill="${palette.base}"/>
         <!-- 3 Right Hand Claws -->
-        <path d="M 314 342 L 316 358 L 324 348 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="1.8"/>
-        <path d="M 322 346 L 328 362 L 334 350 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="1.8"/>
-        <path d="M 330 348 L 340 360 L 338 346 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="1.8"/>
+        <path d="M 306 338 L 308 356 L 318 344 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="1.8"/>
+        <path d="M 316 342 L 322 360 L 328 346 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="1.8"/>
+        <path d="M 324 344 L 334 358 L 332 342 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="1.8"/>
       </g>
 
-      <!-- LEFT LEG & FOOT (Viewer's left - foreground) -->
+      <!-- 6. LEFT LEG & FOOT (Foreground, viewer's left) -->
       <g id="region-legs-left">
-        <!-- Muscular Thigh & Calf -->
-        <path d="M 210 320 C 185 330 170 355 174 385 C 178 408 190 422 188 435 C 182 435 174 425 170 410 C 165 390 175 350 200 325 Z"
+        <!-- Muscular Thigh, Knee & Shin -->
+        <path d="M 204 304 C 174 316 156 346 160 382 C 164 408 178 424 176 438 C 168 438 160 424 156 408 C 148 384 158 340 190 310 Z"
               fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="4.5" stroke-linejoin="round"/>
-        <path d="M 208 322 C 188 332 174 355 178 382 C 182 405 192 418 190 432 C 185 432 178 422 174 408 C 170 390 178 352 202 326 Z"
+        <path d="M 202 306 C 176 318 160 346 164 378 C 168 406 180 420 178 434 C 172 434 164 422 160 406 C 152 384 162 342 192 312 Z"
               fill="${palette.base}"/>
-        <!-- 3 Left Foot Claws (Resting on Ground) -->
-        <path d="M 172 434 L 158 442 L 176 446 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
-        <path d="M 180 442 L 174 454 L 192 448 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
-        <path d="M 194 444 L 194 456 L 204 444 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
+        <!-- 3 Left Foot Claws (Planting on ground at Y=440..444) -->
+        <path d="M 160 434 L 142 442 L 164 446 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
+        <path d="M 168 442 L 160 454 L 182 448 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
+        <path d="M 184 444 L 184 456 L 196 444 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
       </g>
 
-      <!-- LEFT ARM (Viewer's left - foreground) -->
+      <!-- 7. LEFT ARM & CLAWS (Foreground, reaching down and forward to X: 87, Y: 284) -->
       <g id="region-arms-left">
-        <!-- Shoulder, Bicep, Forearm reaching forward -->
-        <path d="M 206 265 C 185 275 168 298 162 322 C 158 338 168 345 178 342 C 188 335 194 315 198 295 C 200 282 204 272 206 265 Z"
+        <!-- Shoulder, Bicep, Forearm -->
+        <path d="M 200 248 C 174 258 152 284 146 314 C 142 334 154 342 164 338 C 174 330 182 306 186 282 C 188 266 196 256 200 248 Z"
               fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="4.5" stroke-linejoin="round"/>
-        <path d="M 206 268 C 188 276 172 298 166 320 C 162 334 170 340 178 338 C 186 332 192 314 196 295 C 198 284 202 274 206 268 Z"
+        <path d="M 200 250 C 176 260 156 284 150 312 C 146 330 156 338 164 334 C 172 328 180 306 184 282 C 186 268 194 258 200 250 Z"
               fill="${palette.base}"/>
-        <!-- 3 Prominent White Curved Hand Claws -->
+        <!-- 3 Long Curved Sharp White Claws (Matching Pokédex reference exactly) -->
         <!-- Claw 1 (outer) -->
-        <path d="M 152 325 L 134 334 L 148 342 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
+        <path d="M 138 316 L 116 326 L 134 334 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
         <!-- Claw 2 (middle) -->
-        <path d="M 154 340 L 140 354 L 158 350 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
+        <path d="M 140 332 L 122 346 L 144 342 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
         <!-- Claw 3 (inner) -->
-        <path d="M 164 348 L 156 364 L 172 356 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
+        <path d="M 152 340 L 140 358 L 160 348 Z" fill="#ffffff" stroke="${palette.outline}" stroke-width="2"/>
       </g>
 
-      <!-- HEAD & HORN CREST (Exact official Pokédex head structure) -->
+      <!-- 8. HEAD & ICONIC HORN CREST (Horn apex at X: 252, Y: 38; Snout at X: 135, Y: 159; Eye at X: 213, Y: 130) -->
       <g id="region-head">
-        <!-- Neck Base -->
-        <path d="M 230 220 C 235 205 240 195 245 185 C 265 190 280 195 285 210 Z"
-              fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="4.5"/>
-        <path d="M 232 218 C 236 205 241 196 246 186 C 264 191 278 196 283 208 Z"
-              fill="${palette.base}"/>
+        <!-- Neck Connection -->
+        <path d="M 228 198 C 234 182 240 170 246 160 C 264 166 278 174 282 190 Z"
+              fill="${palette.base}" stroke="${palette.outline}" stroke-width="4.5"/>
 
-        <!-- ICONIC BACKWARD-SWEEPING HORN CREST -->
-        <path d="M 250 145 C 270 125 295 95 315 85 C 322 82 328 86 325 94 C 315 118 300 150 285 185 Z"
+        <!-- ICONIC REPTILIAN HORN CREST (Sweeping backward-upwards to apex X: 252, Y: 38) -->
+        <path d="M 226 122 C 242 88 264 48 288 36 C 298 32 306 37 302 48 C 288 80 270 124 252 164 Z"
               fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="4.5" stroke-linejoin="round"/>
-        <path d="M 252 143 C 272 124 296 95 314 86 C 320 84 324 87 322 93 C 314 116 298 148 284 182 Z"
+        <path d="M 228 120 C 244 86 266 48 286 38 C 294 34 300 38 298 46 C 286 78 268 122 250 162 Z"
               fill="${palette.base}"/>
         <!-- Horn Top Ridge Highlight -->
-        <path d="M 262 135 C 280 115 300 95 315 88"
+        <path d="M 242 110 C 258 82 274 58 288 42"
               stroke="${palette.highlight}" stroke-width="3" stroke-linecap="round" fill="none"/>
 
-        <!-- REPTILIAN HEAD & SNOUT -->
-        <path d="M 255 140 C 235 145 205 160 185 180 C 175 190 178 200 186 204 C 205 210 225 215 242 205 C 255 195 262 175 260 155 Z"
+        <!-- REPTILIAN SKULL & BEAK SNOUT -->
+        <!-- Slopes down-left to beak tip at (135, 159), curves into jaw -->
+        <path d="M 230 115 C 206 120 168 140 138 168 C 124 182 128 194 138 198 C 164 206 194 212 218 198 C 234 184 244 158 240 134 Z"
               fill="${palette.shadow}" stroke="${palette.outline}" stroke-width="4.5" stroke-linejoin="round"/>
-        <path d="M 254 138 C 236 143 206 158 186 178 C 178 188 180 198 188 202 C 206 208 224 212 240 203 C 252 193 258 174 256 154 Z"
+        <path d="M 228 113 C 206 118 170 138 142 166 C 130 178 132 190 142 196 C 166 204 194 208 216 196 C 230 182 240 158 238 134 Z"
               fill="${palette.base}"/>
 
-        <!-- Far Brow Ridge (gives 3/4 dimensional depth) -->
-        <path d="M 240 142 C 246 148 248 155 246 160"
+        <!-- Far Brow Ridge (gives 3/4 dimensional depth exactly as in Pokédex reference) -->
+        <path d="M 212 116 C 220 122 226 130 220 138"
               stroke="${palette.outline}" stroke-width="3" stroke-linecap="round" fill="none"/>
 
         <!-- Snout Top Highlight -->
-        <path d="M 215 162 C 198 175 186 186 184 195"
+        <path d="M 180 140 C 160 155 146 168 142 180"
               stroke="${palette.highlight}" stroke-width="3.5" stroke-linecap="round" fill="none"/>
 
         <!-- Nostril -->
-        <ellipse cx="198" cy="186" rx="2.5" ry="1.8" fill="${palette.outline}"/>
+        <ellipse cx="158" cy="172" rx="2.5" ry="1.8" fill="${palette.outline}"/>
 
-        <!-- DETERMINED TEAL ANIME EYE (Near Side) -->
+        <!-- DETERMINED TEAL ANIME EYE (Near Side: X=213, Y=130) -->
         <g id="region-eye">
           <!-- Sharp Triangular Brow Ridge -->
-          <path d="M 210 162 L 235 165" stroke="${palette.outline}" stroke-width="3.5" stroke-linecap="round"/>
-          <!-- Sclera -->
-          <polygon points="212,165 233,167 228,185 215,182" fill="#ffffff" stroke="${palette.outline}" stroke-width="2.5"/>
-          <!-- Teal Iris -->
-          <polygon points="216,166 230,168 226,183 218,181" fill="${palette.eye}"/>
-          <!-- Pupil -->
-          <ellipse cx="223" cy="174" rx="3.5" ry="6" fill="#0b1710"/>
+          <path d="M 174 142 L 204 146" stroke="${palette.outline}" stroke-width="3.8" stroke-linecap="round"/>
+          <!-- White Sclera -->
+          <polygon points="176,146 202,148 196,170 182,166" fill="#ffffff" stroke="${palette.outline}" stroke-width="2.5"/>
+          <!-- Teal/Emerald Iris -->
+          <polygon points="180,147 198,150 194,168 186,165" fill="${palette.eye}"/>
+          <!-- Dark Pupil -->
+          <ellipse cx="191" cy="158" rx="3.5" ry="6.5" fill="#0b1710"/>
           <!-- Specular White Reflection Dot -->
-          <circle cx="220" cy="170" r="2.2" fill="#ffffff"/>
+          <circle cx="187" cy="154" r="2.2" fill="#ffffff"/>
         </g>
 
         <!-- Confident Smirk / Mouthline with Beak Notch -->
-        <path d="M 188 202 Q 206 208 228 198" stroke="${palette.outline}" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+        <path d="M 142 190 Q 168 200 200 186" stroke="${palette.outline}" stroke-width="3.5" stroke-linecap="round" fill="none"/>
         <!-- Small Tooth / Fang at corner of mouth -->
-        <polygon points="220,199 223,207 226,200" fill="#ffffff" stroke="${palette.outline}" stroke-width="1.2"/>
+        <polygon points="190,188 194,198 198,189" fill="#ffffff" stroke="${palette.outline}" stroke-width="1.2"/>
       </g>
     </g>
   `;
