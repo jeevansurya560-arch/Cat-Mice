@@ -8,9 +8,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "src/**"
-      - "fixtures/**"
 
 permissions:
   contents: write

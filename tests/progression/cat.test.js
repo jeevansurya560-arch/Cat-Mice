@@ -30,4 +30,15 @@ describe("Progression: Cat State & Maturation", () => {
     const catB = determineCatState({ growthRatio: 0.5, level: 25 }, 9999);
     expect(catA.variant).toBe(catB.variant);
   });
+
+  it("should resolve programming language variants when specified", () => {
+    const pythonCat = determineCatState({ growthRatio: 0.5, level: 25 }, 12345, "Python");
+    expect(pythonCat.variant).toBe("python");
+
+    const jsCat = determineCatState({ growthRatio: 0.5, level: 25 }, 12345, "JavaScript");
+    expect(jsCat.variant).toBe("javascript");
+
+    const rustCat = determineCatState({ growthRatio: 0.5, level: 25 }, 12345, "rust");
+    expect(rustCat.variant).toBe("rust");
+  });
 });

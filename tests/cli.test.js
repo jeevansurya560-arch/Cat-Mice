@@ -17,10 +17,19 @@ describe("CLI Foundation & Arguments", () => {
   });
 
   it("should handle separated flag syntax", () => {
-    const opts = parseArgs(["--mode", "offline", "--snapshot", "my-data.json", "--details"]);
+    const opts = parseArgs([
+      "--mode",
+      "offline",
+      "--snapshot",
+      "my-data.json",
+      "--details",
+      "--theme",
+      "rust"
+    ]);
     expect(opts.mode).toBe("offline");
     expect(opts.snapshot).toBe("my-data.json");
     expect(opts.details).toBe(true);
+    expect(opts.theme).toBe("rust");
   });
 
   it("should successfully execute offline initialization with sample fixture", async () => {

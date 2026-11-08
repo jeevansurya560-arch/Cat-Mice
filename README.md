@@ -86,9 +86,31 @@ In addition to the ecosystem outputs, CAT-MICE generates 34 standalone, pixel-al
 
 ## Add to Your GitHub Profile README
 
-### 1. Add the GitHub Action Workflow
+You have two easy ways to showcase your living Cat & Mouse ecosystem on your GitHub profile:
 
-Create `.github/workflows/cat-mice.yml` in your profile repository (`username/username`):
+### Option A: Direct Embed (Easiest & Fastest — Instant Setup)
+
+Since this repository (`jeevansurya560-arch/Cat-Mice`) runs an automated daily GitHub Action that fetches your latest contributions and renders a fresh animated GIF and SVG, you can embed it directly into your GitHub Profile README (`README.md` in your `username/username` repository):
+
+```markdown
+<!-- Living Looping Animated GIF -->
+<p align="center">
+  <img src="https://raw.githubusercontent.com/jeevansurya560-arch/Cat-Mice/main/dist/cat-mice.gif" alt="CAT-MICE Living Ecosystem" width="560" />
+</p>
+
+<!-- Or Crisp Resolution-Independent SVG -->
+<p align="center">
+  <img src="https://raw.githubusercontent.com/jeevansurya560-arch/Cat-Mice/main/dist/cat-mice.svg" alt="CAT-MICE Vector Artwork" width="560" />
+</p>
+```
+
+---
+
+### Option B: GitHub Action in Your Own Repository
+
+To run the generation automatically inside your own repository, use the official **CAT-MICE Composite Action** (`uses: jeevansurya560-arch/Cat-Mice@main`).
+
+Create `.github/workflows/cat-mice.yml` in your profile repository:
 
 ```yaml
 name: Generate CAT-MICE Ecosystem
@@ -111,32 +133,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js 22 LTS
-        uses: actions/setup-node@v4
+      - name: Generate CAT-MICE Ecosystem
+        uses: jeevansurya560-arch/Cat-Mice@main
         with:
-          node-version: 22
-
-      - name: Install pnpm
-        run: npm install -g pnpm@12.18.0
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Generate CAT-MICE Artifacts
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          node src/cli.js --mode=production --user="${{ github.repository_owner }}" --out=dist --details
+          user: ${{ github.repository_owner }}
+          theme: "auto" # or: javascript, python, rust, cpp, java
+          out: "dist"
 
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f dist/cat-mice.gif dist/cat-mice.svg dist/cat-mice.png dist/showcase.png assets/generated/
+          git add -f dist/
           if git diff --staged --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "chore(ecosystem): update cat-and-mouse world [skip ci]"
+            git commit -m "chore(ecosystem): update cat & mouse world [skip ci]"
             git push
           fi
 ```
@@ -144,21 +156,22 @@ jobs:
 > [!TIP]
 > Ensure **Settings $\to$ Actions $\to$ General $\to$ Workflow permissions** is set to **"Read and write permissions"** in your repository.
 
-### 2. Embed in Your README.md
+---
 
-Add this snippet to your profile `README.md`:
+### Programming Language Color Themes
 
-```markdown
-<!-- Living Looping Animated GIF -->
-<p align="center">
-  <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/dist/cat-mice.gif" alt="CAT-MICE Living Ecosystem" width="480" />
-</p>
+Your primary programming language automatically determines the palette and coat of your Cat and environment borders:
 
-<!-- Or Scalable Resolution-Independent SVG -->
-<p align="center">
-  <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/dist/cat-mice.svg" alt="CAT-MICE Static World" width="480" />
-</p>
-```
+| Language       | Theme Keyword | Cat Variant & Coat Style                      | Accent Color |
+| :------------- | :------------ | :-------------------------------------------- | :----------- |
+| **JavaScript** | `javascript`  | Warm Gold & Honey Tabby with Octocat scarf    | `#f1e05a`    |
+| **Python**     | `python`      | Classic Sky Blue with Buttercup Yellow cheeks | `#3572A5`    |
+| **Rust**       | `rust`        | Deep Rust Orange with Copper stripes          | `#dea584`    |
+| **C++ / C**    | `cpp`         | Royal Blue with Ice Silver highlights         | `#f34b7d`    |
+| **Java**       | `java`        | Rich Coffee Brown & Ember markings            | `#b07219`    |
+| **Midnight**   | `midnight`    | Sleek Obsidian Black with glowing Golden eyes | `#9d4edd`    |
+
+To force a specific language theme regardless of repository metrics, pass `--theme=<keyword>` on the CLI or `theme: "<keyword>"` in your GitHub Action workflow.
 
 ---
 
@@ -184,9 +197,15 @@ pnpm preview
 node src/cli.js --mode=offline --snapshot=fixtures/sample-snapshot.json --details
 ```
 
-### Try Different Developer Archetypes
+### Try Different Developer Archetypes & Themes
 
 ```bash
+# Python Developer Theme (Sky blue & buttercup yellow coat)
+node src/cli.js --mode=offline --snapshot=fixtures/sample-snapshot.json --theme=python --details
+
+# Rust Developer Theme (Copper & rust orange coat)
+node src/cli.js --mode=offline --snapshot=fixtures/sample-snapshot.json --theme=rust --details
+
 # High streak developer (unlocked Ninja / Streaker mouse companion)
 node src/cli.js --mode=offline --snapshot=fixtures/high-streak.json --details
 

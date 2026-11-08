@@ -27,6 +27,7 @@ export function parseArgs(args) {
     snapshot: "fixtures/sample-snapshot.json",
     user: null,
     token: null,
+    theme: null,
     out: null,
     details: false,
     help: false,
@@ -42,6 +43,10 @@ export function parseArgs(args) {
       options.version = true;
     } else if (arg === "--details" || arg === "-d") {
       options.details = true;
+    } else if (arg.startsWith("--theme=")) {
+      options.theme = arg.split("=")[1];
+    } else if (arg === "--theme" && i + 1 < args.length) {
+      options.theme = args[++i];
     } else if (arg.startsWith("--out=")) {
       options.out = arg.split("=")[1];
     } else if (arg === "--out" && i + 1 < args.length) {
@@ -82,6 +87,7 @@ Options:
   --snapshot <path>    Path to snapshot JSON (default: fixtures/sample-snapshot.json)
   --user <login>       GitHub username (required for production mode)
   --token <token>      GitHub token (optional, reads GITHUB_TOKEN by default)
+  --theme <theme>      Language theme: auto (default) | javascript | python | rust | cpp | java
   --out <dir>          Output directory for generated GIF and PNG (default: output or dist)
   -d, --details        Print analytics and character progression details
   -h, --help           Show help
@@ -185,7 +191,8 @@ export async function main(
   const progression = evaluateProgression(
     analytics,
     { identitySeed, simulationSeed },
-    config.progression
+    config.progression,
+    { theme: options.theme }
   );
   const timeline = simulateWorld(progression, { totalTicks: 60 });
   const rendered = renderTimeline(timeline, progression.theme, { fps: config.rendering.fps });

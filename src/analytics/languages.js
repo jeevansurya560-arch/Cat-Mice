@@ -5,6 +5,25 @@
 
 import { DEFAULT_THEME_PALETTE } from "../core/constants.js";
 
+export const KNOWN_LANGUAGE_COLORS = Object.freeze({
+  javascript: "#f1e05a",
+  js: "#f1e05a",
+  typescript: "#3178c6",
+  ts: "#3178c6",
+  python: "#3572A5",
+  rust: "#dea584",
+  "c++": "#f34b7d",
+  cpp: "#f34b7d",
+  c: "#555555",
+  java: "#b07219",
+  html: "#e34c26",
+  css: "#563d7c",
+  go: "#00ADD8",
+  ruby: "#701516",
+  shell: "#89e051",
+  bash: "#89e051"
+});
+
 /**
  * Calculates language distributions and primary aesthetic palette accents.
  *
@@ -35,7 +54,9 @@ export function calculateLanguages(sortedLanguages = []) {
   const distributions = sortedLanguages.map((lang) => {
     const bytes = lang.bytes || 0;
     const percentage = totalBytes > 0 ? Number((bytes / totalBytes).toFixed(4)) : 0;
-    const color = lang.color || DEFAULT_THEME_PALETTE.primaryAccent;
+    const normalizedName = (lang.name || "").toLowerCase().trim();
+    const color =
+      lang.color || KNOWN_LANGUAGE_COLORS[normalizedName] || DEFAULT_THEME_PALETTE.primaryAccent;
     return {
       name: lang.name,
       bytes,
