@@ -6,20 +6,20 @@ import { createPalette } from "../../src/rendering/palette.js";
 describe("Rendering: Character Sprites & Color Maps", () => {
   const palette = createPalette();
 
-  it("should have consistent 16x16 dimensions across all cat sprites", () => {
+  it("should have consistent 32x32 dimensions across all modern cat sprites", () => {
     for (const [name, sprite] of Object.entries(CAT_SPRITES)) {
-      expect(sprite, `Cat sprite ${name} row count`).toHaveLength(16);
+      expect(sprite, `Cat sprite ${name} row count`).toHaveLength(32);
       for (const row of sprite) {
-        expect(row.length, `Cat sprite ${name} row width`).toBe(16);
+        expect(row.length, `Cat sprite ${name} row width`).toBe(32);
       }
     }
   });
 
-  it("should have consistent 10x8 dimensions across all mouse sprites", () => {
+  it("should have consistent 24x24 dimensions across all modern mouse sprites", () => {
     for (const [name, sprite] of Object.entries(MOUSE_SPRITES)) {
-      expect(sprite, `Mouse sprite ${name} row count`).toHaveLength(8);
+      expect(sprite, `Mouse sprite ${name} row count`).toHaveLength(24);
       for (const row of sprite) {
-        expect(row.length, `Mouse sprite ${name} row width`).toBe(10);
+        expect(row.length, `Mouse sprite ${name} row width`).toBe(24);
       }
     }
   });
@@ -35,7 +35,16 @@ describe("Rendering: Character Sprites & Color Maps", () => {
   });
 
   it("should resolve valid color maps for mouse agility tiers", () => {
-    const tiers = ["SCOUT", "RUNNER", "NINJA"];
+    const tiers = [
+      "SCOUT",
+      "RUNNER",
+      "NINJA",
+      "NEWBIE",
+      "REGULAR",
+      "CONSISTENT",
+      "DEDICATED",
+      "STREAKER"
+    ];
     for (const t of tiers) {
       const map = getMouseColorMap(t, "field_mouse", palette);
       expect(map["M"]).toBeDefined();

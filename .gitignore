@@ -9,6 +9,7 @@ node_modules/
 
 # Output and build artifacts
 output/
+scratch/
 dist/*
 !dist/*.gif
 !dist/*.png

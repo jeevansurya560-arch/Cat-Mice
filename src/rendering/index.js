@@ -44,78 +44,97 @@ export function renderTimeline(timeline, themeSpec = {}, options = {}) {
     // 2. Render environmental props (mouse hole, fish, fish bones, cheese, wool ball, bowls)
     renderProps(buffer, width, height, frame.props, palette);
 
-    // 3. Render Cat Sprite
+    // 3. Render Cat Sprite (Modern 32x32 Chibi Cat)
     const cat = frame.cat;
     const catColorMap = getCatColorMap(cat.variant, palette);
-    let catSprite = CAT_SPRITES.SLEEPING;
+    let catSprite = CAT_SPRITES.IDLE;
 
     switch (cat.action) {
+      case "WALK":
       case "WALKING":
       case "PROWLING":
-        catSprite = frame.tick % 2 === 0 ? CAT_SPRITES.WALKING_0 : CAT_SPRITES.WALKING_1;
+        catSprite =
+          frame.tick % 3 === 0
+            ? CAT_SPRITES.WALK_0
+            : frame.tick % 3 === 1
+              ? CAT_SPRITES.WALK_1
+              : CAT_SPRITES.WALK_2;
         break;
-      case "EXPLORING":
-      case "STALKING":
-        catSprite = CAT_SPRITES.EXPLORING;
-        break;
+      case "EAT":
       case "EATING_FISH":
-        catSprite = CAT_SPRITES.EATING_FISH;
+        catSprite = CAT_SPRITES.EAT;
         break;
+      case "PLAY":
       case "PLAYING_WOOL":
       case "POUNCING":
-        catSprite = CAT_SPRITES.PLAYING_WOOL;
+        catSprite = CAT_SPRITES.PLAY;
         break;
+      case "GROOM":
       case "GROOMING":
-        catSprite = CAT_SPRITES.GROOMING;
+        catSprite = CAT_SPRITES.GROOM;
         break;
+      case "SLEEP":
       case "SLEEPING":
+        catSprite = CAT_SPRITES.SLEEP;
+        break;
+      case "IDLE":
+      case "EXPLORING":
+      case "STALKING":
       default:
-        catSprite = CAT_SPRITES.SLEEPING;
+        catSprite = CAT_SPRITES.IDLE;
         break;
     }
 
-    // Center sprite origin
-    const catOffsetX = Math.round(cat.x - 8 * cat.scale);
-    const catOffsetY = Math.round(cat.y - 8 * cat.scale);
+    // Center 32x32 cat sprite origin
+    const catOffsetX = Math.round(cat.x - 16);
+    const catOffsetY = Math.round(cat.y - 31);
 
     blitSprite(buffer, width, height, catSprite, catColorMap, catOffsetX, catOffsetY, {
-      scale: cat.scale,
+      scale: 1,
       flipX: cat.facing === "left"
     });
 
-    // 4. Render Mouse Sprite (if unlocked and visible)
+    // 4. Render Mouse Sprite (Modern 24x24 Chibi Mouse with Goggles & Backpack)
     const mouse = frame.mouse;
     if (mouse.unlocked && mouse.visible) {
       const mouseColorMap = getMouseColorMap(mouse.tier, mouse.variant, palette);
-      let mouseSprite = MOUSE_SPRITES.EXPLORING;
+      let mouseSprite = MOUSE_SPRITES.IDLE;
 
       switch (mouse.action) {
+        case "WALK":
         case "RUNNING":
         case "DARTING":
-          mouseSprite = frame.tick % 2 === 0 ? MOUSE_SPRITES.RUNNING_0 : MOUSE_SPRITES.RUNNING_1;
+          mouseSprite = frame.tick % 2 === 0 ? MOUSE_SPRITES.WALK_0 : MOUSE_SPRITES.WALK_1;
           break;
-        case "COLLECTING_CHEESE":
-          mouseSprite = MOUSE_SPRITES.COLLECTING_CHEESE;
-          break;
+        case "WORK":
         case "OBSERVING_CAT":
-        case "TAUNTING":
-          mouseSprite = MOUSE_SPRITES.OBSERVING_CAT;
+          mouseSprite = MOUSE_SPRITES.WORK;
           break;
+        case "COLLECT":
+        case "COLLECTING_CHEESE":
+          mouseSprite = MOUSE_SPRITES.COLLECT;
+          break;
+        case "CHEER":
+        case "TAUNTING":
+          mouseSprite = MOUSE_SPRITES.CHEER;
+          break;
+        case "SLEEP":
         case "SLEEPING":
-          mouseSprite = MOUSE_SPRITES.SLEEPING;
+          mouseSprite = MOUSE_SPRITES.SLEEP;
           break;
         case "HIDING":
           mouseSprite = MOUSE_SPRITES.HIDING;
           break;
+        case "IDLE":
         case "EXPLORING":
         case "FORAGING":
         default:
-          mouseSprite = MOUSE_SPRITES.EXPLORING;
+          mouseSprite = MOUSE_SPRITES.IDLE;
           break;
       }
 
-      const mouseOffsetX = Math.round(mouse.x - 5);
-      const mouseOffsetY = Math.round(mouse.y - 4);
+      const mouseOffsetX = Math.round(mouse.x - 12);
+      const mouseOffsetY = Math.round(mouse.y - 23);
 
       blitSprite(buffer, width, height, mouseSprite, mouseColorMap, mouseOffsetX, mouseOffsetY, {
         scale: 1,

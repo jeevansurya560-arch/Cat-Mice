@@ -87,7 +87,10 @@ export function updateMouse(mouse, cat, props, bounds, rng) {
         }
 
         // Venture out into room
-        const roomCenter = { x: bounds.width * 0.55, y: bounds.height * 0.6 };
+        const roomCenter = {
+          x: bounds.width * 0.55,
+          y: bounds.height === 120 ? 72 : bounds.height * 0.6
+        };
         const vel = seek(updated, roomCenter, baseSpeed * 0.7);
         updated.vx = vel.vx;
         updated.vy = vel.vy;
@@ -252,11 +255,11 @@ export function updateMouse(mouse, cat, props, bounds, rng) {
 
   // Position update and clamping
   if (updated.visible) {
-    const nextPos = clampToBounds(
-      { x: updated.x + updated.vx, y: updated.y + updated.vy },
-      bounds,
-      12
-    );
+    const targetY =
+      bounds.height === 120
+        ? Math.max(70, Math.min(74, updated.y + updated.vy * 0.15))
+        : updated.y + updated.vy;
+    const nextPos = clampToBounds({ x: updated.x + updated.vx, y: targetY }, bounds, 12);
     updated.x = Number(nextPos.x.toFixed(1));
     updated.y = Number(nextPos.y.toFixed(1));
 

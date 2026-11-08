@@ -24,14 +24,14 @@ export function createWorld(progressionState, simConfig = {}, rng) {
   };
 
   const holePos = {
-    x: bounds.width - 24,
-    y: bounds.height - 24,
+    x: bounds.width - 22,
+    y: 72,
     radius: 12
   };
 
   const woolBallPos = {
-    x: Math.round(bounds.width * 0.42),
-    y: Math.round(bounds.height * 0.62),
+    x: Math.round(bounds.width * 0.44),
+    y: 78,
     vx: 0,
     vy: 0,
     active: true
@@ -43,14 +43,14 @@ export function createWorld(progressionState, simConfig = {}, rng) {
     woolBall: woolBallPos,
     yarnBall: woolBallPos, // Alias for backward compatibility
     fish: {
-      x: 42,
-      y: bounds.height - 26,
+      x: 45,
+      y: 74,
       consumed: false,
       bones: false
     },
     cheese: {
-      x: Math.round(bounds.width * 0.72),
-      y: Math.round(bounds.height * 0.52),
+      x: Math.round(bounds.width * 0.68),
+      y: 76,
       collected: false
     },
     rug: {

@@ -25,7 +25,7 @@ export const CAT_ACTIONS = Object.freeze({
  */
 export function initCat(catProgression, bounds, rng) {
   const initialX = bounds.width * 0.4 + (rng.next() - 0.5) * 30;
-  const initialY = bounds.height * 0.5 + (rng.next() - 0.5) * 20;
+  const initialY = bounds.height === 120 ? 71 : bounds.height * 0.5 + (rng.next() - 0.5) * 20;
 
   return {
     x: Number(initialX.toFixed(1)),
@@ -218,11 +218,11 @@ export function updateCat(cat, mouse, props, bounds, rng) {
 
   // Position update and boundary constraints
   const margin = 16 * updated.scale;
-  const nextPos = clampToBounds(
-    { x: updated.x + updated.vx, y: updated.y + updated.vy },
-    bounds,
-    margin
-  );
+  const targetY =
+    bounds.height === 120
+      ? Math.max(69, Math.min(73, updated.y + updated.vy * 0.15))
+      : updated.y + updated.vy;
+  const nextPos = clampToBounds({ x: updated.x + updated.vx, y: targetY }, bounds, margin);
 
   updated.x = Number(nextPos.x.toFixed(1));
   updated.y = Number(nextPos.y.toFixed(1));

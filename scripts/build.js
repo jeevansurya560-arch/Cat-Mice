@@ -13,6 +13,7 @@ import { simulateWorld } from "../src/simulation/state.js";
 import { renderTimeline } from "../src/rendering/index.js";
 import { exportArtifacts } from "../src/export/index.js";
 import { deriveIdentitySeed, deriveSimulationSeed } from "../src/core/seed.js";
+import { generateShowcase } from "./generate-showcase.js";
 
 async function build() {
   console.log("CAT-MICE: Verifying project build integrity...");
@@ -54,6 +55,9 @@ async function build() {
     outputDir: "dist",
     filenamePrefix: "cat-mice"
   });
+
+  // 5. Generate progression matrix showcase banner
+  generateShowcase("dist/showcase.png");
 
   console.log(`✓ Configuration valid: ${config.application.name} v${config.application.version}`);
   console.log(
