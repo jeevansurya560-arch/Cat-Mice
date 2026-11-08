@@ -22,7 +22,7 @@ Every new form starts 100% monochrome. As you push code, an area-weighted mathem
 • Deterministic cubic Hermite smoothstep color transitions
 
 Check out the code, star the repo, or embed it on your own GitHub Profile:
-🔗 Repository: https://github.com/developer/pokemon-evolution
+🔗 Repository: https://github.com/jeevansurya560-arch/pokemon-evolution
 
 What does your current contribution count evolve to? Let me know in the comments! 👇
 

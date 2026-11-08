@@ -211,7 +211,7 @@
 
     <!-- Contribution & Stage Progress Metric -->
     <text x="448" y="0" text-anchor="end" class="stat-label">Lifetime Activity</text>
-    <text x="448" y="20" text-anchor="end" class="stat-val">219 Commits</text>
+    <text x="448" y="20" text-anchor="end" class="stat-val">228 Commits</text>
   </g>
 
   <!-- Progress Bar Footer -->
@@ -219,9 +219,9 @@
     <!-- Background Track -->
     <rect x="0" y="0" width="440" height="8" rx="4" fill="#21262d"/>
     <!-- Animated Color Fill -->
-    <rect x="0" y="0" width="21" height="8" rx="4" fill="url(#progressGrad)"/>
+    <rect x="0" y="0" width="40" height="8" rx="4" fill="url(#progressGrad)"/>
     <!-- Stats Row -->
     <text x="0" y="24" class="stat-label">Stage Colouring Progress</text>
-    <text x="440" y="24" text-anchor="end" class="stat-val">4.7%</text>
+    <text x="440" y="24" text-anchor="end" class="stat-val">9%</text>
   </g>
 </svg>

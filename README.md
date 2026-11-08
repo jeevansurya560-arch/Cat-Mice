@@ -9,11 +9,11 @@
 
 <p align="center">
   <strong>Current Form:</strong> Charmeleon (No. 0005) &nbsp;|&nbsp;
-  <strong>Lifetime Activity:</strong> 219 contributions &nbsp;|&nbsp;
-  <strong>Stage Colouring:</strong> 4.7%
+  <strong>Lifetime Activity:</strong> 228 contributions &nbsp;|&nbsp;
+  <strong>Stage Colouring:</strong> 9%
 </p>
 <p align="center">
-  <em>19 / 300 contributions to evolve</em>
+  <em>28 / 300 contributions to evolve</em>
 </p>
 <!-- POKEMON-EVOLUTION:END -->
 
