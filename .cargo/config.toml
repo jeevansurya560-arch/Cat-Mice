@@ -1,0 +1,9 @@
+[build]
+# Limit parallel compilation jobs to 4 to prevent CPU thermal spikes on thin-and-light laptop
+jobs = 4
+
+[env]
+RUST_BACKTRACE = "1"
+
+[registries.crates-io]
+protocol = "sparse"

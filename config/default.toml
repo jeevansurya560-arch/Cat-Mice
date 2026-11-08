@@ -1,0 +1,36 @@
+# Neo-Pokédex Default Configuration
+
+[user]
+username = "developer"
+# GitHub Token can also be supplied via GH_TOKEN or GITHUB_TOKEN environment variable
+token = ""
+
+[contributions]
+# Period mode: "rolling_year" (past 365 days) | "calendar_year" | "lifetime"
+period = "rolling_year"
+include_private = true
+
+[evolution]
+# Thresholds: Stage 1 (0-249), Stage 2 (250-749), Stage 3 (750+)
+charmander_max = 249
+charmeleon_max = 749
+charizard_mastery = 2000
+
+[languages]
+# Mode: "auto" (commit diff analysis) | "repo_summary" | "manual"
+mode = "auto"
+dominant_weight_boost = 1.25
+
+[output]
+# Format: "png" | "gif" | "svg" | "all"
+format = "all"
+width = 480
+height = 480
+transparent = false
+fps = 10
+frames = 12
+
+[cache]
+enabled = true
+ttl_seconds = 3600
+cache_dir = ".cache"

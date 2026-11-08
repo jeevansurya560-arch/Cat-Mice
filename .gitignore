@@ -8,6 +8,7 @@ node_modules/
 !.env.example
 
 # Output and build artifacts
+target/
 output/
 scratch/
 dist/*

@@ -1,0 +1,71 @@
+# Programming Language Palette Registry & Tonal Mapping
+
+[languages.python]
+primary = "#3776AB"
+highlight = "#5AA9E6"
+shadow = "#1F486D"
+
+[languages.javascript]
+primary = "#F7DF1E"
+highlight = "#FFF066"
+shadow = "#B8A209"
+
+[languages.typescript]
+primary = "#3178C6"
+highlight = "#589EF0"
+shadow = "#1A4B80"
+
+[languages.rust]
+primary = "#DEA584"
+highlight = "#F0C2A8"
+shadow = "#9C6546"
+
+[languages.go]
+primary = "#00ADD8"
+highlight = "#40D5FC"
+shadow = "#006F8C"
+
+[languages.cpp]
+primary = "#00599C"
+highlight = "#2D88D6"
+shadow = "#00335C"
+
+[languages.c]
+primary = "#A8B9CC"
+highlight = "#D2E0EE"
+shadow = "#6B7E94"
+
+[languages.java]
+primary = "#E76F00"
+highlight = "#FF9E3B"
+shadow = "#8F4200"
+
+[languages.html]
+primary = "#E34F26"
+highlight = "#F07C5B"
+shadow = "#962D10"
+
+[languages.css]
+primary = "#1572B6"
+highlight = "#419BE0"
+shadow = "#0B4673"
+
+[languages.ruby]
+primary = "#CC342D"
+highlight = "#E8645E"
+shadow = "#7A1712"
+
+[languages.swift]
+primary = "#F05138"
+highlight = "#F88673"
+shadow = "#9B2C1A"
+
+[languages.kotlin]
+primary = "#7F52FF"
+highlight = "#AA8AFF"
+shadow = "#4824B3"
+
+[languages.fallback]
+primary = "#8B949E"
+highlight = "#B1BAC4"
+shadow = "#484F58"

@@ -1,0 +1,46 @@
+[package]
+name = "neo-pokedex"
+version = "0.1.0"
+edition = "2021"
+authors = ["Jeevan Surya Jalli <jalli.jeevansurya1019@gmail.com>"]
+description = "GitHub contribution-powered Pokémon evolution virtual companion in modern HD pixel art"
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/jeevansurya560-arch/Cat-Mice"
+
+[dependencies]
+# Asynchronous Runtime & Networking
+tokio = { version = "1.41", features = ["macros", "rt-multi-thread", "time", "sync"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+
+# Serialization & Configuration
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+
+# Command Line Interface
+clap = { version = "4.5", features = ["derive", "env"] }
+
+# Graphics, Raster & Vector Processing
+image = { version = "0.25", default-features = false, features = ["png", "gif"] }
+gif = "0.13"
+palette = { version = "0.7", features = ["std", "libm"] }
+tiny-skia = "0.11"
+resvg = "0.44"
+
+# Error Handling & Diagnostics
+thiserror = "1.0"
+anyhow = "1.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+
+[dev-dependencies]
+tempfile = "3.13"
+wiremock = "0.6"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
