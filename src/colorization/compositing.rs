@@ -20,9 +20,25 @@ impl ColorCompositor {
         let (w, h) = (package.width, package.height);
         let mut output = RgbaImage::new(w, h);
 
-        // Precompute language mix for optional language harmonization
+        // Precompute language mix and top language palette targets for distinct region harmonization
         let has_languages = !distribution.normalized_weights.is_empty();
         let lang_mix = ColorBlender::mix_languages(distribution, registry);
+
+        let mut sorted_langs: Vec<_> = distribution.normalized_weights.iter().collect();
+        sorted_langs.sort_by(|a, b| b.1.partial_cmp(a.1).unwrap_or(std::cmp::Ordering::Equal));
+
+        let top1_lab = sorted_langs
+            .first()
+            .map(|(l, _)| registry.get(l).oklab)
+            .unwrap_or(lang_mix);
+        let top2_lab = sorted_langs
+            .get(1)
+            .map(|(l, _)| registry.get(l).oklab)
+            .unwrap_or(top1_lab);
+        let top3_lab = sorted_langs
+            .get(2)
+            .map(|(l, _)| registry.get(l).oklab)
+            .unwrap_or(top2_lab);
 
         let _ = gamma;
 
@@ -45,7 +61,7 @@ impl ColorCompositor {
 
                 let color_pixel = package.master_color.get_pixel(x, y);
 
-                // If language attribution exists, gently harmonize the authentic color towards the language palette
+                // If language attribution exists, distinctly harmonize anatomical regions to the user's top languages
                 let color_rgb = if has_languages {
                     let mut owning_region = None;
                     for (id, mask) in &package.masks {
@@ -55,6 +71,15 @@ impl ColorCompositor {
                         }
                     }
                     let region = owning_region.unwrap_or(RegionMaskId::Body);
+                    let target_lang_lab = match region {
+                        RegionMaskId::Flame
+                        | RegionMaskId::CranialCrest
+                        | RegionMaskId::WingsOuter => top2_lab,
+                        RegionMaskId::Belly
+                        | RegionMaskId::WingsInner
+                        | RegionMaskId::LimbsClaws => top3_lab,
+                        _ => top1_lab,
+                    };
                     let blend_factor = ColorBlender::region_blend_factor(region);
                     let orig_lab = palette::Oklab::from_color(palette::Srgb::new(
                         color_pixel[0] as f32 / 255.0,
@@ -62,9 +87,9 @@ impl ColorCompositor {
                         color_pixel[2] as f32 / 255.0,
                     ));
                     let blended_lab = palette::Oklab::new(
-                        orig_lab.l * (1.0 - blend_factor) + lang_mix.l * blend_factor,
-                        orig_lab.a * (1.0 - blend_factor) + lang_mix.a * blend_factor,
-                        orig_lab.b * (1.0 - blend_factor) + lang_mix.b * blend_factor,
+                        orig_lab.l * (1.0 - blend_factor) + target_lang_lab.l * blend_factor,
+                        orig_lab.a * (1.0 - blend_factor) + target_lang_lab.a * blend_factor,
+                        orig_lab.b * (1.0 - blend_factor) + target_lang_lab.b * blend_factor,
                     );
                     ColorBlender::oklab_to_srgb(blended_lab)
                 } else {

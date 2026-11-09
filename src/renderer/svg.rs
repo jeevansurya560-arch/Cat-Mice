@@ -75,7 +75,7 @@ impl SvgRenderer {
         let pills_xml = lang_pills.join("\n    ");
 
         format!(
-            r##"<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" fill="none">
+            r##"<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="{width}" height="{height}" viewBox="0 0 {width} {height}" fill="none">
     <style>
         .title {{ font: 700 16px -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; fill: #f0f6fc; letter-spacing: 1.5px; }}
         .subtitle {{ font: 600 11px -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; fill: #8b949e; letter-spacing: 0.5px; }}
@@ -101,7 +101,7 @@ impl SvgRenderer {
 
     <!-- Character Sprite Container -->
     <g transform="translate({sprite_x}, 75)">
-        <image href="{data_uri}" width="280" height="280" style="image-rendering: pixelated; shape-rendering: crispEdges;"/>
+        <image href="{data_uri}" xlink:href="{data_uri}" width="280" height="280" style="image-rendering: pixelated; shape-rendering: crispEdges;"/>
     </g>
 
     <!-- Progress Telemetry Bar -->

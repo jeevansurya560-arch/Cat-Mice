@@ -85,15 +85,15 @@ impl ColorBlender {
     /// Blending factor Br per anatomical region to preserve Pokémon character identity.
     pub fn region_blend_factor(region: RegionMaskId) -> f32 {
         match region {
-            RegionMaskId::Body => 0.60,
-            RegionMaskId::Belly => 0.15,
+            RegionMaskId::Body => 0.50,
+            RegionMaskId::Belly => 0.25,
             RegionMaskId::FaceEyes => 0.00,
-            RegionMaskId::LimbsClaws | RegionMaskId::ArmsClaws | RegionMaskId::LegsClaws => 0.10,
-            RegionMaskId::CranialCrest | RegionMaskId::HeadHorns => 0.40,
+            RegionMaskId::LimbsClaws | RegionMaskId::ArmsClaws | RegionMaskId::LegsClaws => 0.20,
+            RegionMaskId::CranialCrest | RegionMaskId::HeadHorns => 0.45,
             RegionMaskId::WingsOuter => 0.55,
             RegionMaskId::WingsInner => 0.45,
-            RegionMaskId::Tail => 0.50,
-            RegionMaskId::Flame => 0.10,
+            RegionMaskId::Tail => 0.45,
+            RegionMaskId::Flame => 0.45,
         }
     }
 
