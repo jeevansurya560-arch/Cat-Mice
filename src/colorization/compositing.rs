@@ -77,7 +77,9 @@ impl ColorCompositor {
                         | RegionMaskId::WingsOuter => top2_lab,
                         RegionMaskId::Belly
                         | RegionMaskId::WingsInner
-                        | RegionMaskId::LimbsClaws => top3_lab,
+                        | RegionMaskId::LimbsClaws
+                        | RegionMaskId::ArmsClaws
+                        | RegionMaskId::LegsClaws => top3_lab,
                         _ => top1_lab,
                     };
                     let blend_factor = ColorBlender::region_blend_factor(region);
@@ -87,7 +89,8 @@ impl ColorCompositor {
                         color_pixel[2] as f32 / 255.0,
                     ));
                     let blended_lab = palette::Oklab::new(
-                        orig_lab.l * (1.0 - blend_factor) + target_lang_lab.l * blend_factor,
+                        orig_lab.l * (1.0 - blend_factor * 0.20)
+                            + target_lang_lab.l * (blend_factor * 0.20),
                         orig_lab.a * (1.0 - blend_factor) + target_lang_lab.a * blend_factor,
                         orig_lab.b * (1.0 - blend_factor) + target_lang_lab.b * blend_factor,
                     );

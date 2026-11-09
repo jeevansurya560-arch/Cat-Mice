@@ -40,7 +40,7 @@ impl ColorBlender {
         let blend_factor = Self::region_blend_factor(region);
 
         Oklab::new(
-            auth_oklab.l * (1.0 - blend_factor) + language_mix.l * blend_factor,
+            auth_oklab.l * (1.0 - blend_factor * 0.20) + language_mix.l * (blend_factor * 0.20),
             auth_oklab.a * (1.0 - blend_factor) + language_mix.a * blend_factor,
             auth_oklab.b * (1.0 - blend_factor) + language_mix.b * blend_factor,
         )
@@ -85,15 +85,15 @@ impl ColorBlender {
     /// Blending factor Br per anatomical region to preserve Pokémon character identity.
     pub fn region_blend_factor(region: RegionMaskId) -> f32 {
         match region {
-            RegionMaskId::Body => 0.50,
-            RegionMaskId::Belly => 0.25,
+            RegionMaskId::Body => 0.65,
+            RegionMaskId::Belly => 0.60,
             RegionMaskId::FaceEyes => 0.00,
-            RegionMaskId::LimbsClaws | RegionMaskId::ArmsClaws | RegionMaskId::LegsClaws => 0.20,
-            RegionMaskId::CranialCrest | RegionMaskId::HeadHorns => 0.45,
-            RegionMaskId::WingsOuter => 0.55,
-            RegionMaskId::WingsInner => 0.45,
-            RegionMaskId::Tail => 0.45,
-            RegionMaskId::Flame => 0.45,
+            RegionMaskId::LimbsClaws | RegionMaskId::ArmsClaws | RegionMaskId::LegsClaws => 0.40,
+            RegionMaskId::CranialCrest | RegionMaskId::HeadHorns => 0.65,
+            RegionMaskId::WingsOuter => 0.70,
+            RegionMaskId::WingsInner => 0.60,
+            RegionMaskId::Tail => 0.60,
+            RegionMaskId::Flame => 0.70,
         }
     }
 
