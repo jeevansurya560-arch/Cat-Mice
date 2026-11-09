@@ -1,7 +1,7 @@
 # Neo-Pokédex Default Configuration
 
 [user]
-username = "developer"
+username = "jeevansurya560-arch"
 # GitHub Token can also be supplied via GH_TOKEN or GITHUB_TOKEN environment variable
 token = ""
 

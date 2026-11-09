@@ -23,7 +23,7 @@ pub enum Commands {
         username: Option<String>,
 
         /// Output directory
-        #[arg(short, long, default_value = "output")]
+        #[arg(short, long, default_value = "assets/generated")]
         output: PathBuf,
 
         /// Explicit contribution count override (skips network query)

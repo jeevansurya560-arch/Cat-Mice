@@ -546,7 +546,7 @@
 
           <div style="text-align: right;">
             <div style="font-size: 11px; font-weight: 700; color: var(--text-sub); text-transform: uppercase;">Contributions</div>
-            <div style="font-size: 22px; font-weight: 900; color: #f8fafc;" id="heroCommits">219 Commits</div>
+            <div style="font-size: 22px; font-weight: 900; color: #f8fafc;" id="heroCommits">238 Commits</div>
           </div>
         </div>
 
@@ -579,9 +579,9 @@
           <div class="slider-box">
             <div class="slider-header">
               <span style="font-size: 12px; font-weight: 700; color: var(--text-sub);">Lifetime Commits</span>
-              <span class="slider-val" id="sliderValDisplay">219</span>
+              <span class="slider-val" id="sliderValDisplay">238</span>
             </div>
-            <input type="range" id="commitSlider" min="0" max="2000" step="1" value="219">
+            <input type="range" id="commitSlider" min="0" max="2000" step="1" value="238">
 
             <div class="push-actions">
               <button class="btn-push" id="btnPush1">+1 Commit</button>
@@ -634,7 +634,7 @@
   </div>
 
   <script type="module">
-    let currentCommits = 219;
+    let currentCommits = 238;
     let animFrame = 0;
     let isPlaying = true;
 
@@ -800,8 +800,7 @@
       try {
         const res = await fetch(`/api/github-user?username=${user}`);
         const data = await res.json();
-        // Set user's commits (default 219 for jeevansurya560-arch or custom)
-        const count = 219;
+        const count = data.total_contributions || data.contributions || 238;
         commitSlider.value = count;
         updateState(count);
       } catch (e) {
@@ -810,7 +809,7 @@
     });
 
     // Initial state load
-    updateState(219);
+    updateState(238);
   </script>
 </body>
 </html>

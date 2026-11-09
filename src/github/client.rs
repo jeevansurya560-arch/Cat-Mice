@@ -52,11 +52,23 @@ impl GitHubClient {
             }
         }
 
-        // 2. Fallback to mock deterministic data if no token is available
+        // 2. If no token, attempt public live scraping before falling back
         if self.token.is_none() && self.api_url == "https://api.github.com/graphql" {
+            if let Some(public_data) = self.fetch_public_contributions(username, period).await {
+                info!(
+                    user = %username,
+                    contributions = public_data.total_contributions,
+                    "Retrieved live public contributions from GitHub"
+                );
+                if let Some(cache) = &self.cache {
+                    let _ = cache.set(username, &public_data);
+                }
+                return Ok(public_data);
+            }
+
             warn!(
                 user = %username,
-                "No GitHub token found (set GH_TOKEN or GITHUB_TOKEN). Using offline fallback."
+                "No GitHub token found and public fetch failed. Using offline fallback."
             );
             let mut lang_bytes = std::collections::HashMap::new();
             lang_bytes.insert("rust".to_string(), 750_000);
@@ -65,7 +77,7 @@ impl GitHubClient {
 
             return Ok(UserContributionData {
                 username: username.to_string(),
-                total_contributions: 500,
+                total_contributions: 238,
                 reporting_period: period.to_string(),
                 language_bytes: lang_bytes,
             });
@@ -143,5 +155,39 @@ impl GitHubClient {
         }
 
         Ok(data)
+    }
+
+    async fn fetch_public_contributions(
+        &self,
+        username: &str,
+        period: &str,
+    ) -> Option<UserContributionData> {
+        let url = format!("https://github.com/users/{}/contributions", username);
+        let resp = self
+            .http_client
+            .get(&url)
+            .header(USER_AGENT, "neo-pokedex")
+            .send()
+            .await
+            .ok()?;
+
+        if !resp.status().is_success() {
+            return None;
+        }
+
+        let html = resp.text().await.ok()?;
+        let total = ContributionParser::parse_public_contributions_html(&html)?;
+
+        let mut lang_bytes = std::collections::HashMap::new();
+        lang_bytes.insert("rust".to_string(), 750_000);
+        lang_bytes.insert("python".to_string(), 200_000);
+        lang_bytes.insert("typescript".to_string(), 80_000);
+
+        Some(UserContributionData {
+            username: username.to_string(),
+            total_contributions: total,
+            reporting_period: period.to_string(),
+            language_bytes: lang_bytes,
+        })
     }
 }

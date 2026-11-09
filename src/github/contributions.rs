@@ -74,4 +74,29 @@ impl ContributionParser {
             language_bytes,
         })
     }
+
+    /// Extracts total contribution count from GitHub public profile contributions HTML.
+    pub fn parse_public_contributions_html(html: &str) -> Option<u32> {
+        if let Some(idx) = html.find("id=\"js-contribution-activity-description\"") {
+            let snippet = &html[idx..std::cmp::min(idx + 300, html.len())];
+            for line in snippet.lines() {
+                let trimmed = line.trim();
+                let clean = trimmed.replace(',', "");
+                if let Ok(num) = clean.parse::<u32>() {
+                    return Some(num);
+                }
+            }
+        }
+        if let Some(idx) = html.find("contributions") {
+            let start = idx.saturating_sub(60);
+            let snippet = &html[start..idx];
+            for word in snippet.split_whitespace().rev() {
+                let clean = word.replace(',', "");
+                if let Ok(num) = clean.parse::<u32>() {
+                    return Some(num);
+                }
+            }
+        }
+        None
+    }
 }

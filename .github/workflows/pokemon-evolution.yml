@@ -34,7 +34,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cargo run --release -- generate --sync-readme
+          cargo run --release -- generate --username ${{ github.repository_owner }} --sync-readme
 
       - name: Commit and push changes
         run: |
