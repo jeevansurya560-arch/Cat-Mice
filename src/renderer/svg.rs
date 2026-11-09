@@ -51,8 +51,12 @@ impl SvgRenderer {
         for (lang, weight) in sorted_langs.into_iter().take(3) {
             let color = registry.get(lang);
             let pct = (weight * 100.0).round() as u32;
-            let label = format!("{}: {}%", lang.to_uppercase(), pct);
-            let pill_width = (label.len() * 7 + 16) as u32;
+            let display_name = match lang.as_str() {
+                "jupyter notebook" => "JUPYTER",
+                other => other,
+            };
+            let label = format!("{}: {}%", display_name.to_uppercase(), pct);
+            let pill_width = (label.len() * 7 + 24) as u32;
 
             lang_pills.push(format!(
                 r##"<g transform="translate({pill_x}, 445)">

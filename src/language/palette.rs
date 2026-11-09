@@ -89,6 +89,39 @@ impl Default for PaletteRegistry {
             "kotlin".to_string(),
             LanguageColor::new("#a97bff", 169, 123, 255),
         );
+        entries.insert(
+            "jupyter notebook".to_string(),
+            LanguageColor::new("#da5b0b", 218, 91, 11),
+        );
+        entries.insert(
+            "jupyter".to_string(),
+            LanguageColor::new("#da5b0b", 218, 91, 11),
+        );
+        entries.insert(
+            "sql".to_string(),
+            LanguageColor::new("#e38c00", 227, 140, 0),
+        );
+        entries.insert(
+            "plpgsql".to_string(),
+            LanguageColor::new("#336791", 51, 103, 145),
+        );
+        entries.insert(
+            "solidity".to_string(),
+            LanguageColor::new("#aa6746", 170, 103, 70),
+        );
+        entries.insert(
+            "powershell".to_string(),
+            LanguageColor::new("#012456", 1, 36, 86),
+        );
+        entries.insert(
+            "dockerfile".to_string(),
+            LanguageColor::new("#384d54", 56, 77, 84),
+        );
+        entries.insert(
+            "c++".to_string(),
+            LanguageColor::new("#f34b7d", 243, 75, 125),
+        );
+        entries.insert("c#".to_string(), LanguageColor::new("#178600", 23, 134, 0));
 
         let fallback = LanguageColor::new("#8b949e", 139, 148, 158);
 
