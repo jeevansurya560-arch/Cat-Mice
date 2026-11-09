@@ -88,12 +88,28 @@ impl ColorCompositor {
                         color_pixel[1] as f32 / 255.0,
                         color_pixel[2] as f32 / 255.0,
                     ));
-                    let blended_lab = palette::Oklab::new(
-                        orig_lab.l * (1.0 - blend_factor * 0.20)
-                            + target_lang_lab.l * (blend_factor * 0.20),
-                        orig_lab.a * (1.0 - blend_factor) + target_lang_lab.a * blend_factor,
-                        orig_lab.b * (1.0 - blend_factor) + target_lang_lab.b * blend_factor,
-                    );
+                    let raw_a =
+                        orig_lab.a * (1.0 - blend_factor) + target_lang_lab.a * blend_factor;
+                    let raw_b =
+                        orig_lab.b * (1.0 - blend_factor) + target_lang_lab.b * blend_factor;
+
+                    // Chroma-boost preservation to guarantee high saturation and vibrance
+                    let cur_c = (raw_a * raw_a + raw_b * raw_b).sqrt();
+                    let orig_c = (orig_lab.a * orig_lab.a + orig_lab.b * orig_lab.b).sqrt();
+                    let lang_c = (target_lang_lab.a * target_lang_lab.a
+                        + target_lang_lab.b * target_lang_lab.b)
+                        .sqrt();
+                    let target_c = orig_c.max(lang_c) * 1.25;
+                    let scale = if cur_c > 1e-4 {
+                        (target_c / cur_c).min(2.5)
+                    } else {
+                        1.0
+                    };
+
+                    let target_l = orig_lab.l * (1.0 - blend_factor * 0.35)
+                        + target_lang_lab.l * (blend_factor * 0.35);
+
+                    let blended_lab = palette::Oklab::new(target_l, raw_a * scale, raw_b * scale);
                     ColorBlender::oklab_to_srgb(blended_lab)
                 } else {
                     [color_pixel[0], color_pixel[1], color_pixel[2]]

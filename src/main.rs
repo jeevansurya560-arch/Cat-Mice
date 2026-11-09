@@ -104,9 +104,9 @@ async fn main() -> anyhow::Result<()> {
                 );
             }
 
-            // Sync README marker if requested
+            // Sync README marker if requested (use GIF for native GitHub markdown & Camo compatibility)
             if sync_readme {
-                let asset_ref = "assets/generated/pokemon-evolution.svg";
+                let asset_ref = "assets/generated/pokemon-evolution.gif";
                 match ReadmeUpdater::update_readme(&readme, asset_ref) {
                     Ok(changed) => {
                         if changed {

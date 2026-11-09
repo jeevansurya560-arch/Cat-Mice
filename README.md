@@ -6,7 +6,7 @@
 
 <!-- NEO-POKEDEX:START -->
 <div align="center">
-  <img src="assets/generated/pokemon-evolution.svg" alt="Neo-Pokédex Pokémon Evolution Companion" width="600" />
+  <img src="assets/generated/pokemon-evolution.gif" alt="Neo-Pokédex Pokémon Evolution Companion" width="600" />
 </div>
 <!-- NEO-POKEDEX:END -->
 

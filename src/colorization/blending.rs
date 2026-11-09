@@ -38,12 +38,21 @@ impl ColorBlender {
         let auth_srgb = Self::authentic_region_color(stage, region);
         let auth_oklab: Oklab = Oklab::from_color(auth_srgb);
         let blend_factor = Self::region_blend_factor(region);
+        let raw_a = auth_oklab.a * (1.0 - blend_factor) + language_mix.a * blend_factor;
+        let raw_b = auth_oklab.b * (1.0 - blend_factor) + language_mix.b * blend_factor;
+        let cur_c = (raw_a * raw_a + raw_b * raw_b).sqrt();
+        let orig_c = (auth_oklab.a * auth_oklab.a + auth_oklab.b * auth_oklab.b).sqrt();
+        let lang_c = (language_mix.a * language_mix.a + language_mix.b * language_mix.b).sqrt();
+        let target_c = orig_c.max(lang_c) * 1.25;
+        let scale = if cur_c > 1e-4 {
+            (target_c / cur_c).min(2.5)
+        } else {
+            1.0
+        };
+        let target_l =
+            auth_oklab.l * (1.0 - blend_factor * 0.35) + language_mix.l * (blend_factor * 0.35);
 
-        Oklab::new(
-            auth_oklab.l * (1.0 - blend_factor * 0.20) + language_mix.l * (blend_factor * 0.20),
-            auth_oklab.a * (1.0 - blend_factor) + language_mix.a * blend_factor,
-            auth_oklab.b * (1.0 - blend_factor) + language_mix.b * blend_factor,
-        )
+        Oklab::new(target_l, raw_a * scale, raw_b * scale)
     }
 
     /// Authentic reference colors from official Pokédex entries.
@@ -85,15 +94,15 @@ impl ColorBlender {
     /// Blending factor Br per anatomical region to preserve Pokémon character identity.
     pub fn region_blend_factor(region: RegionMaskId) -> f32 {
         match region {
-            RegionMaskId::Body => 0.65,
-            RegionMaskId::Belly => 0.60,
+            RegionMaskId::Body => 0.75,
+            RegionMaskId::Belly => 0.75,
             RegionMaskId::FaceEyes => 0.00,
-            RegionMaskId::LimbsClaws | RegionMaskId::ArmsClaws | RegionMaskId::LegsClaws => 0.40,
-            RegionMaskId::CranialCrest | RegionMaskId::HeadHorns => 0.65,
-            RegionMaskId::WingsOuter => 0.70,
-            RegionMaskId::WingsInner => 0.60,
-            RegionMaskId::Tail => 0.60,
-            RegionMaskId::Flame => 0.70,
+            RegionMaskId::LimbsClaws | RegionMaskId::ArmsClaws | RegionMaskId::LegsClaws => 0.50,
+            RegionMaskId::CranialCrest | RegionMaskId::HeadHorns => 0.75,
+            RegionMaskId::WingsOuter => 0.80,
+            RegionMaskId::WingsInner => 0.75,
+            RegionMaskId::Tail => 0.70,
+            RegionMaskId::Flame => 0.80,
         }
     }
 

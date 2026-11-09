@@ -41,7 +41,7 @@ impl Default for PaletteRegistry {
         );
         entries.insert(
             "python".to_string(),
-            LanguageColor::new("#3572a5", 53, 114, 165),
+            LanguageColor::new("#3776ab", 55, 118, 171),
         );
         entries.insert(
             "typescript".to_string(),
@@ -49,7 +49,7 @@ impl Default for PaletteRegistry {
         );
         entries.insert(
             "javascript".to_string(),
-            LanguageColor::new("#f1e05a", 241, 224, 90),
+            LanguageColor::new("#f7df1e", 247, 223, 30),
         );
         entries.insert("go".to_string(), LanguageColor::new("#00add8", 0, 173, 216));
         entries.insert(
